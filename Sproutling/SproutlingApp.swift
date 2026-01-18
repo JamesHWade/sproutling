@@ -20,6 +20,7 @@ struct SproutlingApp: App {
         ])
 
         // Configure CloudKit sync for private database
+        // Note: Console warnings about iCloud are expected in simulator without an iCloud account
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -49,6 +50,7 @@ struct SproutlingApp: App {
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.accessibilityReduceMotion) var reduceMotion
+    @Environment(\.scenePhase) var scenePhase
 
     var body: some View {
         ZStack {
@@ -84,9 +86,26 @@ struct ContentView: View {
             case .profileManagement:
                 ProfileManagementScreen()
                     .transition(reduceMotion ? .opacity : .move(edge: .trailing))
+
+            case .timeForBreak:
+                TimeForBreakScreen()
+                    .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
             }
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: appState.currentScreen)
+        .onAppear {
+            appState.startTimeTracking()
+        }
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            switch newPhase {
+            case .active:
+                appState.startTimeTracking()
+            case .inactive, .background:
+                appState.stopTimeTracking()
+            @unknown default:
+                break
+            }
+        }
     }
 }
 

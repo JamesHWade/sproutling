@@ -21,6 +21,14 @@ class AppState: ObservableObject {
     // MARK: - PIN Session State
     @Published var isPINVerified: Bool = false
 
+    // MARK: - Daily Time Limit Tracking
+    @Published var sessionStartTime: Date = Date()
+    @Published var todayUsageSeconds: Int = 0
+    @Published var isTimeLimitReached: Bool = false
+    private var usageTimer: Timer?
+    private let usageKey = "dailyUsageSeconds"
+    private let usageDateKey = "usageDate"
+
     // MARK: - Legacy Support (for current profile)
     var childProfile: ChildProfile {
         get { currentProfile ?? .sample }
@@ -369,5 +377,127 @@ class AppState: ObservableObject {
         case .math: return mathLevels
         case .reading: return readingLevels
         }
+    }
+
+    // MARK: - Time Limit Management
+
+    var timeLimitEnabled: Bool {
+        parentSettings?.timeLimitEnabled ?? false
+    }
+
+    var dailyTimeLimitMinutes: Int {
+        parentSettings?.dailyTimeLimitMinutes ?? 30
+    }
+
+    var remainingTimeSeconds: Int {
+        let limitSeconds = dailyTimeLimitMinutes * 60
+        return max(0, limitSeconds - todayUsageSeconds)
+    }
+
+    var remainingTimeFormatted: String {
+        let minutes = remainingTimeSeconds / 60
+        let seconds = remainingTimeSeconds % 60
+        if minutes > 0 {
+            return "\(minutes)m"
+        } else {
+            return "\(seconds)s"
+        }
+    }
+
+    func setTimeLimit(enabled: Bool, minutes: Int? = nil) {
+        parentSettings?.timeLimitEnabled = enabled
+        if let minutes = minutes {
+            parentSettings?.dailyTimeLimitMinutes = minutes
+        }
+        try? modelContext?.save()
+        objectWillChange.send()
+
+        // Check if limit is now reached
+        if enabled {
+            checkTimeLimit()
+        } else {
+            isTimeLimitReached = false
+        }
+    }
+
+    func startTimeTracking() {
+        // Load today's usage from UserDefaults
+        loadTodayUsage()
+
+        // Check if already over limit
+        if timeLimitEnabled {
+            checkTimeLimit()
+        }
+
+        // Start timer to track usage every second
+        usageTimer?.invalidate()
+        usageTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            self?.incrementUsage()
+        }
+    }
+
+    func stopTimeTracking() {
+        usageTimer?.invalidate()
+        usageTimer = nil
+        saveTodayUsage()
+    }
+
+    private func loadTodayUsage() {
+        let defaults = UserDefaults.standard
+        let savedDate = defaults.string(forKey: usageDateKey) ?? ""
+        let today = formattedDate(Date())
+
+        if savedDate == today {
+            // Same day, restore usage
+            todayUsageSeconds = defaults.integer(forKey: usageKey)
+        } else {
+            // New day, reset usage
+            todayUsageSeconds = 0
+            defaults.set(today, forKey: usageDateKey)
+            defaults.set(0, forKey: usageKey)
+        }
+    }
+
+    private func saveTodayUsage() {
+        let defaults = UserDefaults.standard
+        defaults.set(formattedDate(Date()), forKey: usageDateKey)
+        defaults.set(todayUsageSeconds, forKey: usageKey)
+    }
+
+    private func incrementUsage() {
+        todayUsageSeconds += 1
+
+        // Save periodically (every 10 seconds)
+        if todayUsageSeconds % 10 == 0 {
+            saveTodayUsage()
+        }
+
+        // Check limit
+        if timeLimitEnabled {
+            checkTimeLimit()
+        }
+    }
+
+    private func checkTimeLimit() {
+        let limitSeconds = dailyTimeLimitMinutes * 60
+        let wasReached = isTimeLimitReached
+        isTimeLimitReached = todayUsageSeconds >= limitSeconds
+
+        // Navigate to break screen if just reached
+        if isTimeLimitReached && !wasReached && currentScreen != .settings {
+            navigateTo(.timeForBreak)
+        }
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+
+    func resetDailyUsage() {
+        todayUsageSeconds = 0
+        isTimeLimitReached = false
+        saveTodayUsage()
     }
 }

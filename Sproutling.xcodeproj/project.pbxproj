@@ -29,10 +29,11 @@
 		655CA6B41149FF375BD23B00 /* ParentPINSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */; };
 		8497E89ED23C15CEC00D0FFC /* ProfileEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD41B93E570E4B9389064C40 /* ProfileEditorSheet.swift */; };
 		B7596C311108E650CC25885A /* ProfileSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE24ED3F6AD1A20D491DACFE /* ProfileSelectionScreen.swift */; };
-		E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EE043BA01A59C36749E71B9 /* KeychainManager.swift */; };
 		CURR0001000000000000001A /* CurriculumLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CURR0002000000000000001A /* CurriculumLoader.swift */; };
 		CURR0003000000000000001A /* MathCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0004000000000000001A /* MathCurriculum.json */; };
 		CURR0005000000000000001A /* ReadingCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0006000000000000001A /* ReadingCurriculum.json */; };
+		E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EE043BA01A59C36749E71B9 /* KeychainManager.swift */; };
+		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@
 		CURR0002000000000000001A /* CurriculumLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurriculumLoader.swift; sourceTree = "<group>"; };
 		CURR0004000000000000001A /* MathCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MathCurriculum.json; sourceTree = "<group>"; };
 		CURR0006000000000000001A /* ReadingCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReadingCurriculum.json; sourceTree = "<group>"; };
+		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,15 +151,6 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
-		CURR0007000000000000001A /* Curriculum */ = {
-			isa = PBXGroup;
-			children = (
-				CURR0004000000000000001A /* MathCurriculum.json */,
-				CURR0006000000000000001A /* ReadingCurriculum.json */,
-			);
-			path = Curriculum;
-			sourceTree = "<group>";
-		};
 		00000027 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
@@ -188,6 +181,7 @@
 				BD41B93E570E4B9389064C40 /* ProfileEditorSheet.swift */,
 				7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */,
 				7923DC5E3AE4284778026FE5 /* ProfileManagementScreen.swift */,
+				TFBS000100000000001A /* TimeForBreakScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -207,6 +201,15 @@
 				00000021 /* Sproutling */,
 				0000000F /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		CURR0007000000000000001A /* Curriculum */ = {
+			isa = PBXGroup;
+			children = (
+				CURR0004000000000000001A /* MathCurriculum.json */,
+				CURR0006000000000000001A /* ReadingCurriculum.json */,
+			);
+			path = Curriculum;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -237,7 +240,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2620;
 				TargetAttributes = {
 					0000002B = {
 						CreatedOnToolsVersion = 15.0;
@@ -303,6 +306,7 @@
 				0C3F1FFB14701C9E2FC9ED40 /* ProfileManagementScreen.swift in Sources */,
 				5078C86F8B595F8CF415F914 /* ProfileComponents.swift in Sources */,
 				CURR0001000000000000001A /* CurriculumLoader.swift in Sources */,
+				TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -367,6 +371,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -423,6 +428,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};

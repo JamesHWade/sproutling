@@ -19,6 +19,12 @@ final class ParentSettings {
     /// Haptic feedback enabled
     var hapticsEnabled: Bool = true
 
+    /// Daily time limit enabled
+    var timeLimitEnabled: Bool = false
+
+    /// Daily time limit in minutes (default 30, range 5-60)
+    var dailyTimeLimitMinutes: Int = 30
+
     /// Last sync timestamp
     var lastSyncDate: Date?
 
@@ -30,6 +36,35 @@ final class ParentSettings {
     }
 
     // Note: PIN is stored in Keychain via KeychainManager, not in this model
+}
+
+// MARK: - Time Limit Options
+enum TimeLimitOption: Int, CaseIterable, Identifiable {
+    case fiveMinutes = 5
+    case tenMinutes = 10
+    case fifteenMinutes = 15
+    case twentyMinutes = 20
+    case thirtyMinutes = 30
+    case fortyFiveMinutes = 45
+    case oneHour = 60
+
+    var id: Int { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .fiveMinutes: return "5 minutes"
+        case .tenMinutes: return "10 minutes"
+        case .fifteenMinutes: return "15 minutes"
+        case .twentyMinutes: return "20 minutes"
+        case .thirtyMinutes: return "30 minutes"
+        case .fortyFiveMinutes: return "45 minutes"
+        case .oneHour: return "1 hour"
+        }
+    }
+
+    static func from(minutes: Int) -> TimeLimitOption {
+        allCases.first { $0.rawValue == minutes } ?? .thirtyMinutes
+    }
 }
 
 // MARK: - Sync Status

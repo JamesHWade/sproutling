@@ -18,6 +18,7 @@ enum Screen: Equatable {
     case lessonComplete(Subject, Int)
     case profileSelection
     case profileManagement
+    case timeForBreak
 }
 
 // MARK: - Subjects

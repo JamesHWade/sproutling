@@ -266,6 +266,102 @@ struct SettingsScreen: View {
                 .accessibilityAddTraits(.isHeader)
 
             VStack(spacing: 0) {
+                // Time limit toggle
+                HStack {
+                    Image(systemName: "clock.fill")
+                        .font(.title2)
+                        .foregroundColor(.green)
+                        .frame(width: 36)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Daily Time Limit")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        Text("Encourage healthy screen time")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: Binding(
+                        get: { appState.timeLimitEnabled },
+                        set: { newValue in
+                            appState.setTimeLimit(enabled: newValue)
+                        }
+                    ))
+                    .labelsHidden()
+                }
+                .padding(16)
+
+                if appState.timeLimitEnabled {
+                    Divider()
+                        .padding(.leading, 52)
+
+                    // Time limit picker
+                    HStack {
+                        Image(systemName: "timer")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                            .frame(width: 36)
+
+                        Text("Daily Limit")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        Picker("", selection: Binding(
+                            get: { TimeLimitOption.from(minutes: appState.dailyTimeLimitMinutes) },
+                            set: { option in
+                                appState.setTimeLimit(enabled: true, minutes: option.rawValue)
+                            }
+                        )) {
+                            ForEach(TimeLimitOption.allCases) { option in
+                                Text(option.displayName).tag(option)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    .padding(16)
+
+                    Divider()
+                        .padding(.leading, 52)
+
+                    // Remaining time display
+                    HStack {
+                        Image(systemName: "hourglass")
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                            .frame(width: 36)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Time Remaining Today")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+
+                            Text(formatRemainingTime(appState.remainingTimeSeconds))
+                                .font(.caption)
+                                .foregroundColor(appState.remainingTimeSeconds < 300 ? .orange : .secondary)
+                        }
+
+                        Spacer()
+
+                        if appState.todayUsageSeconds > 0 {
+                            Button("Reset") {
+                                appState.resetDailyUsage()
+                            }
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                        }
+                    }
+                    .padding(16)
+                }
+
+                Divider()
+                    .padding(.leading, 52)
+
                 // PIN toggle
                 HStack {
                     Image(systemName: "lock.fill")
@@ -345,6 +441,20 @@ struct SettingsScreen: View {
                     .fill(.white)
                     .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
             )
+        }
+    }
+
+    private func formatRemainingTime(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        if minutes >= 60 {
+            let hours = minutes / 60
+            let remainingMinutes = minutes % 60
+            return "\(hours)h \(remainingMinutes)m remaining"
+        } else if minutes > 0 {
+            return "\(minutes)m \(remainingSeconds)s remaining"
+        } else {
+            return "\(remainingSeconds)s remaining"
         }
     }
 
