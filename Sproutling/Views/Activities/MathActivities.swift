@@ -278,18 +278,10 @@ struct NumberMatchingActivity: View {
 
         if isCorrect {
             onCorrect()
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
-            // Speak celebration
-            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
-            // Speak try again
-            let tryAgain = PromptTemplates.tryAgain(attempts: lessonState.incorrectStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
+            lessonState.handleIncorrectWithTTS()
         }
     }
 
@@ -610,19 +602,11 @@ struct SubitizingActivity: View {
         }
 
         if answer == number {
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
             onCorrect()
-            // Speak celebration
-            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
-            // Speak try again
-            let tryAgain = PromptTemplates.tryAgain(attempts: lessonState.incorrectStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
+            lessonState.handleIncorrectWithTTS()
         }
     }
 
@@ -893,19 +877,11 @@ struct ComparisonActivity: View {
         isCorrect = (side == correctAnswer)
 
         if isCorrect {
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
             onCorrect()
-            // Speak celebration
-            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
-            // Speak try again
-            let tryAgain = PromptTemplates.tryAgain(attempts: lessonState.incorrectStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
+            lessonState.handleIncorrectWithTTS()
         }
     }
 

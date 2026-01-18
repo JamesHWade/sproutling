@@ -260,13 +260,50 @@ actor ElevenLabsService {
         return voicesResponse.voices
     }
 
+    /// Result of API key validation
+    enum ValidationResult {
+        case valid
+        case invalid
+        case networkError(Error)
+        case rateLimited
+        case insufficientCredits
+
+        var isValid: Bool {
+            if case .valid = self { return true }
+            return false
+        }
+
+        var userMessage: String? {
+            switch self {
+            case .valid:
+                return nil
+            case .invalid:
+                return "Invalid API key. Please check and try again."
+            case .networkError:
+                return "Network error. Please check your connection."
+            case .rateLimited:
+                return "Too many requests. Please wait a moment."
+            case .insufficientCredits:
+                return "Insufficient ElevenLabs credits."
+            }
+        }
+    }
+
     /// Check if the API is available and the key is valid
-    func validateAPIKey() async -> Bool {
+    func validateAPIKey() async -> ValidationResult {
         do {
             _ = try await fetchVoices()
-            return true
+            return .valid
+        } catch ElevenLabsError.unauthorized {
+            return .invalid
+        } catch ElevenLabsError.rateLimited {
+            return .rateLimited
+        } catch ElevenLabsError.insufficientCredits {
+            return .insufficientCredits
+        } catch ElevenLabsError.networkError(let error) {
+            return .networkError(error)
         } catch {
-            return false
+            return .networkError(error)
         }
     }
 
@@ -302,11 +339,15 @@ actor ElevenLabsService {
         // Delete existing key
         deleteAPIKey()
 
+        guard let keyData = key.data(using: .utf8) else {
+            return false
+        }
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "com.sproutling.app",
             kSecAttrAccount as String: apiKeyKeychainKey,
-            kSecValueData as String: key.data(using: .utf8)!,
+            kSecValueData as String: keyData,
             kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
 

@@ -11,6 +11,7 @@ import AudioToolbox
 import UIKit
 import SwiftUI
 
+@MainActor
 class SoundManager: ObservableObject {
     static let shared = SoundManager()
 
@@ -22,11 +23,23 @@ class SoundManager: ObservableObject {
     private var speechQueue: [SpeechTask] = []
     private var isProcessingQueue = false
 
+    // Last TTS error for UI feedback
+    @Published var lastTTSError: ElevenLabsService.ElevenLabsError?
+
     // Settings - persisted via UserDefaults
     @AppStorage("soundEnabled") var soundEnabled: Bool = true
     @AppStorage("hapticsEnabled") var hapticsEnabled: Bool = true
     @AppStorage("elevenLabsEnabled") var elevenLabsEnabled: Bool = true
     @AppStorage("selectedVoiceId") private var selectedVoiceId: String = ElevenLabsService.Voice.bella.rawValue
+
+    /// Phonics mapping - letters to their sounds
+    private let phonicsMap: [String: String] = [
+        "A": "ah", "B": "buh", "C": "kuh", "D": "duh", "E": "eh",
+        "F": "fuh", "G": "guh", "H": "huh", "I": "ih", "J": "juh",
+        "K": "kuh", "L": "luh", "M": "muh", "N": "nuh", "O": "oh",
+        "P": "puh", "Q": "kwuh", "R": "ruh", "S": "sss", "T": "tuh",
+        "U": "uh", "V": "vuh", "W": "wuh", "X": "ks", "Y": "yuh", "Z": "zzz"
+    ]
 
     /// Speech task for queue management
     private struct SpeechTask {
@@ -103,36 +116,7 @@ class SoundManager: ObservableObject {
 
     // MARK: - Speak Letter Sound
     func speakLetterSound(_ letter: String) {
-        let phonics: [String: String] = [
-            "A": "ah",
-            "B": "buh",
-            "C": "kuh",
-            "D": "duh",
-            "E": "eh",
-            "F": "fuh",
-            "G": "guh",
-            "H": "huh",
-            "I": "ih",
-            "J": "juh",
-            "K": "kuh",
-            "L": "luh",
-            "M": "muh",
-            "N": "nuh",
-            "O": "oh",
-            "P": "puh",
-            "Q": "kwuh",
-            "R": "ruh",
-            "S": "sss",
-            "T": "tuh",
-            "U": "uh",
-            "V": "vuh",
-            "W": "wuh",
-            "X": "ks",
-            "Y": "yuh",
-            "Z": "zzz"
-        ]
-
-        if let sound = phonics[letter.uppercased()] {
+        if let sound = phonicsMap[letter.uppercased()] {
             speak(sound, rate: 0.3)
         }
     }
@@ -152,13 +136,14 @@ class SoundManager: ObservableObject {
 
     // MARK: - ElevenLabs Integration
 
-    /// Check if ElevenLabs is available (has API key and is enabled)
+    /// Check if ElevenLabs is enabled (actual key availability is checked async)
     var isElevenLabsAvailable: Bool {
-        Task {
-            return await ElevenLabsService.shared.hasAPIKey() && elevenLabsEnabled
-        }
-        // Synchronous check - returns cached state
-        return elevenLabsEnabled
+        elevenLabsEnabled
+    }
+
+    /// Clear the last TTS error
+    func clearTTSError() {
+        lastTTSError = nil
     }
 
     /// Speak text using ElevenLabs if available, falling back to system TTS
@@ -213,16 +198,7 @@ class SoundManager: ObservableObject {
 
     /// Speak a letter's phonetic sound using ElevenLabs
     func speakLetterSoundWithElevenLabs(_ letter: String, completion: (() -> Void)? = nil) {
-        // Map letters to phonetic sounds that ElevenLabs can pronounce naturally
-        let phonics: [String: String] = [
-            "A": "ah", "B": "buh", "C": "kuh", "D": "duh", "E": "eh",
-            "F": "fuh", "G": "guh", "H": "huh", "I": "ih", "J": "juh",
-            "K": "kuh", "L": "luh", "M": "muh", "N": "nuh", "O": "oh",
-            "P": "puh", "Q": "kwuh", "R": "ruh", "S": "sss", "T": "tuh",
-            "U": "uh", "V": "vuh", "W": "wuh", "X": "ks", "Y": "yuh", "Z": "zzz"
-        ]
-
-        if let sound = phonics[letter.uppercased()] {
+        if let sound = phonicsMap[letter.uppercased()] {
             speakWithElevenLabs(sound, settings: .quickPrompt, completion: completion)
         } else {
             completion?()
@@ -244,11 +220,9 @@ class SoundManager: ObservableObject {
 
     private func processSpeechTask(_ task: SpeechTask) async {
         defer {
-            DispatchQueue.main.async { [weak self] in
-                self?.isProcessingQueue = false
-                task.completion?()
-                self?.processNextSpeechTask()
-            }
+            isProcessingQueue = false
+            task.completion?()
+            processNextSpeechTask()
         }
 
         // Try ElevenLabs first if enabled
@@ -280,22 +254,29 @@ class SoundManager: ObservableObject {
                         voiceId: selectedVoiceId
                     )
 
+                    // Clear any previous error on success
+                    lastTTSError = nil
                     await playAudioData(audioData)
                     return
+                } catch let error as ElevenLabsService.ElevenLabsError {
+                    // Surface user-actionable errors
+                    switch error {
+                    case .rateLimited, .insufficientCredits, .unauthorized:
+                        lastTTSError = error
+                    default:
+                        break
+                    }
+                    // Fall through to system TTS
                 } catch {
-                    print("ElevenLabs TTS failed, falling back to system: \(error)")
                     // Fall through to system TTS
                 }
             }
         }
 
         // Fallback to system TTS
-        await MainActor.run {
-            speak(task.text, rate: 0.4)
-        }
+        speak(task.text, rate: 0.4)
     }
 
-    @MainActor
     private func playAudioData(_ data: Data) async {
         do {
             elevenLabsPlayer = try AVAudioPlayer(data: data)
@@ -307,7 +288,7 @@ class SoundManager: ObservableObject {
                 try? await Task.sleep(nanoseconds: 50_000_000)  // 50ms
             }
         } catch {
-            print("Failed to play ElevenLabs audio: \(error)")
+            // Audio playback failure - continue without crashing
         }
     }
 
@@ -346,6 +327,7 @@ enum SoundEffect: String {
 }
 
 // MARK: - Haptic Feedback Helper
+@MainActor
 struct HapticFeedback {
     private static var isEnabled: Bool {
         SoundManager.shared.hapticsEnabled

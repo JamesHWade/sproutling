@@ -22,6 +22,7 @@ struct SettingsScreen: View {
     @State private var apiKeyInput: String = ""
     @State private var isValidatingKey: Bool = false
     @State private var keyValidationResult: Bool? = nil
+    @State private var keyValidationMessage: String? = nil
     @State private var availableVoices: [VoiceInfo] = []
     @State private var isLoadingVoices: Bool = false
     @State private var showVoiceTestFeedback: Bool = false
@@ -102,6 +103,7 @@ struct SettingsScreen: View {
                 apiKey: $apiKeyInput,
                 isValidating: $isValidatingKey,
                 validationResult: $keyValidationResult,
+                validationMessage: keyValidationMessage,
                 onSave: saveAPIKey,
                 onCancel: { showAPIKeySheet = false }
             )
@@ -677,11 +679,7 @@ struct SettingsScreen: View {
 
     // MARK: - ElevenLabs Helpers
     private var hasElevenLabsKey: Bool {
-        Task {
-            return await ElevenLabsService.shared.hasAPIKey()
-        }
-        // This returns a cached/synchronous check
-        return UserDefaults.standard.bool(forKey: "hasElevenLabsKey")
+        UserDefaults.standard.bool(forKey: "hasElevenLabsKey")
     }
 
     private func loadElevenLabsState() {
@@ -698,6 +696,7 @@ struct SettingsScreen: View {
 
         isValidatingKey = true
         keyValidationResult = nil
+        keyValidationMessage = nil
 
         Task {
             // Save the key
@@ -705,13 +704,14 @@ struct SettingsScreen: View {
 
             if saved {
                 // Validate it
-                let isValid = await ElevenLabsService.shared.validateAPIKey()
+                let result = await ElevenLabsService.shared.validateAPIKey()
 
                 await MainActor.run {
                     isValidatingKey = false
-                    keyValidationResult = isValid
+                    keyValidationResult = result.isValid
+                    keyValidationMessage = result.userMessage
 
-                    if isValid {
+                    if result.isValid {
                         UserDefaults.standard.set(true, forKey: "hasElevenLabsKey")
                         // Close sheet after a brief delay to show success
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -725,6 +725,7 @@ struct SettingsScreen: View {
                 await MainActor.run {
                     isValidatingKey = false
                     keyValidationResult = false
+                    keyValidationMessage = "Failed to save API key."
                 }
             }
         }
@@ -914,6 +915,7 @@ struct ElevenLabsAPIKeySheet: View {
     @Binding var apiKey: String
     @Binding var isValidating: Bool
     @Binding var validationResult: Bool?
+    var validationMessage: String?
     let onSave: () -> Void
     let onCancel: () -> Void
 
@@ -969,7 +971,7 @@ struct ElevenLabsAPIKeySheet: View {
                     HStack {
                         Image(systemName: result ? "checkmark.circle.fill" : "xmark.circle.fill")
                             .foregroundColor(result ? .green : .red)
-                        Text(result ? "API key is valid!" : "Invalid API key. Please check and try again.")
+                        Text(result ? "API key is valid!" : (validationMessage ?? "Invalid API key."))
                             .font(.subheadline)
                             .foregroundColor(result ? .green : .red)
                     }

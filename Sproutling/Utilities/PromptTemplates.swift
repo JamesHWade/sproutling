@@ -161,21 +161,6 @@ struct PromptTemplates {
 
     // MARK: - Content-Specific
 
-    /// Number announcements (for speaking numbers)
-    static func numberAnnouncement(_ number: Int) -> String {
-        return String(number)
-    }
-
-    /// Letter announcements
-    static func letterAnnouncement(_ letter: String) -> String {
-        return "The letter \(letter.uppercased())"
-    }
-
-    /// Word announcements
-    static func wordAnnouncement(_ word: String) -> String {
-        return word
-    }
-
     /// Letter sound with word example
     static func letterSoundWithWord(_ letter: String, word: String, emoji: String) -> String {
         return "\(letter.uppercased()) is for \(word)"

@@ -178,6 +178,7 @@ struct LessonView: View {
 }
 
 // MARK: - Lesson State
+@MainActor
 class LessonState: ObservableObject {
     @Published var cards: [ActivityCard] = []
     @Published var currentIndex = 0
@@ -263,6 +264,24 @@ class LessonState: ObservableObject {
     /// Get the current mascot reaction (for display in activities)
     func getReaction() -> MascotReaction? {
         return lastReaction
+    }
+
+    // MARK: - TTS Response Helpers
+
+    /// Handle a correct answer with sound, haptics, and TTS celebration
+    func handleCorrectWithTTS() {
+        SoundManager.shared.playSound(.correct)
+        HapticFeedback.success()
+        let celebration = PromptTemplates.celebration(streak: correctStreak, name: childName)
+        SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+    }
+
+    /// Handle an incorrect answer with sound, haptics, and TTS encouragement
+    func handleIncorrectWithTTS() {
+        SoundManager.shared.playSound(.incorrect)
+        HapticFeedback.error()
+        let tryAgain = PromptTemplates.tryAgain(attempts: incorrectStreak, name: childName)
+        SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
     }
 
     private func triggerConfetti() {

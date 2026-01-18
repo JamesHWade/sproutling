@@ -136,11 +136,7 @@ struct LetterCardActivity: View {
         } else if !completed {
             completed = true
             onCorrect()
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
-            // Speak celebration
-            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+            lessonState.handleCorrectWithTTS()
         }
     }
 }
@@ -275,19 +271,11 @@ struct LetterMatchingActivity: View {
 
         if isCorrect {
             onCorrect()
-            SoundManager.shared.playSound(.correct)
             SoundManager.shared.speakWithElevenLabs(word, settings: .childFriendly)
-            HapticFeedback.success()
-            // Speak celebration
-            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
-            // Speak try again
-            let tryAgain = PromptTemplates.tryAgain(attempts: lessonState.incorrectStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
+            lessonState.handleIncorrectWithTTS()
         }
     }
 
@@ -596,12 +584,8 @@ struct VocabularyCardActivity: View {
                 SoundManager.shared.speakWithElevenLabs(word, settings: .childFriendly)
             }
         } else if step == 2 {
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
             onCorrect()
-            // Speak celebration
-            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
-            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+            lessonState.handleCorrectWithTTS()
         }
     }
 }
