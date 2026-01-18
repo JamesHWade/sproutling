@@ -20,6 +20,7 @@ struct LetterCardActivity: View {
 
     @State private var step = 0 // 0: letter, 1: sound, 2: word
     @State private var completed = false
+    @State private var hasSpokenInstruction = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -31,6 +32,16 @@ struct LetterCardActivity: View {
                 LargeLetterCard(letter: letter)
                     .onTapGesture {
                         advanceStep()
+                    }
+                    .onAppear {
+                        if !hasSpokenInstruction {
+                            hasSpokenInstruction = true
+                            let prompt = PromptTemplates.randomPersonalized(
+                                from: PromptTemplates.readingLetterInstructions,
+                                name: lessonState.childName
+                            )
+                            SoundManager.shared.speakInstruction(prompt)
+                        }
                     }
 
                 // Progressive reveal
@@ -113,12 +124,13 @@ struct LetterCardActivity: View {
             }
             // Speak the letter sound when revealing step 1
             if step == 1 {
-                SoundManager.shared.speakLetterSound(letter)
+                SoundManager.shared.speakLetterSoundWithElevenLabs(letter)
             }
             // Speak the word when revealing step 2
             if step == 2 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    SoundManager.shared.speak(word)
+                    let letterWord = PromptTemplates.letterSoundWithWord(letter, word: word, emoji: emoji)
+                    SoundManager.shared.speakWithElevenLabs(letterWord, settings: .childFriendly)
                 }
             }
         } else if !completed {
@@ -126,6 +138,9 @@ struct LetterCardActivity: View {
             onCorrect()
             SoundManager.shared.playSound(.correct)
             HapticFeedback.success()
+            // Speak celebration
+            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
+            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
         }
     }
 }
@@ -145,6 +160,7 @@ struct LetterMatchingActivity: View {
     @State private var selectedLetter: String?
     @State private var showResult = false
     @State private var isCorrect = false
+    @State private var hasSpokenInstruction = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -153,6 +169,16 @@ struct LetterMatchingActivity: View {
                 .font(.title2)
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.readingMatchingInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             // Word with emoji
             VStack(spacing: 8) {
@@ -250,12 +276,18 @@ struct LetterMatchingActivity: View {
         if isCorrect {
             onCorrect()
             SoundManager.shared.playSound(.correct)
-            SoundManager.shared.speak(word)
+            SoundManager.shared.speakWithElevenLabs(word, settings: .childFriendly)
             HapticFeedback.success()
+            // Speak celebration
+            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
+            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
         } else {
             onIncorrect()
             SoundManager.shared.playSound(.incorrect)
             HapticFeedback.error()
+            // Speak try again
+            let tryAgain = PromptTemplates.tryAgain(attempts: lessonState.incorrectStreak, name: lessonState.childName)
+            SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
         }
     }
 
@@ -281,6 +313,7 @@ struct PhonicsBlendingActivity: View {
     @State private var revealedIndex = -1
     @State private var showWord = false
     @State private var completed = false
+    @State private var hasSpokenInstruction = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -290,6 +323,16 @@ struct PhonicsBlendingActivity: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.readingPhonicsInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             Spacer()
 
@@ -360,7 +403,11 @@ struct PhonicsBlendingActivity: View {
                     completed = true
                     onCorrect()
                     SoundManager.shared.playSound(.celebration)
-                    SoundManager.shared.speak(word)
+                    SoundManager.shared.speakWithElevenLabs(word, settings: .childFriendly) {
+                        // Speak celebration after word
+                        let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
+                        SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+                    }
                     HapticFeedback.success()
                 }) {
                     Text("I can read it! 🎉")
@@ -388,8 +435,8 @@ struct PhonicsBlendingActivity: View {
         SoundManager.shared.playSound(.tap)
         HapticFeedback.medium()
 
-        // Speak the letter sound
-        SoundManager.shared.speakLetterSound(letters[index])
+        // Speak the letter sound using ElevenLabs
+        SoundManager.shared.speakLetterSoundWithElevenLabs(letters[index])
 
         withAnimation(.spring()) {
             revealedIndex = index
@@ -419,6 +466,7 @@ struct VocabularyCardActivity: View {
 
     @State private var step = 0  // 0: show picture, 1: show word, 2: complete
     @State private var isAnimating = false
+    @State private var hasSpokenInstruction = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -445,6 +493,16 @@ struct VocabularyCardActivity: View {
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
                 .animation(.easeInOut, value: step)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.readingLetterInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             Spacer()
 
@@ -533,14 +591,17 @@ struct VocabularyCardActivity: View {
         }
 
         if step == 1 {
-            // Speak the word
+            // Speak the word using ElevenLabs
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                SoundManager.shared.speak(word)
+                SoundManager.shared.speakWithElevenLabs(word, settings: .childFriendly)
             }
         } else if step == 2 {
             SoundManager.shared.playSound(.correct)
             HapticFeedback.success()
             onCorrect()
+            // Speak celebration
+            let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
+            SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
         }
     }
 }
