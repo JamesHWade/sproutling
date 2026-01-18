@@ -26,6 +26,7 @@ struct SettingsScreen: View {
     @State private var availableVoices: [VoiceInfo] = []
     @State private var isLoadingVoices: Bool = false
     @State private var showVoiceTestFeedback: Bool = false
+    @State private var showVoicePicker: Bool = false
     @AppStorage("selectedVoiceId") private var selectedVoiceId: String = ElevenLabsService.Voice.bella.rawValue
 
     var body: some View {
@@ -107,6 +108,18 @@ struct SettingsScreen: View {
                 onSave: saveAPIKey,
                 onCancel: { showAPIKeySheet = false }
             )
+        }
+        .sheet(isPresented: $showVoicePicker) {
+            NavigationStack {
+                VoiceSelectionView(selectedVoiceId: $selectedVoiceId)
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") {
+                                showVoicePicker = false
+                            }
+                        }
+                    }
+            }
         }
         .onAppear {
             loadElevenLabsState()
@@ -611,8 +624,8 @@ struct SettingsScreen: View {
                         .padding(.leading, 52)
 
                     // Voice selection
-                    NavigationLink {
-                        VoiceSelectionView(selectedVoiceId: $selectedVoiceId)
+                    Button {
+                        showVoicePicker = true
                     } label: {
                         HStack {
                             Image(systemName: "person.wave.2.fill")
@@ -640,6 +653,7 @@ struct SettingsScreen: View {
                                 .foregroundColor(.secondary)
                         }
                     }
+                    .buttonStyle(.plain)
                     .padding(16)
 
                     Divider()
