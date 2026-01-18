@@ -10,16 +10,42 @@ import SwiftData
 
 @Model
 final class PersistedProfile {
-    var name: String
-    var totalStars: Int
-    var streakDays: Int
+    // MARK: - Multi-Profile Support
+    // Note: CloudKit doesn't support unique constraints, using UUID for identification
+    var profileId: UUID = UUID()
+    var avatarIndex: Int = 0
+    var backgroundIndex: Int = 0
+    var createdAt: Date = Date()
+    var lastModifiedAt: Date = Date()
+    var isActive: Bool = false
+    var sortOrder: Int = 0
+
+    // MARK: - Profile Data
+    var name: String = "Little Learner"
+    var totalStars: Int = 0
+    var streakDays: Int = 0
     var lastSessionDate: Date?
 
     // Store progress as JSON-encoded data since SwiftData doesn't support [Int: Int] directly
     var mathProgressData: Data?
     var readingProgressData: Data?
 
-    init(name: String = "Little Learner", totalStars: Int = 0, streakDays: Int = 0) {
+    init(
+        name: String = "Little Learner",
+        totalStars: Int = 0,
+        streakDays: Int = 0,
+        avatarIndex: Int = 0,
+        backgroundIndex: Int = 0,
+        isActive: Bool = false,
+        sortOrder: Int = 0
+    ) {
+        self.profileId = UUID()
+        self.avatarIndex = avatarIndex
+        self.backgroundIndex = backgroundIndex
+        self.createdAt = Date()
+        self.lastModifiedAt = Date()
+        self.isActive = isActive
+        self.sortOrder = sortOrder
         self.name = name
         self.totalStars = totalStars
         self.streakDays = streakDays
@@ -81,11 +107,15 @@ final class PersistedProfile {
 
     func toChildProfile() -> ChildProfile {
         ChildProfile(
+            id: profileId,
             name: name,
+            avatarIndex: avatarIndex,
+            backgroundIndex: backgroundIndex,
             totalStars: totalStars,
             streakDays: streakDays,
             mathProgress: mathProgress,
-            readingProgress: readingProgress
+            readingProgress: readingProgress,
+            isActive: isActive
         )
     }
 
@@ -93,9 +123,43 @@ final class PersistedProfile {
 
     func update(from profile: ChildProfile) {
         name = profile.name
+        avatarIndex = profile.avatarIndex
+        backgroundIndex = profile.backgroundIndex
         totalStars = profile.totalStars
         streakDays = profile.streakDays
         mathProgress = profile.mathProgress
         readingProgress = profile.readingProgress
+        isActive = profile.isActive
+        lastModifiedAt = Date()
+    }
+
+    // MARK: - Conflict Resolution (for CloudKit sync)
+
+    func mergeWith(_ other: PersistedProfile) {
+        // Take maximum stars (never lose progress)
+        totalStars = max(totalStars, other.totalStars)
+        streakDays = max(streakDays, other.streakDays)
+
+        // Merge progress dictionaries, taking max stars per level
+        var mergedMath = mathProgress
+        for (level, stars) in other.mathProgress {
+            mergedMath[level] = max(mergedMath[level] ?? 0, stars)
+        }
+        mathProgress = mergedMath
+
+        var mergedReading = readingProgress
+        for (level, stars) in other.readingProgress {
+            mergedReading[level] = max(mergedReading[level] ?? 0, stars)
+        }
+        readingProgress = mergedReading
+
+        // Name/avatar/background: last-write-wins based on lastModifiedAt
+        if other.lastModifiedAt > lastModifiedAt {
+            name = other.name
+            avatarIndex = other.avatarIndex
+            backgroundIndex = other.backgroundIndex
+        }
+
+        lastModifiedAt = Date()
     }
 }

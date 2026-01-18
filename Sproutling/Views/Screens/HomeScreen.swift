@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HomeScreen: View {
     @EnvironmentObject var appState: AppState
+    @State private var showProfileSwitcher = false
 
     var body: some View {
         ZStack {
@@ -56,6 +57,21 @@ struct HomeScreen: View {
     // MARK: - Header Section
     private var headerSection: some View {
         HStack(alignment: .top) {
+            // Profile avatar (tappable to switch profiles)
+            if appState.profiles.count > 1 {
+                Button(action: {
+                    showProfileSwitcher = true
+                }) {
+                    ProfileAvatarView(
+                        avatarIndex: appState.childProfile.avatarIndex,
+                        backgroundIndex: appState.childProfile.backgroundIndex,
+                        size: 50
+                    )
+                }
+                .accessibilityLabel("Switch profile. Currently: \(appState.childProfile.name)")
+                .accessibilityHint("Double tap to switch to a different profile")
+            }
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(greetingText)
                     .font(.title3)
@@ -108,6 +124,9 @@ struct HomeScreen: View {
             )
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("Total stars: \(appState.childProfile.totalStars)")
+        }
+        .sheet(isPresented: $showProfileSwitcher) {
+            ProfileSwitcherSheet()
         }
     }
 

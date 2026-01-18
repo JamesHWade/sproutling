@@ -14,8 +14,17 @@ struct SproutlingApp: App {
     @StateObject private var appState = AppState()
 
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([PersistedProfile.self])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let schema = Schema([
+            PersistedProfile.self,
+            ParentSettings.self
+        ])
+
+        // Configure CloudKit sync for private database
+        let modelConfiguration = ModelConfiguration(
+            schema: schema,
+            isStoredInMemoryOnly: false,
+            cloudKitDatabase: .private("iCloud.com.sproutling.app")
+        )
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -67,6 +76,14 @@ struct ContentView: View {
             case .lessonComplete(let subject, let stars):
                 LessonCompleteScreen(subject: subject, stars: stars)
                     .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
+
+            case .profileSelection:
+                ProfileSelectionScreen()
+                    .transition(reduceMotion ? .opacity : .opacity)
+
+            case .profileManagement:
+                ProfileManagementScreen()
+                    .transition(reduceMotion ? .opacity : .move(edge: .trailing))
             }
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.3), value: appState.currentScreen)
