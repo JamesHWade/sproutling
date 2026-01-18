@@ -394,6 +394,143 @@ struct PhonicsBlendingActivity: View {
     }
 }
 
+// MARK: - Vocabulary Card Activity
+/// Picture + word vocabulary building for younger learners
+struct VocabularyCardActivity: View {
+    let word: String
+    let emoji: String
+    let category: String?  // Optional category like "Animals", "Food", etc.
+    let onCorrect: () -> Void
+    let onNext: () -> Void
+
+    @State private var step = 0  // 0: show picture, 1: show word, 2: complete
+    @State private var isAnimating = false
+
+    var body: some View {
+        VStack(spacing: 24) {
+            // Category badge (if provided)
+            if let category = category {
+                Text(category)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 6)
+                    .background(
+                        Capsule()
+                            .fill(
+                                LinearGradient(colors: [.pink, .orange], startPoint: .leading, endPoint: .trailing)
+                            )
+                    )
+            }
+
+            // Instructions
+            Text(instructionText)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+                .multilineTextAlignment(.center)
+                .animation(.easeInOut, value: step)
+
+            Spacer()
+
+            // Main content card
+            ZStack {
+                // Background glow
+                RoundedRectangle(cornerRadius: 32)
+                    .fill(
+                        LinearGradient(colors: [.pink.opacity(0.3), .orange.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .frame(width: 280, height: 320)
+                    .blur(radius: 20)
+                    .scaleEffect(isAnimating ? 1.1 : 1.0)
+
+                // Card
+                VStack(spacing: 20) {
+                    // Large emoji
+                    Text(emoji)
+                        .font(.system(size: 120))
+                        .scaleEffect(step == 0 ? 1.0 : 0.8)
+                        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: step)
+
+                    // Word (revealed in step 1+)
+                    if step >= 1 {
+                        Text(word)
+                            .font(.system(size: 44, weight: .bold, design: .rounded))
+                            .foregroundColor(.pink)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .padding(32)
+                .background(
+                    RoundedRectangle(cornerRadius: 28)
+                        .fill(.white)
+                        .shadow(color: .black.opacity(0.15), radius: 20, y: 10)
+                )
+            }
+            .onTapGesture {
+                advanceStep()
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(step >= 1 ? "\(word), shown as \(emoji)" : "Picture of \(emoji)")
+            .accessibilityHint(step < 2 ? "Tap to continue" : "")
+
+            Spacer()
+
+            // Action button
+            if step < 2 {
+                Text("Tap the picture!")
+                    .font(.title3)
+                    .foregroundColor(.secondary)
+            } else {
+                Button(action: onNext) {
+                    Text("Next →")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                }
+                .buttonStyle(PrimaryButtonStyle(colors: [.green, .teal]))
+                .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .padding()
+        .onAppear {
+            withAnimation(.easeInOut(duration: 1.5).repeatForever(autoreverses: true)) {
+                isAnimating = true
+            }
+        }
+    }
+
+    private var instructionText: String {
+        switch step {
+        case 0: return "What's this?"
+        case 1: return "It's a \(word.lowercased())!"
+        default: return "Say it: \(word)!"
+        }
+    }
+
+    private func advanceStep() {
+        guard step < 2 else { return }
+
+        SoundManager.shared.playSound(.tap)
+        HapticFeedback.light()
+
+        withAnimation(.spring()) {
+            step += 1
+        }
+
+        if step == 1 {
+            // Speak the word
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                SoundManager.shared.speak(word)
+            }
+        } else if step == 2 {
+            SoundManager.shared.playSound(.correct)
+            HapticFeedback.success()
+            onCorrect()
+        }
+    }
+}
+
 // MARK: - Previews
 #Preview("Letter Card") {
     LetterCardActivity(

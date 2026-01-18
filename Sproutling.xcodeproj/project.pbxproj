@@ -23,6 +23,16 @@
 		00000041 /* PersistedProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000001E /* PersistedProfile.swift */; };
 		00000042 /* ProgressScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000001F /* ProgressScreen.swift */; };
 		00000043 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000020 /* SettingsScreen.swift */; };
+		0C3F1FFB14701C9E2FC9ED40 /* ProfileManagementScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7923DC5E3AE4284778026FE5 /* ProfileManagementScreen.swift */; };
+		0D4D6634CC5E9E01AC1FD71B /* ParentSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3407473A62DC4E634E62FC4F /* ParentSettings.swift */; };
+		5078C86F8B595F8CF415F914 /* ProfileComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050954E3063585BA84173A62 /* ProfileComponents.swift */; };
+		655CA6B41149FF375BD23B00 /* ParentPINSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */; };
+		8497E89ED23C15CEC00D0FFC /* ProfileEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD41B93E570E4B9389064C40 /* ProfileEditorSheet.swift */; };
+		B7596C311108E650CC25885A /* ProfileSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE24ED3F6AD1A20D491DACFE /* ProfileSelectionScreen.swift */; };
+		E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EE043BA01A59C36749E71B9 /* KeychainManager.swift */; };
+		CURR0001000000000000001A /* CurriculumLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CURR0002000000000000001A /* CurriculumLoader.swift */; };
+		CURR0003000000000000001A /* MathCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0004000000000000001A /* MathCurriculum.json */; };
+		CURR0005000000000000001A /* ReadingCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0006000000000000001A /* ReadingCurriculum.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +53,18 @@
 		0000001E /* PersistedProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistedProfile.swift; sourceTree = "<group>"; };
 		0000001F /* ProgressScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressScreen.swift; sourceTree = "<group>"; };
 		00000020 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		050954E3063585BA84173A62 /* ProfileComponents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
+		3407473A62DC4E634E62FC4F /* ParentSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ParentSettings.swift; sourceTree = "<group>"; };
+		4373EE38CB62ADC43EA5A577 /* Sproutling.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = Sproutling.entitlements; sourceTree = "<group>"; };
+		545A4550C572D98DBD5B4B6D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5EE043BA01A59C36749E71B9 /* KeychainManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ParentPINSheet.swift; sourceTree = "<group>"; };
+		7923DC5E3AE4284778026FE5 /* ProfileManagementScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileManagementScreen.swift; sourceTree = "<group>"; };
+		BD41B93E570E4B9389064C40 /* ProfileEditorSheet.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileEditorSheet.swift; sourceTree = "<group>"; };
+		CE24ED3F6AD1A20D491DACFE /* ProfileSelectionScreen.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileSelectionScreen.swift; sourceTree = "<group>"; };
+		CURR0002000000000000001A /* CurriculumLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurriculumLoader.swift; sourceTree = "<group>"; };
+		CURR0004000000000000001A /* MathCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MathCurriculum.json; sourceTree = "<group>"; };
+		CURR0006000000000000001A /* ReadingCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReadingCurriculum.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,14 +78,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		00000020 = {
-			isa = PBXGroup;
-			children = (
-				00000021 /* Sproutling */,
-				0000000F /* Products */,
-			);
-			sourceTree = "<group>";
-		};
 		0000000F /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -82,6 +96,8 @@
 				00000025 /* Utilities */,
 				00000026 /* Resources */,
 				00000027 /* Preview Content */,
+				545A4550C572D98DBD5B4B6D /* Info.plist */,
+				4373EE38CB62ADC43EA5A577 /* Sproutling.entitlements */,
 			);
 			path = Sproutling;
 			sourceTree = "<group>";
@@ -91,6 +107,7 @@
 			children = (
 				00000012 /* Models.swift */,
 				0000001E /* PersistedProfile.swift */,
+				3407473A62DC4E634E62FC4F /* ParentSettings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -117,6 +134,8 @@
 			isa = PBXGroup;
 			children = (
 				0000001B /* SoundManager.swift */,
+				5EE043BA01A59C36749E71B9 /* KeychainManager.swift */,
+				CURR0002000000000000001A /* CurriculumLoader.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -125,8 +144,18 @@
 			isa = PBXGroup;
 			children = (
 				0000001C /* Assets.xcassets */,
+				CURR0007000000000000001A /* Curriculum */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		CURR0007000000000000001A /* Curriculum */ = {
+			isa = PBXGroup;
+			children = (
+				CURR0004000000000000001A /* MathCurriculum.json */,
+				CURR0006000000000000001A /* ReadingCurriculum.json */,
+			);
+			path = Curriculum;
 			sourceTree = "<group>";
 		};
 		00000027 /* Preview Content */ = {
@@ -141,6 +170,7 @@
 			isa = PBXGroup;
 			children = (
 				00000014 /* Components.swift */,
+				050954E3063585BA84173A62 /* ProfileComponents.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -154,6 +184,10 @@
 				00000018 /* LessonCompleteScreen.swift */,
 				0000001F /* ProgressScreen.swift */,
 				00000020 /* SettingsScreen.swift */,
+				CE24ED3F6AD1A20D491DACFE /* ProfileSelectionScreen.swift */,
+				BD41B93E570E4B9389064C40 /* ProfileEditorSheet.swift */,
+				7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */,
+				7923DC5E3AE4284778026FE5 /* ProfileManagementScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -165,6 +199,14 @@
 				0000001A /* ReadingActivities.swift */,
 			);
 			path = Activities;
+			sourceTree = "<group>";
+		};
+		00000050 = {
+			isa = PBXGroup;
+			children = (
+				00000021 /* Sproutling */,
+				0000000F /* Products */,
+			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -210,7 +252,7 @@
 				en,
 				Base,
 			);
-			mainGroup = 00000020;
+			mainGroup = 00000050;
 			productRefGroup = 0000000F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -227,6 +269,8 @@
 			files = (
 				0000000C /* Assets.xcassets in Resources */,
 				0000000D /* Preview Assets.xcassets in Resources */,
+				CURR0003000000000000001A /* MathCurriculum.json in Resources */,
+				CURR0005000000000000001A /* ReadingCurriculum.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -251,6 +295,14 @@
 				0000000B /* SoundManager.swift in Sources */,
 				00000042 /* ProgressScreen.swift in Sources */,
 				00000043 /* SettingsScreen.swift in Sources */,
+				0D4D6634CC5E9E01AC1FD71B /* ParentSettings.swift in Sources */,
+				E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */,
+				B7596C311108E650CC25885A /* ProfileSelectionScreen.swift in Sources */,
+				8497E89ED23C15CEC00D0FFC /* ProfileEditorSheet.swift in Sources */,
+				655CA6B41149FF375BD23B00 /* ParentPINSheet.swift in Sources */,
+				0C3F1FFB14701C9E2FC9ED40 /* ProfileManagementScreen.swift in Sources */,
+				5078C86F8B595F8CF415F914 /* ProfileComponents.swift in Sources */,
+				CURR0001000000000000001A /* CurriculumLoader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,11 +433,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sproutling/Sproutling.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Sproutling/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sproutling/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sproutling;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -413,11 +467,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Sproutling/Sproutling.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Sproutling/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Sproutling/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Sproutling;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

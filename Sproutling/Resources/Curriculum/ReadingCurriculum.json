@@ -1,0 +1,126 @@
+{
+  "subject": "reading",
+  "levels": [
+    {
+      "id": 1,
+      "title": "Letters A-D",
+      "subtitle": "First letters!",
+      "cards": [
+        { "type": "vocabularyCard", "word": "Apple", "emoji": "🍎", "category": "Food" },
+        { "type": "letterCard", "letter": "A", "word": "Apple", "emoji": "🍎", "sound": "ah" },
+        { "type": "letterCard", "letter": "B", "word": "Ball", "emoji": "⚽", "sound": "buh" },
+        { "type": "vocabularyCard", "word": "Cat", "emoji": "🐱", "category": "Animals" },
+        { "type": "letterMatching", "letter": "A", "word": "Ant", "emoji": "🐜", "letterOptions": ["A", "B", "C"] },
+        { "type": "letterCard", "letter": "C", "word": "Cat", "emoji": "🐱", "sound": "kuh" },
+        { "type": "vocabularyCard", "word": "Dog", "emoji": "🐕", "category": "Animals" },
+        { "type": "phonicsBlending", "word": "CAB", "emoji": "🚕", "letters": ["C", "A", "B"] },
+        { "type": "letterCard", "letter": "D", "word": "Dog", "emoji": "🐕", "sound": "duh" },
+        { "type": "letterMatching", "letter": "B", "word": "Bird", "emoji": "🐦", "letterOptions": ["A", "B", "D"] },
+        { "type": "vocabularyCard", "word": "Bird", "emoji": "🐦", "category": "Animals" },
+        { "type": "letterCard", "letter": "A", "word": "Alligator", "emoji": "🐊", "sound": "ah" },
+        { "type": "letterMatching", "letter": "C", "word": "Cake", "emoji": "🎂", "letterOptions": ["B", "C", "D"] },
+        { "type": "phonicsBlending", "word": "DAD", "emoji": "👨", "letters": ["D", "A", "D"] },
+        { "type": "letterMatching", "letter": "D", "word": "Duck", "emoji": "🦆", "letterOptions": ["B", "C", "D"] }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Letters E-H",
+      "subtitle": "More letters!",
+      "cards": [
+        { "type": "vocabularyCard", "word": "Egg", "emoji": "🥚", "category": "Food" },
+        { "type": "letterCard", "letter": "E", "word": "Egg", "emoji": "🥚", "sound": "eh" },
+        { "type": "letterCard", "letter": "F", "word": "Fish", "emoji": "🐟", "sound": "fuh" },
+        { "type": "vocabularyCard", "word": "Fish", "emoji": "🐟", "category": "Animals" },
+        { "type": "letterMatching", "letter": "E", "word": "Elephant", "emoji": "🐘", "letterOptions": ["D", "E", "F"] },
+        { "type": "phonicsBlending", "word": "FED", "emoji": "🍽️", "letters": ["F", "E", "D"] },
+        { "type": "vocabularyCard", "word": "Goat", "emoji": "🐐", "category": "Animals" },
+        { "type": "letterCard", "letter": "G", "word": "Goat", "emoji": "🐐", "sound": "guh" },
+        { "type": "letterMatching", "letter": "F", "word": "Frog", "emoji": "🐸", "letterOptions": ["E", "F", "G"] },
+        { "type": "vocabularyCard", "word": "Hat", "emoji": "🎩", "category": "Clothes" },
+        { "type": "letterCard", "letter": "H", "word": "Hat", "emoji": "🎩", "sound": "huh" },
+        { "type": "letterMatching", "letter": "G", "word": "Grape", "emoji": "🍇", "letterOptions": ["F", "G", "H"] },
+        { "type": "phonicsBlending", "word": "HEG", "emoji": "🥚", "letters": ["H", "E", "G"] },
+        { "type": "letterCard", "letter": "E", "word": "Eagle", "emoji": "🦅", "sound": "eh" },
+        { "type": "letterMatching", "letter": "H", "word": "Horse", "emoji": "🐴", "letterOptions": ["F", "G", "H"] }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Letters I-L",
+      "subtitle": "Keep learning!",
+      "cards": [
+        { "type": "letterCard", "letter": "I", "word": "Ice", "emoji": "🧊", "sound": "ih" },
+        { "type": "letterCard", "letter": "J", "word": "Jam", "emoji": "🍯", "sound": "juh" },
+        { "type": "letterMatching", "letter": "I", "word": "Igloo", "emoji": "🏠", "letterOptions": ["H", "I", "J"] },
+        { "type": "phonicsBlending", "word": "JIG", "emoji": "💃", "letters": ["J", "I", "G"] },
+        { "type": "letterCard", "letter": "K", "word": "Kite", "emoji": "🪁", "sound": "kuh" },
+        { "type": "letterMatching", "letter": "J", "word": "Jellyfish", "emoji": "🪼", "letterOptions": ["I", "J", "K"] },
+        { "type": "letterCard", "letter": "L", "word": "Lion", "emoji": "🦁", "sound": "luh" },
+        { "type": "letterMatching", "letter": "K", "word": "Kangaroo", "emoji": "🦘", "letterOptions": ["J", "K", "L"] },
+        { "type": "phonicsBlending", "word": "KID", "emoji": "🧒", "letters": ["K", "I", "D"] },
+        { "type": "letterCard", "letter": "L", "word": "Lemon", "emoji": "🍋", "sound": "luh" },
+        { "type": "letterMatching", "letter": "L", "word": "Leaf", "emoji": "🍃", "letterOptions": ["J", "K", "L"] }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Letters M-P",
+      "subtitle": "Halfway there!",
+      "cards": [
+        { "type": "letterCard", "letter": "M", "word": "Moon", "emoji": "🌙", "sound": "mmm" },
+        { "type": "letterCard", "letter": "N", "word": "Nest", "emoji": "🪺", "sound": "nnn" },
+        { "type": "letterMatching", "letter": "M", "word": "Monkey", "emoji": "🐵", "letterOptions": ["L", "M", "N"] },
+        { "type": "phonicsBlending", "word": "MAN", "emoji": "👨", "letters": ["M", "A", "N"] },
+        { "type": "letterCard", "letter": "O", "word": "Orange", "emoji": "🍊", "sound": "oh" },
+        { "type": "letterMatching", "letter": "N", "word": "Nose", "emoji": "👃", "letterOptions": ["M", "N", "O"] },
+        { "type": "letterCard", "letter": "P", "word": "Pig", "emoji": "🐷", "sound": "puh" },
+        { "type": "letterMatching", "letter": "O", "word": "Owl", "emoji": "🦉", "letterOptions": ["N", "O", "P"] },
+        { "type": "phonicsBlending", "word": "POP", "emoji": "🎈", "letters": ["P", "O", "P"] },
+        { "type": "letterCard", "letter": "M", "word": "Mouse", "emoji": "🐭", "sound": "mmm" },
+        { "type": "letterMatching", "letter": "P", "word": "Penguin", "emoji": "🐧", "letterOptions": ["N", "O", "P"] },
+        { "type": "phonicsBlending", "word": "MOP", "emoji": "🧹", "letters": ["M", "O", "P"] }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Letters Q-T",
+      "subtitle": "Almost done!",
+      "cards": [
+        { "type": "letterCard", "letter": "Q", "word": "Queen", "emoji": "👑", "sound": "kwuh" },
+        { "type": "letterCard", "letter": "R", "word": "Rabbit", "emoji": "🐰", "sound": "rrr" },
+        { "type": "letterMatching", "letter": "Q", "word": "Quilt", "emoji": "🛏️", "letterOptions": ["P", "Q", "R"] },
+        { "type": "letterCard", "letter": "S", "word": "Sun", "emoji": "☀️", "sound": "sss" },
+        { "type": "letterMatching", "letter": "R", "word": "Rainbow", "emoji": "🌈", "letterOptions": ["Q", "R", "S"] },
+        { "type": "phonicsBlending", "word": "SIT", "emoji": "🪑", "letters": ["S", "I", "T"] },
+        { "type": "letterCard", "letter": "T", "word": "Tiger", "emoji": "🐯", "sound": "tuh" },
+        { "type": "letterMatching", "letter": "S", "word": "Star", "emoji": "⭐", "letterOptions": ["R", "S", "T"] },
+        { "type": "phonicsBlending", "word": "RAT", "emoji": "🐀", "letters": ["R", "A", "T"] },
+        { "type": "letterCard", "letter": "R", "word": "Rocket", "emoji": "🚀", "sound": "rrr" },
+        { "type": "letterMatching", "letter": "T", "word": "Turtle", "emoji": "🐢", "letterOptions": ["R", "S", "T"] },
+        { "type": "phonicsBlending", "word": "TOP", "emoji": "🔝", "letters": ["T", "O", "P"] }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Letters U-Z",
+      "subtitle": "Finish the alphabet!",
+      "cards": [
+        { "type": "letterCard", "letter": "U", "word": "Umbrella", "emoji": "☂️", "sound": "uh" },
+        { "type": "letterCard", "letter": "V", "word": "Violin", "emoji": "🎻", "sound": "vvv" },
+        { "type": "letterMatching", "letter": "U", "word": "Unicorn", "emoji": "🦄", "letterOptions": ["T", "U", "V"] },
+        { "type": "letterCard", "letter": "W", "word": "Whale", "emoji": "🐋", "sound": "wuh" },
+        { "type": "letterMatching", "letter": "V", "word": "Volcano", "emoji": "🌋", "letterOptions": ["U", "V", "W"] },
+        { "type": "phonicsBlending", "word": "VAN", "emoji": "🚐", "letters": ["V", "A", "N"] },
+        { "type": "letterCard", "letter": "X", "word": "X-ray", "emoji": "🩻", "sound": "ks" },
+        { "type": "letterMatching", "letter": "W", "word": "Watermelon", "emoji": "🍉", "letterOptions": ["V", "W", "X"] },
+        { "type": "letterCard", "letter": "Y", "word": "Yo-yo", "emoji": "🪀", "sound": "yuh" },
+        { "type": "letterMatching", "letter": "X", "word": "Xylophone", "emoji": "🎹", "letterOptions": ["W", "X", "Y"] },
+        { "type": "letterCard", "letter": "Z", "word": "Zebra", "emoji": "🦓", "sound": "zzz" },
+        { "type": "letterMatching", "letter": "Y", "word": "Yarn", "emoji": "🧶", "letterOptions": ["X", "Y", "Z"] },
+        { "type": "phonicsBlending", "word": "ZAP", "emoji": "⚡", "letters": ["Z", "A", "P"] },
+        { "type": "letterMatching", "letter": "Z", "word": "Zoo", "emoji": "🦁", "letterOptions": ["X", "Y", "Z"] }
+      ]
+    }
+  ]
+}

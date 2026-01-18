@@ -18,9 +18,9 @@ struct LessonCompleteScreen: View {
 
     var message: String {
         switch stars {
-        case 1: return "Good try! Keep practicing!"
-        case 2: return "Great job! You're learning!"
-        default: return "Amazing! You're a superstar!"
+        case 1: return "You kept trying! Practice makes progress!"
+        case 2: return "You worked hard on that!"
+        default: return "You finished the whole lesson!"
         }
     }
 
@@ -134,7 +134,7 @@ struct LessonCompleteScreen: View {
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.5).delay(1.2), value: showContent)
 
                 // Mascot
-                MascotView(emotion: .proud, message: "I'm so proud of you!", size: 50)
+                MascotView(emotion: .proud, message: "Look what you learned!", size: 50)
                     .opacity(reduceMotion || showContent ? 1 : 0)
                     .offset(y: showContent ? 0 : 20)
                     .animation(.easeOut(duration: 0.5).delay(1.4), value: showContent)
