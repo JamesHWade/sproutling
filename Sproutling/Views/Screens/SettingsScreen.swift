@@ -577,7 +577,9 @@ struct SettingsScreen: View {
                 SettingsToggleRow(
                     icon: "waveform.circle.fill",
                     title: "Natural Voice",
-                    subtitle: hasElevenLabsKey ? "ElevenLabs TTS enabled" : "Configure API key to enable",
+                    subtitle: hasElevenLabsKey
+                        ? (isUsingTrialKey ? "Trial mode - free AI voice" : "ElevenLabs TTS enabled")
+                        : "Not available",
                     isOn: $soundManager.elevenLabsEnabled,
                     iconColor: .purple
                 )
@@ -602,13 +604,15 @@ struct SettingsScreen: View {
                             .frame(width: 36)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("API Key")
+                            Text(hasUserElevenLabsKey ? "Your API Key" : "Add Your API Key")
                                 .font(.headline)
                                 .foregroundColor(.primary)
 
-                            Text(hasElevenLabsKey ? "Configured" : "Not configured")
+                            Text(hasUserElevenLabsKey
+                                ? "Configured - unlimited usage"
+                                : (isUsingTrialKey ? "Optional - for unlimited usage" : "Required to enable AI voice"))
                                 .font(.caption)
-                                .foregroundColor(hasElevenLabsKey ? .green : .secondary)
+                                .foregroundColor(hasUserElevenLabsKey ? .green : .secondary)
                         }
 
                         Spacer()
@@ -697,15 +701,29 @@ struct SettingsScreen: View {
     }
 
     // MARK: - ElevenLabs Helpers
+
+    /// Whether any API key is available (bundled or user's)
     private var hasElevenLabsKey: Bool {
         UserDefaults.standard.bool(forKey: "hasElevenLabsKey")
+    }
+
+    /// Whether user has their own API key (not using bundled/trial)
+    private var hasUserElevenLabsKey: Bool {
+        UserDefaults.standard.bool(forKey: "hasUserElevenLabsKey")
+    }
+
+    /// Whether currently using bundled trial key
+    private var isUsingTrialKey: Bool {
+        hasElevenLabsKey && !hasUserElevenLabsKey
     }
 
     private func loadElevenLabsState() {
         Task {
             let hasKey = await ElevenLabsService.shared.hasAPIKey()
+            let hasUserKey = await ElevenLabsService.shared.hasUserAPIKey()
             await MainActor.run {
                 UserDefaults.standard.set(hasKey, forKey: "hasElevenLabsKey")
+                UserDefaults.standard.set(hasUserKey, forKey: "hasUserElevenLabsKey")
             }
         }
     }
@@ -732,6 +750,7 @@ struct SettingsScreen: View {
 
                     if result.isValid {
                         UserDefaults.standard.set(true, forKey: "hasElevenLabsKey")
+                        UserDefaults.standard.set(true, forKey: "hasUserElevenLabsKey")
                         // Close sheet after a brief delay to show success
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                             showAPIKeySheet = false

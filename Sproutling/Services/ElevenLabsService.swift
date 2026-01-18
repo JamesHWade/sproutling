@@ -361,8 +361,50 @@ actor ElevenLabsService {
 
     private let apiKeyKeychainKey = "elevenlabs_api_key"
 
-    /// Get the stored API key from keychain
+    /// Bundled API key for trial usage (obfuscated)
+    /// Users can use ElevenLabs without setting up their own key
+    private var bundledAPIKey: String? {
+        // Simple XOR obfuscation - not secure but deters casual inspection
+        // To update: use ElevenLabsService.obfuscate("new_key") and replace bytes
+        let obfuscated: [UInt8] = [
+            0x29, 0x31, 0x05, 0x63, 0x3B, 0x68, 0x6F, 0x69, 0x39, 0x6D,
+            0x6D, 0x3E, 0x38, 0x63, 0x38, 0x3B, 0x6E, 0x68, 0x6D, 0x6C,
+            0x6C, 0x38, 0x3B, 0x3C, 0x62, 0x3B, 0x3C, 0x39, 0x69, 0x3C,
+            0x69, 0x3E, 0x6B, 0x6D, 0x6F, 0x63, 0x6E, 0x3C, 0x63, 0x68,
+            0x6B, 0x6E, 0x62, 0x38, 0x68, 0x3F, 0x3B, 0x69, 0x3F, 0x63,
+            0x6B
+        ]
+
+        guard !obfuscated.isEmpty else { return nil }
+        return deobfuscate(obfuscated)
+    }
+
+    /// XOR key for obfuscation (simple deterrent, not security)
+    private static let xorKey: UInt8 = 0x5A
+
+    /// Helper to obfuscate an API key (call once to get bytes for bundledAPIKey)
+    static func obfuscate(_ key: String) -> [UInt8] {
+        return key.utf8.map { $0 ^ xorKey }
+    }
+
+    /// Deobfuscate the bundled key
+    private func deobfuscate(_ bytes: [UInt8]) -> String {
+        let decoded = bytes.map { $0 ^ Self.xorKey }
+        return String(bytes: decoded, encoding: .utf8) ?? ""
+    }
+
+    /// Get the API key - user's key takes priority, falls back to bundled
     func getAPIKey() -> String? {
+        // Check for user's own key first
+        if let userKey = getUserAPIKey() {
+            return userKey
+        }
+        // Fall back to bundled key for trial usage
+        return bundledAPIKey
+    }
+
+    /// Get only the user's stored API key (not bundled)
+    func getUserAPIKey() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: "com.sproutling.app",
@@ -383,7 +425,7 @@ actor ElevenLabsService {
         return key
     }
 
-    /// Save the API key to keychain
+    /// Save the user's API key to keychain
     @discardableResult
     func saveAPIKey(_ key: String) -> Bool {
         // Delete existing key
@@ -405,7 +447,7 @@ actor ElevenLabsService {
         return status == errSecSuccess
     }
 
-    /// Delete the API key from keychain
+    /// Delete the user's API key from keychain
     @discardableResult
     func deleteAPIKey() -> Bool {
         let query: [String: Any] = [
@@ -418,9 +460,19 @@ actor ElevenLabsService {
         return status == errSecSuccess || status == errSecItemNotFound
     }
 
-    /// Check if an API key is configured
+    /// Check if any API key is available (user's or bundled)
     func hasAPIKey() -> Bool {
         return getAPIKey() != nil
+    }
+
+    /// Check if user has their own API key configured
+    func hasUserAPIKey() -> Bool {
+        return getUserAPIKey() != nil
+    }
+
+    /// Check if currently using the bundled key (trial mode)
+    func isUsingBundledKey() -> Bool {
+        return getUserAPIKey() == nil && bundledAPIKey != nil
     }
 }
 
