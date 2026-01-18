@@ -63,6 +63,10 @@ struct ProgressBar: View {
     let total: Int
     var color: Color = .green
 
+    private var progress: Double {
+        total > 0 ? Double(current) / Double(total) : 0
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .leading) {
@@ -71,14 +75,14 @@ struct ProgressBar: View {
 
                 RoundedRectangle(cornerRadius: 6)
                     .fill(color)
-                    .frame(width: geometry.size.width * CGFloat(current) / CGFloat(total))
+                    .frame(width: geometry.size.width * progress)
                     .animation(.easeOut(duration: 0.5), value: current)
             }
         }
         .frame(height: 12)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Progress: \(current) of \(total)")
-        .accessibilityValue("\(Int(Double(current) / Double(total) * 100)) percent complete")
+        .accessibilityValue("\(Int(progress * 100)) percent complete")
     }
 }
 
@@ -120,7 +124,7 @@ struct StarReward: View {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
-                        animatedStars.remove(newCount)
+                        _ = animatedStars.remove(newCount)
                     }
                 }
             }
@@ -135,7 +139,7 @@ struct StarReward: View {
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     withAnimation {
-                        animatedStars.remove(star)
+                        _ = animatedStars.remove(star)
                     }
                 }
             }
@@ -147,58 +151,30 @@ struct StarReward: View {
 struct MascotView: View {
     let emotion: MascotEmotion
     var message: String?
-    var size: CGFloat = 60
+    var size: CGFloat = 120
 
     @State private var isAnimating = false
+    @Environment(\.accessibilityReduceMotion) var reduceMotion
 
     private var emotionDescription: String {
         switch emotion {
-        case .happy: return "Happy mascot"
-        case .excited: return "Excited celebration"
-        case .thinking: return "Thinking mascot"
-        case .proud: return "Proud mascot"
-        case .encouraging: return "Encouraging mascot"
+        case .happy: return "Happy Sproutling mascot"
+        case .excited: return "Excited Sproutling celebration"
+        case .thinking: return "Thinking Sproutling mascot"
+        case .proud: return "Proud Sproutling mascot"
+        case .encouraging: return "Encouraging Sproutling mascot"
         }
     }
 
     var body: some View {
         VStack(spacing: 12) {
-            // Mascot icon with animated background
-            ZStack {
-                // Glowing background circle
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: emotion.colors + [emotion.colors.last?.opacity(0.3) ?? .clear],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: size * 0.8
-                        )
-                    )
-                    .frame(width: size * 1.4, height: size * 1.4)
-                    .blur(radius: 8)
-                    .scaleEffect(isAnimating ? 1.1 : 1.0)
-
-                // Main icon circle
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: emotion.colors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: size * 1.2, height: size * 1.2)
-                    .shadow(color: emotion.colors.first?.opacity(0.4) ?? .clear, radius: 10, y: 5)
-
-                // SF Symbol icon
-                Image(systemName: emotion.iconName)
-                    .font(.system(size: size * 0.5, weight: .bold))
-                    .foregroundColor(.white)
-                    .symbolEffect(.bounce, options: .speed(0.3), value: isAnimating)
-            }
-            .modifier(BounceModifier())
-            .accessibilityHidden(true)
+            // Sproutling mascot image
+            Image("SproutlingMascot")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: size, height: size)
+                .modifier(BounceModifier())
+                .accessibilityHidden(true)
 
             // Speech bubble with message
             if let message = message {
@@ -219,7 +195,7 @@ struct MascotView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
-                            LinearGradient(colors: emotion.colors, startPoint: .leading, endPoint: .trailing),
+                            LinearGradient(colors: [.green, .mint], startPoint: .leading, endPoint: .trailing),
                             lineWidth: 2
                         )
                 )
@@ -451,6 +427,14 @@ struct LevelCard: View {
     let subject: Subject
     let action: () -> Void
 
+    private var circleGradient: LinearGradient {
+        if level.isUnlocked {
+            return LinearGradient(colors: subject.gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+        } else {
+            return LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+    }
+
     private var accessibilityLabelText: String {
         if level.isUnlocked {
             var label = "Level \(level.id): \(level.title). \(level.subtitle)"
@@ -473,11 +457,7 @@ struct LevelCard: View {
                 // Level number or lock
                 ZStack {
                     Circle()
-                        .fill(
-                            level.isUnlocked
-                            ? LinearGradient(colors: subject.gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-                            : LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)
-                        )
+                        .fill(circleGradient)
                         .frame(width: 56, height: 56)
 
                     if level.isUnlocked {
@@ -536,6 +516,14 @@ struct TapCircle: View {
 
     var isComplete: Bool { count >= target }
 
+    private var circleGradient: LinearGradient {
+        if isComplete {
+            return LinearGradient(colors: [.green, .teal], startPoint: .topLeading, endPoint: .bottomTrailing)
+        } else {
+            return LinearGradient(colors: [.blue, .purple], startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+    }
+
     var body: some View {
         ZStack {
             // Ripple effects
@@ -554,13 +542,7 @@ struct TapCircle: View {
 
             // Main circle
             Circle()
-                .fill(
-                    LinearGradient(
-                        colors: isComplete ? [.green, .teal] : [.blue, .purple],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(circleGradient)
                 .frame(width: 200, height: 200)
                 .shadow(color: .purple.opacity(0.4), radius: 20, y: 10)
 
@@ -651,13 +633,15 @@ struct NumberOptionButton: View {
             }
         }
         .scaleEffect(isCorrect == true ? 1.1 : 1.0)
-        .modifier(ShakeModifier(animatableData: shakeCount))
+        .offset(x: sin(shakeCount * .pi * 3) * 10)
         .disabled(isDisabled)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isCorrect)
+        .animation(.default, value: shakeCount)
         .onChange(of: isCorrect) { _, newValue in
             if newValue == false {
-                withAnimation(.linear(duration: 0.4)) {
-                    shakeCount += 1
+                shakeCount = 1
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    shakeCount = 0
                 }
             }
         }
@@ -722,13 +706,15 @@ struct LetterOptionButton: View {
             }
         }
         .scaleEffect(isCorrect == true ? 1.1 : 1.0)
-        .modifier(ShakeModifier(animatableData: shakeCount))
+        .offset(x: sin(shakeCount * .pi * 3) * 10)
         .disabled(isDisabled)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isCorrect)
+        .animation(.default, value: shakeCount)
         .onChange(of: isCorrect) { _, newValue in
             if newValue == false {
-                withAnimation(.linear(duration: 0.4)) {
-                    shakeCount += 1
+                shakeCount = 1
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    shakeCount = 0
                 }
             }
         }
@@ -885,24 +871,18 @@ extension Color {
 }
 
 // MARK: - Shake Animation Modifier
-struct ShakeModifier: GeometryEffect {
-    var amount: CGFloat = 10
-    var shakesPerUnit: CGFloat = 3
-    var animatableData: CGFloat
+struct ShakeModifier: ViewModifier {
+    var shakeCount: CGFloat
 
-    func effectValue(size: CGSize) -> ProjectionTransform {
-        ProjectionTransform(
-            CGAffineTransform(
-                translationX: amount * sin(animatableData * .pi * shakesPerUnit),
-                y: 0
-            )
-        )
+    func body(content: Content) -> some View {
+        content
+            .offset(x: sin(shakeCount * .pi * 3) * 10)
     }
 }
 
 extension View {
     func shake(trigger: Bool) -> some View {
-        modifier(ShakeModifier(animatableData: trigger ? 1 : 0))
+        modifier(ShakeModifier(shakeCount: trigger ? 1 : 0))
     }
 }
 

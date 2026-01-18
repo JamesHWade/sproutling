@@ -177,7 +177,7 @@ struct ProgressScreen: View {
 
                 AchievementBadge(
                     iconName: "trophy.fill",
-                    iconColors: [.yellow, .amber],
+                    iconColors: [.yellow, .orange],
                     title: "Star Collector",
                     description: "Earn 10 stars",
                     isEarned: appState.childProfile.totalStars >= 10
@@ -447,11 +447,6 @@ struct RecommendationCard: View {
         )
         .accessibilityLabel("Tip: \(text)")
     }
-}
-
-// MARK: - Color Extension
-extension Color {
-    static let amber = Color(red: 1.0, green: 0.75, blue: 0.0)
 }
 
 #Preview {

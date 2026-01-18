@@ -45,8 +45,9 @@ struct SubjectScreen: View {
     // MARK: - Hero Card
     private var heroCard: some View {
         VStack(spacing: 16) {
-            Text(subject.icon)
-                .font(.system(size: 70))
+            Image(systemName: subject.iconName)
+                .font(.system(size: 60, weight: .bold))
+                .foregroundColor(.white)
                 .accessibilityHidden(true)
 
             Text(subject.title)
