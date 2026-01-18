@@ -282,7 +282,8 @@ class SoundManager: ObservableObject {
                     }
                     // Fall through to system TTS
                 } catch {
-                    // Fall through to system TTS
+                    // Log unexpected errors and fall through to system TTS
+                    print("[SoundManager] ElevenLabs TTS failed: \(error.localizedDescription)")
                 }
             }
         }
@@ -302,7 +303,8 @@ class SoundManager: ObservableObject {
                 try? await Task.sleep(nanoseconds: 50_000_000)  // 50ms
             }
         } catch {
-            // Audio playback failure - continue without crashing
+            // Log audio playback failure but continue without crashing
+            print("[SoundManager] Audio playback failed: \(error.localizedDescription)")
         }
     }
 

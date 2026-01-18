@@ -383,14 +383,19 @@ actor ElevenLabsService {
     private static let xorKey: UInt8 = 0x5A
 
     /// Helper to obfuscate an API key (call once to get bytes for bundledAPIKey)
-    static func obfuscate(_ key: String) -> [UInt8] {
+    /// Use in debugger: `po ElevenLabsService.obfuscate("your_key")` then copy bytes
+    private static func obfuscate(_ key: String) -> [UInt8] {
         return key.utf8.map { $0 ^ xorKey }
     }
 
     /// Deobfuscate the bundled key
-    private func deobfuscate(_ bytes: [UInt8]) -> String {
+    private func deobfuscate(_ bytes: [UInt8]) -> String? {
         let decoded = bytes.map { $0 ^ Self.xorKey }
-        return String(bytes: decoded, encoding: .utf8) ?? ""
+        guard let result = String(bytes: decoded, encoding: .utf8), !result.isEmpty else {
+            print("[ElevenLabsService] Deobfuscation failed - invalid bundled key bytes")
+            return nil
+        }
+        return result
     }
 
     /// Get the API key - user's key takes priority, falls back to bundled
