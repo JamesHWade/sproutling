@@ -105,29 +105,29 @@ actor ElevenLabsService {
         }
 
         /// Default settings optimized for children's educational content
-        /// Uses slightly slower speed (0.85) for clearer comprehension
+        /// Calm, clear voice at a comfortable pace
         static let childFriendly = VoiceSettings(
-            stability: 0.75,           // Higher stability for clearer speech
+            stability: 0.80,           // High stability for calm, clear speech
             similarityBoost: 0.75,     // Good voice quality
-            style: 0.0,                // Neutral style
+            style: 0.0,                // Neutral style - not too excited
             useSpeakerBoost: true,     // Enhanced clarity
             speed: 0.85                // Slightly slower for children
         )
 
         /// Fast settings for short prompts like numbers and letters
         static let quickPrompt = VoiceSettings(
-            stability: 0.8,
+            stability: 0.85,           // Very stable for short utterances
             similarityBoost: 0.75,
             style: 0.0,
             useSpeakerBoost: true,
-            speed: 0.9
+            speed: 0.95
         )
 
-        /// Encouraging/celebratory settings with more expression
+        /// Warm encouragement - friendly but not over-the-top
         static let encouraging = VoiceSettings(
-            stability: 0.65,           // Lower stability = more expressive
+            stability: 0.75,           // Slightly more expressive but still calm
             similarityBoost: 0.75,
-            style: 0.3,                // Some style variation
+            style: 0.1,                // Minimal style variation
             useSpeakerBoost: true,
             speed: 0.9
         )

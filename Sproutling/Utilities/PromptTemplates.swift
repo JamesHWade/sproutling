@@ -15,56 +15,56 @@ struct PromptTemplates {
 
     /// Instructions for math counting activities
     static let mathCountingInstructions = [
-        "Let's count together, {name}!",
-        "How many do you see, {name}?",
-        "Can you count these, {name}?",
-        "Count with me, {name}!",
-        "Let's see how many there are, {name}!"
+        "Let's count together!",
+        "How many do you see?",
+        "Can you count these?",
+        "Count with me!",
+        "Let's count, {name}!"  // Only one with name
     ]
 
     /// Instructions for number matching activities
     static let mathMatchingInstructions = [
-        "Which number shows this many, {name}?",
-        "Find the right number, {name}!",
-        "Tap the matching number, {name}!",
-        "What number is this, {name}?",
-        "Can you match the number, {name}?"
+        "Which number shows this many?",
+        "Find the right number!",
+        "Tap the matching number!",
+        "What number is this?",
+        "Which number, {name}?"  // Only one with name
     ]
 
     /// Instructions for comparison activities
     static let mathComparisonInstructions = [
-        "Which group has more, {name}?",
-        "Which side has fewer, {name}?",
-        "Are they the same, {name}?",
-        "Compare these groups, {name}!",
-        "Which has more objects, {name}?"
+        "Which group has more?",
+        "Which side has fewer?",
+        "Are they the same?",
+        "Compare these groups!",
+        "Which has more?"
     ]
 
     /// Instructions for letter card activities
     static let readingLetterInstructions = [
-        "This is the letter...",
-        "Let's learn this letter, {name}!",
-        "Look at this letter, {name}!",
-        "Here's a new letter for you, {name}!",
-        "Time for a letter, {name}!"
+        "Here's a letter!",
+        "Let's learn this letter!",
+        "Look at this letter!",
+        "Time for a letter!",
+        "A new letter, {name}!"  // Only one with name
     ]
 
     /// Instructions for letter matching activities
     static let readingMatchingInstructions = [
-        "Can you find the right letter, {name}?",
-        "Which letter starts this word, {name}?",
-        "Tap the matching letter, {name}!",
-        "Find the letter that makes this sound, {name}!",
-        "What letter starts this word, {name}?"
+        "Find the right letter!",
+        "Which letter starts this word?",
+        "Tap the matching letter!",
+        "What letter starts this word?",
+        "Can you find it, {name}?"  // Only one with name
     ]
 
     /// Instructions for phonics activities
     static let readingPhonicsInstructions = [
-        "Tap each letter to hear its sound, {name}!",
-        "Let's blend the sounds, {name}!",
-        "Listen to each sound, {name}!",
-        "Sound it out, {name}!",
-        "Blend these sounds together, {name}!"
+        "Tap each letter to hear its sound!",
+        "Let's blend the sounds!",
+        "Listen to each sound!",
+        "Sound it out!",
+        "Let's blend, {name}!"  // Only one with name
     ]
 
     // MARK: - Encouragement (Correct)
@@ -78,27 +78,27 @@ struct PromptTemplates {
         "Exactly!"
     ]
 
-    /// Personalized celebration for correct answers
+    /// Celebration for correct answers (mostly without name)
     static let correctPersonalized = [
-        "Great job, {name}!",
-        "You're amazing, {name}!",
-        "Wonderful, {name}!",
-        "That's right, {name}!",
-        "Excellent, {name}!",
-        "Way to go, {name}!",
-        "Super work, {name}!",
-        "You got it, {name}!",
-        "Fantastic, {name}!",
-        "Brilliant, {name}!"
+        "Great job!",
+        "You're amazing!",
+        "Wonderful!",
+        "That's right!",
+        "Excellent!",
+        "Way to go!",
+        "Super work!",
+        "You got it!",
+        "Great job, {name}!",  // Only 2 with name
+        "Way to go, {name}!"
     ]
 
     /// Extra enthusiastic celebrations (for streaks or milestones)
     static let correctEnthusiastic = [
-        "Wow, {name}! You're on fire!",
-        "Amazing, {name}! Keep it up!",
-        "You're a superstar, {name}!",
-        "Incredible, {name}!",
-        "You're doing so well, {name}!"
+        "Wow! You're on fire!",
+        "Amazing! Keep it up!",
+        "You're a superstar!",
+        "Incredible!",
+        "You're doing so well, {name}!"  // Only one with name
     ]
 
     // MARK: - Gentle Correction
@@ -112,51 +112,51 @@ struct PromptTemplates {
         "One more try!"
     ]
 
-    /// Personalized gentle correction
+    /// Gentle correction (mostly without name)
     static let tryAgainPersonalized = [
-        "Let's try again, {name}!",
-        "Almost, {name}! Try once more!",
-        "Good try, {name}! Let's try again!",
-        "Not quite, {name}. You can do it!",
-        "Close, {name}! Try again!"
+        "Let's try again!",
+        "Almost! Try once more!",
+        "Good try! Let's try again!",
+        "Not quite. You can do it!",
+        "Close, {name}! Try again!"  // Only one with name
     ]
 
-    /// Hints and help prompts
+    /// Hints and help prompts (mostly without name)
     static let hintPrompts = [
-        "Listen carefully, {name}!",
-        "Look closely, {name}!",
-        "Take your time, {name}!",
-        "Think about it, {name}!",
-        "Let me help you, {name}!"
+        "Listen carefully!",
+        "Look closely!",
+        "Take your time!",
+        "Think about it!",
+        "Let me help you, {name}!"  // Only one with name
     ]
 
     // MARK: - Progress Updates
 
-    /// Mid-lesson encouragement
+    /// Mid-lesson encouragement (mostly without name)
     static let progressMidLesson = [
-        "You're doing great, {name}!",
-        "Keep going, {name}!",
-        "Halfway there, {name}!",
-        "Great progress, {name}!",
-        "You're learning so much, {name}!"
+        "You're doing great!",
+        "Keep going!",
+        "Halfway there!",
+        "Great progress!",
+        "You're learning so much, {name}!"  // Only one with name
     ]
 
-    /// Almost done prompts
+    /// Almost done prompts (mostly without name)
     static let progressAlmostDone = [
-        "One more to go, {name}!",
-        "Almost done, {name}!",
-        "Just one more, {name}!",
-        "Last one, {name}!",
-        "You're almost finished, {name}!"
+        "One more to go!",
+        "Almost done!",
+        "Just one more!",
+        "Last one!",
+        "You're almost finished, {name}!"  // Only one with name
     ]
 
-    /// Lesson complete celebrations
+    /// Lesson complete celebrations (name used sparingly)
     static let lessonComplete = [
-        "Lesson complete! Amazing work, {name}!",
-        "You did it, {name}! Great job!",
-        "Wonderful, {name}! You finished the lesson!",
-        "Congratulations, {name}! You're a star!",
-        "All done, {name}! You learned so much!"
+        "Lesson complete! Amazing work!",
+        "You did it! Great job!",
+        "Wonderful! You finished the lesson!",
+        "Congratulations! You're a star!",
+        "All done, {name}! You learned so much!"  // Only one with name
     ]
 
     // MARK: - Content-Specific
