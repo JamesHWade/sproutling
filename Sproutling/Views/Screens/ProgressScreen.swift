@@ -59,17 +59,17 @@ struct ProgressScreen: View {
                 .accessibilityAddTraits(.isHeader)
 
             HStack(spacing: 24) {
-                // Total stars
+                // Total seeds
                 VStack(spacing: 4) {
                     Text("\(appState.childProfile.totalStars)")
                         .font(.system(size: 36, weight: .bold, design: .rounded))
-                        .foregroundColor(.yellow)
-                    Text("Stars")
+                        .foregroundColor(.green)
+                    Text("Seeds")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("\(appState.childProfile.totalStars) total stars")
+                .accessibilityLabel("\(appState.childProfile.totalStars) total seeds")
 
                 Divider()
                     .frame(height: 50)
@@ -160,10 +160,10 @@ struct ProgressScreen: View {
                 GridItem(.flexible())
             ], spacing: 16) {
                 AchievementBadge(
-                    iconName: "star.circle.fill",
-                    iconColors: [.yellow, .orange],
-                    title: "First Star",
-                    description: "Earn your first star",
+                    iconName: "leaf.circle.fill",
+                    iconColors: [.green, .mint],
+                    title: "First Seed",
+                    description: "Earn your first seed",
                     isEarned: appState.childProfile.totalStars >= 1
                 )
 
@@ -177,9 +177,9 @@ struct ProgressScreen: View {
 
                 AchievementBadge(
                     iconName: "trophy.fill",
-                    iconColors: [.yellow, .orange],
-                    title: "Star Collector",
-                    description: "Earn 10 stars",
+                    iconColors: [.green, .teal],
+                    title: "Seed Collector",
+                    description: "Earn 10 seeds",
                     isEarned: appState.childProfile.totalStars >= 10
                 )
 
@@ -200,10 +200,10 @@ struct ProgressScreen: View {
                 )
 
                 AchievementBadge(
-                    iconName: "star.fill",
-                    iconColors: [.yellow, .orange],
-                    title: "Perfect!",
-                    description: "Get 3 stars on any level",
+                    iconName: "leaf.fill",
+                    iconColors: [.green, .mint],
+                    title: "Full Bloom!",
+                    description: "Get 3 seeds on any level",
                     isEarned: hasThreeStarsOnAnyLevel
                 )
             }
@@ -249,13 +249,13 @@ struct ProgressScreen: View {
         // Check math progress
         let mathLevels = appState.levels(for: .math)
         for level in mathLevels where level.isUnlocked && level.starsEarned < 3 && level.starsEarned > 0 {
-            recommendations.append("Practice '\(level.title)' to earn more stars!")
+            recommendations.append("Practice '\(level.title)' to earn more seeds!")
         }
 
         // Check reading progress
         let readingLevels = appState.levels(for: .reading)
         for level in readingLevels where level.isUnlocked && level.starsEarned < 3 && level.starsEarned > 0 {
-            recommendations.append("Practice '\(level.title)' to earn more stars!")
+            recommendations.append("Practice '\(level.title)' to earn more seeds!")
         }
 
         // Check for locked levels
@@ -316,21 +316,21 @@ struct SubjectProgressCard: View {
                         .font(.headline)
                         .foregroundColor(.primary)
 
-                    Text("\(totalStars) of \(maxStars) stars")
+                    Text("\(totalStars) of \(maxStars) seeds")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
 
                 Spacer()
 
-                // Star progress indicators
+                // Seed progress indicators
                 HStack(spacing: 4) {
                     ForEach(0..<levels.count, id: \.self) { index in
-                        Image(systemName: levels[index].starsEarned > 0 ? "star.fill" : "star")
+                        Image(systemName: levels[index].starsEarned > 0 ? "leaf.fill" : "leaf")
                             .font(.system(size: 12, weight: .bold))
                             .foregroundStyle(
                                 levels[index].starsEarned > 0
-                                ? LinearGradient(colors: [.yellow, .orange], startPoint: .top, endPoint: .bottom)
+                                ? LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom)
                                 : LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.4)], startPoint: .top, endPoint: .bottom)
                             )
                             .accessibilityHidden(true)
@@ -365,7 +365,7 @@ struct SubjectProgressCard: View {
                 .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
         )
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(subject.rawValue): \(totalStars) of \(maxStars) stars earned")
+        .accessibilityLabel("\(subject.rawValue): \(totalStars) of \(maxStars) seeds earned")
     }
 }
 

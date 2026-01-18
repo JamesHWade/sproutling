@@ -54,6 +54,36 @@ class AppState: ObservableObject {
         self.modelContext = modelContext
         loadAllProfiles()
         loadParentSettings()
+        checkiCloudStatus()
+    }
+
+    // MARK: - iCloud Sync Status
+
+    /// Check if iCloud is available and update sync status accordingly
+    private func checkiCloudStatus() {
+        // Check if user is signed into iCloud
+        if FileManager.default.ubiquityIdentityToken != nil {
+            // iCloud is available - SwiftData syncs automatically
+            // Use the lastSyncDate from settings if available, otherwise use now
+            let lastSync = parentSettings?.lastSyncDate ?? Date()
+            syncStatus = .synced(lastSync)
+
+            // Update the lastSyncDate to now since we just loaded
+            parentSettings?.lastSyncDate = Date()
+            try? modelContext?.save()
+        } else {
+            // iCloud not available (not signed in or disabled)
+            syncStatus = .idle
+        }
+    }
+
+    /// Call this when data is saved to update sync status
+    func markSyncActivity() {
+        if FileManager.default.ubiquityIdentityToken != nil {
+            let now = Date()
+            syncStatus = .synced(now)
+            parentSettings?.lastSyncDate = now
+        }
     }
 
     private func loadParentSettings() {
@@ -297,6 +327,7 @@ class AppState: ObservableObject {
         persisted.update(from: profile)
         try? modelContext?.save()
         profiles = persistedProfiles.map { $0.toChildProfile() }
+        markSyncActivity()
     }
 
     // MARK: - Navigation

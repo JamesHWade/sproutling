@@ -77,7 +77,7 @@ enum SyncStatus: Equatable {
     var description: String {
         switch self {
         case .idle:
-            return "Not synced"
+            return "iCloud not available"
         case .syncing:
             return "Syncing..."
         case .synced(let date):

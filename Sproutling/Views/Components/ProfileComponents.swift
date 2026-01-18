@@ -87,13 +87,13 @@ struct ProfileCardView: View {
                     .foregroundColor(.primary)
                     .lineLimit(1)
 
-                // Stars
+                // Seeds
                 HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
+                    Image(systemName: "leaf.fill")
                         .font(.caption)
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.yellow, .orange],
+                                colors: [.green, .mint],
                                 startPoint: .top,
                                 endPoint: .bottom
                             )
@@ -125,7 +125,7 @@ struct ProfileCardView: View {
         }
         .buttonStyle(ProfileCardButtonStyle())
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(profile.name)'s profile, \(profile.totalStars) stars")
+        .accessibilityLabel("\(profile.name)'s profile, \(profile.totalStars) seeds")
         .accessibilityHint(isSelected ? "Currently selected" : "Double tap to switch to this profile")
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
@@ -507,9 +507,9 @@ struct ProfileListRow: View {
 
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
-                        Image(systemName: "star.fill")
+                        Image(systemName: "leaf.fill")
                             .font(.caption2)
-                            .foregroundColor(.yellow)
+                            .foregroundColor(.green)
                         Text("\(profile.totalStars)")
                             .font(.caption)
                             .foregroundColor(.secondary)

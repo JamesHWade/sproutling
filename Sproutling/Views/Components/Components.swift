@@ -86,66 +86,69 @@ struct ProgressBar: View {
     }
 }
 
-// MARK: - Star Reward Display
-struct StarReward: View {
+// MARK: - Seed Reward Display (Plant-themed reward system)
+struct SeedReward: View {
     let count: Int
     var animated: Bool = false
     var size: CGFloat = 30
 
     @Environment(\.accessibilityReduceMotion) var reduceMotion
-    @State private var animatedStars: Set<Int> = []
+    @State private var animatedSeeds: Set<Int> = []
 
     var body: some View {
         HStack(spacing: 4) {
-            ForEach(1...3, id: \.self) { star in
-                Image(systemName: star <= count ? "star.fill" : "star")
+            ForEach(1...3, id: \.self) { seed in
+                Image(systemName: seed <= count ? "leaf.fill" : "leaf")
                     .font(.system(size: size, weight: .bold))
                     .foregroundStyle(
-                        star <= count
-                        ? LinearGradient(colors: [.yellow, .orange], startPoint: .top, endPoint: .bottom)
+                        seed <= count
+                        ? LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom)
                         : LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.4)], startPoint: .top, endPoint: .bottom)
                     )
-                    .scaleEffect(animatedStars.contains(star) ? 1.3 : 1.0)
-                    .symbolEffect(.bounce, options: .speed(0.5), value: animatedStars.contains(star))
+                    .scaleEffect(animatedSeeds.contains(seed) ? 1.3 : 1.0)
+                    .symbolEffect(.bounce, options: .speed(0.5), value: animatedSeeds.contains(seed))
                     .accessibilityHidden(true)
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(count) of 3 stars earned")
+        .accessibilityLabel("\(count) of 3 seeds earned")
         .onAppear {
             if animated && !reduceMotion {
-                animateStars()
+                animateSeeds()
             }
         }
         .onChange(of: count) { _, newCount in
             if !reduceMotion && newCount > 0 {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
-                    _ = animatedStars.insert(newCount)
+                    _ = animatedSeeds.insert(newCount)
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
-                        _ = animatedStars.remove(newCount)
+                        _ = animatedSeeds.remove(newCount)
                     }
                 }
             }
         }
     }
 
-    private func animateStars() {
-        for star in 1...count {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(star) * 0.2) {
+    private func animateSeeds() {
+        for seed in 1...count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(seed) * 0.2) {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
-                    _ = animatedStars.insert(star)
+                    _ = animatedSeeds.insert(seed)
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     withAnimation {
-                        _ = animatedStars.remove(star)
+                        _ = animatedSeeds.remove(seed)
                     }
                 }
             }
         }
     }
 }
+
+// Backwards compatibility alias
+typealias StarReward = SeedReward
 
 // MARK: - Mascot View
 struct MascotView: View {
@@ -235,7 +238,7 @@ struct ConfettiView: View {
     @State private var confettiPieces: [ConfettiPiece] = []
 
     enum ConfettiShape: CaseIterable {
-        case circle, rectangle, star
+        case circle, rectangle, leaf
     }
 
     struct ConfettiPiece: Identifiable {
@@ -252,7 +255,7 @@ struct ConfettiView: View {
         let swayAmount: CGFloat
     }
 
-    private let celebrationEmojis = ["🎉", "⭐", "🌟", "✨", "💫"]
+    private let celebrationEmojis = ["🎉", "🌱", "🌿", "✨", "🍀", "🌻"]
     private let colors: [Color] = [
         .red, .blue, .green, .yellow, .pink, .purple, .orange, .cyan, .mint
     ]
@@ -309,8 +312,8 @@ struct ConfettiView: View {
                     RoundedRectangle(cornerRadius: 2)
                         .fill(piece.color)
                         .frame(width: 16, height: 8)
-                case .star:
-                    Image(systemName: "star.fill")
+                case .leaf:
+                    Image(systemName: "leaf.fill")
                         .font(.system(size: 14))
                         .foregroundColor(piece.color)
                 }
@@ -543,7 +546,7 @@ struct LevelCard: View {
         if level.isUnlocked {
             var label = "Level \(level.id): \(level.title). \(level.subtitle)"
             if level.starsEarned > 0 {
-                label += ". \(level.starsEarned) of 3 stars earned"
+                label += ". \(level.starsEarned) of 3 seeds earned"
             }
             return label
         } else {

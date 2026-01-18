@@ -87,43 +87,46 @@ struct HomeScreen: View {
 
             Spacer()
 
-            // Total stars badge
-            VStack(spacing: 4) {
-                Text("Total Stars")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+            // Total seeds badge - tappable to view progress
+            Button(action: {
+                appState.goToProgress()
+            }) {
+                VStack(spacing: 4) {
+                    Text("Seeds")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                HStack(spacing: 6) {
-                    Image(systemName: "star.fill")
-                        .font(.title2)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.yellow, .orange],
-                                startPoint: .top,
-                                endPoint: .bottom
+                    HStack(spacing: 6) {
+                        Image(systemName: "leaf.fill")
+                            .font(.title2)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.green, .mint],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
                             )
-                        )
-                        .accessibilityHidden(true)
-                    Text("\(appState.childProfile.totalStars)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.yellow, .orange],
-                                startPoint: .top,
-                                endPoint: .bottom
+                            .accessibilityHidden(true)
+                        Text("\(appState.childProfile.totalStars)")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.green, .mint],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
                             )
-                        )
+                    }
                 }
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(.white)
+                        .shadow(color: .green.opacity(0.3), radius: 8, y: 4)
+                )
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .yellow.opacity(0.3), radius: 8, y: 4)
-            )
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Total stars: \(appState.childProfile.totalStars)")
+            .accessibilityLabel("Seeds: \(appState.childProfile.totalStars). Double tap to view progress")
         }
         .sheet(isPresented: $showProfileSwitcher) {
             ProfileSwitcherSheet()
@@ -179,11 +182,6 @@ struct HomeScreen: View {
             }
 
             Spacer()
-
-            // Streak progress indicator
-            Image(systemName: "chevron.right")
-                .font(.title3)
-                .foregroundColor(.secondary)
         }
         .padding(16)
         .background(

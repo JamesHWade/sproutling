@@ -26,9 +26,9 @@ struct LessonCompleteScreen: View {
 
     var body: some View {
         ZStack {
-            // Background
+            // Background (plant-themed celebration)
             LinearGradient(
-                colors: [Color.yellow.opacity(0.3), Color.orange.opacity(0.3)],
+                colors: [Color.green.opacity(0.25), Color.mint.opacity(0.3)],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -83,16 +83,16 @@ struct LessonCompleteScreen: View {
                     .animation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.6).delay(0.4), value: showContent)
                     .accessibilityAddTraits(.isHeader)
 
-                // Stars with SF Symbols
+                // Seeds with SF Symbols (plant-themed rewards)
                 HStack(spacing: 16) {
-                    ForEach(1...3, id: \.self) { star in
+                    ForEach(1...3, id: \.self) { seed in
                         ZStack {
-                            // Glow for earned stars
-                            if star <= stars {
+                            // Glow for earned seeds
+                            if seed <= stars {
                                 Circle()
                                     .fill(
                                         RadialGradient(
-                                            colors: [.yellow.opacity(0.6), .orange.opacity(0.3), .clear],
+                                            colors: [.green.opacity(0.6), .mint.opacity(0.3), .clear],
                                             center: .center,
                                             startRadius: 0,
                                             endRadius: 35
@@ -102,18 +102,18 @@ struct LessonCompleteScreen: View {
                                     .blur(radius: 6)
                             }
 
-                            Image(systemName: star <= stars ? "star.fill" : "star")
+                            Image(systemName: seed <= stars ? "leaf.fill" : "leaf")
                                 .font(.system(size: 50, weight: .bold))
                                 .foregroundStyle(
-                                    star <= stars
-                                    ? LinearGradient(colors: [.yellow, .orange], startPoint: .top, endPoint: .bottom)
+                                    seed <= stars
+                                    ? LinearGradient(colors: [.green, .mint], startPoint: .top, endPoint: .bottom)
                                     : LinearGradient(colors: [.gray.opacity(0.3), .gray.opacity(0.4)], startPoint: .top, endPoint: .bottom)
                                 )
                         }
-                        .scaleEffect(!reduceMotion && animateStars && star <= stars ? 1.2 : 1.0)
+                        .scaleEffect(!reduceMotion && animateStars && seed <= stars ? 1.2 : 1.0)
                         .animation(
                             reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.5)
-                                .delay(0.6 + Double(star) * 0.2),
+                                .delay(0.6 + Double(seed) * 0.2),
                             value: animateStars
                         )
                         .accessibilityHidden(true)
@@ -121,7 +121,7 @@ struct LessonCompleteScreen: View {
                 }
                 .padding(.vertical)
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("You earned \(stars) out of 3 stars")
+                .accessibilityLabel("You earned \(stars) out of 3 seeds")
 
                 // Message
                 Text(message)
