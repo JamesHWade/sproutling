@@ -11,15 +11,43 @@ import AudioToolbox
 import UIKit
 import SwiftUI
 
+@MainActor
 class SoundManager: ObservableObject {
     static let shared = SoundManager()
 
     private var audioPlayer: AVAudioPlayer?
     private let synthesizer = AVSpeechSynthesizer()
 
+    // ElevenLabs integration
+    private var elevenLabsPlayer: AVAudioPlayer?
+    private var speechQueue: [SpeechTask] = []
+    private var isProcessingQueue = false
+
+    // Last TTS error for UI feedback
+    @Published var lastTTSError: ElevenLabsService.ElevenLabsError?
+
     // Settings - persisted via UserDefaults
     @AppStorage("soundEnabled") var soundEnabled: Bool = true
     @AppStorage("hapticsEnabled") var hapticsEnabled: Bool = true
+    @AppStorage("elevenLabsEnabled") var elevenLabsEnabled: Bool = true
+    @AppStorage("selectedVoiceId") private var selectedVoiceId: String = ElevenLabsService.Voice.bella.rawValue
+
+    /// Phonics mapping - letters to their sounds
+    private let phonicsMap: [String: String] = [
+        "A": "ah", "B": "buh", "C": "kuh", "D": "duh", "E": "eh",
+        "F": "fuh", "G": "guh", "H": "huh", "I": "ih", "J": "juh",
+        "K": "kuh", "L": "luh", "M": "muh", "N": "nuh", "O": "oh",
+        "P": "puh", "Q": "kwuh", "R": "ruh", "S": "sss", "T": "tuh",
+        "U": "uh", "V": "vuh", "W": "wuh", "X": "ks", "Y": "yuh", "Z": "zzz"
+    ]
+
+    /// Speech task for queue management
+    private struct SpeechTask {
+        let text: String
+        let settings: ElevenLabsService.VoiceSettings
+        let useElevenLabs: Bool
+        let completion: (() -> Void)?
+    }
 
     private init() {
         setupAudioSession()
@@ -88,36 +116,7 @@ class SoundManager: ObservableObject {
 
     // MARK: - Speak Letter Sound
     func speakLetterSound(_ letter: String) {
-        let phonics: [String: String] = [
-            "A": "ah",
-            "B": "buh",
-            "C": "kuh",
-            "D": "duh",
-            "E": "eh",
-            "F": "fuh",
-            "G": "guh",
-            "H": "huh",
-            "I": "ih",
-            "J": "juh",
-            "K": "kuh",
-            "L": "luh",
-            "M": "muh",
-            "N": "nuh",
-            "O": "oh",
-            "P": "puh",
-            "Q": "kwuh",
-            "R": "ruh",
-            "S": "sss",
-            "T": "tuh",
-            "U": "uh",
-            "V": "vuh",
-            "W": "wuh",
-            "X": "ks",
-            "Y": "yuh",
-            "Z": "zzz"
-        ]
-
-        if let sound = phonics[letter.uppercased()] {
+        if let sound = phonicsMap[letter.uppercased()] {
             speak(sound, rate: 0.3)
         }
     }
@@ -130,6 +129,190 @@ class SoundManager: ObservableObject {
     // MARK: - Stop Speaking
     func stopSpeaking() {
         synthesizer.stopSpeaking(at: .immediate)
+        elevenLabsPlayer?.stop()
+        speechQueue.removeAll()
+        isProcessingQueue = false
+    }
+
+    // MARK: - ElevenLabs Integration
+
+    /// Check if ElevenLabs is enabled (actual key availability is checked async)
+    var isElevenLabsAvailable: Bool {
+        elevenLabsEnabled
+    }
+
+    /// Clear the last TTS error
+    func clearTTSError() {
+        lastTTSError = nil
+    }
+
+    /// Speak text using ElevenLabs if available, falling back to system TTS
+    /// - Parameters:
+    ///   - text: Text to speak
+    ///   - settings: Voice settings (defaults to child-friendly)
+    ///   - completion: Called when speech completes
+    func speakWithElevenLabs(
+        _ text: String,
+        settings: ElevenLabsService.VoiceSettings = .childFriendly,
+        completion: (() -> Void)? = nil
+    ) {
+        guard soundEnabled else {
+            completion?()
+            return
+        }
+
+        let task = SpeechTask(
+            text: text,
+            settings: settings,
+            useElevenLabs: true,
+            completion: completion
+        )
+        speechQueue.append(task)
+        processNextSpeechTask()
+    }
+
+    /// Speak personalized text with child's name
+    /// - Parameters:
+    ///   - template: Text template (use {name} as placeholder)
+    ///   - childName: Child's name to insert
+    ///   - completion: Called when speech completes
+    func speakPersonalized(_ template: String, childName: String, completion: (() -> Void)? = nil) {
+        let personalizedText = template.replacingOccurrences(of: "{name}", with: childName)
+        speakWithElevenLabs(personalizedText, settings: .encouraging, completion: completion)
+    }
+
+    /// Speak an instruction or question
+    func speakInstruction(_ text: String, completion: (() -> Void)? = nil) {
+        speakWithElevenLabs(text, settings: .childFriendly, completion: completion)
+    }
+
+    /// Speak a number using ElevenLabs
+    func speakNumberWithElevenLabs(_ number: Int, completion: (() -> Void)? = nil) {
+        speakWithElevenLabs(String(number), settings: .quickPrompt, completion: completion)
+    }
+
+    /// Speak a letter name using ElevenLabs
+    func speakLetterWithElevenLabs(_ letter: String, completion: (() -> Void)? = nil) {
+        speakWithElevenLabs(letter.uppercased(), settings: .quickPrompt, completion: completion)
+    }
+
+    /// Speak a letter's phonetic sound using ElevenLabs
+    func speakLetterSoundWithElevenLabs(_ letter: String, completion: (() -> Void)? = nil) {
+        if let sound = phonicsMap[letter.uppercased()] {
+            speakWithElevenLabs(sound, settings: .quickPrompt, completion: completion)
+        } else {
+            completion?()
+        }
+    }
+
+    // MARK: - Speech Queue Processing
+
+    private func processNextSpeechTask() {
+        guard !isProcessingQueue, !speechQueue.isEmpty else { return }
+
+        isProcessingQueue = true
+        let task = speechQueue.removeFirst()
+
+        Task {
+            await processSpeechTask(task)
+        }
+    }
+
+    private func processSpeechTask(_ task: SpeechTask) async {
+        defer {
+            isProcessingQueue = false
+            task.completion?()
+            processNextSpeechTask()
+        }
+
+        // Try ElevenLabs first if enabled
+        if task.useElevenLabs && elevenLabsEnabled {
+            let hasKey = await ElevenLabsService.shared.hasAPIKey()
+            if hasKey {
+                // Check cache first
+                if let cachedData = await AudioCacheManager.shared.getCached(
+                    text: task.text,
+                    voiceId: selectedVoiceId
+                ) {
+                    await playAudioData(cachedData)
+                    return
+                }
+
+                // Generate new audio
+                do {
+                    let voiceEnum = ElevenLabsService.Voice(rawValue: selectedVoiceId) ?? .bella
+                    let audioData = try await ElevenLabsService.shared.generateSpeech(
+                        text: task.text,
+                        voice: voiceEnum,
+                        settings: task.settings
+                    )
+
+                    // Cache the audio
+                    await AudioCacheManager.shared.cache(
+                        data: audioData,
+                        text: task.text,
+                        voiceId: selectedVoiceId
+                    )
+
+                    // Clear any previous error on success
+                    lastTTSError = nil
+                    await playAudioData(audioData)
+                    return
+                } catch let error as ElevenLabsService.ElevenLabsError {
+                    // Surface user-actionable errors
+                    switch error {
+                    case .rateLimited, .insufficientCredits, .unauthorized:
+                        lastTTSError = error
+                    default:
+                        break
+                    }
+                    // Fall through to system TTS
+                } catch {
+                    // Fall through to system TTS
+                }
+            }
+        }
+
+        // Fallback to system TTS
+        speak(task.text, rate: 0.4)
+    }
+
+    private func playAudioData(_ data: Data) async {
+        do {
+            elevenLabsPlayer = try AVAudioPlayer(data: data)
+            elevenLabsPlayer?.prepareToPlay()
+            elevenLabsPlayer?.play()
+
+            // Wait for playback to complete
+            while elevenLabsPlayer?.isPlaying == true {
+                try? await Task.sleep(nanoseconds: 50_000_000)  // 50ms
+            }
+        } catch {
+            // Audio playback failure - continue without crashing
+        }
+    }
+
+    // MARK: - Preloading
+
+    /// Preload common phrases for instant playback
+    func preloadCommonAudio() {
+        guard elevenLabsEnabled else { return }
+
+        Task {
+            let hasKey = await ElevenLabsService.shared.hasAPIKey()
+            guard hasKey else { return }
+
+            let voiceId = selectedVoiceId
+            let voice = ElevenLabsService.Voice(rawValue: voiceId) ?? .bella
+
+            await AudioCacheManager.shared.preloadCommonPhrases(voiceId: voiceId) { text in
+                try await ElevenLabsService.shared.generateSpeech(
+                    text: text,
+                    voice: voice,
+                    settings: .quickPrompt
+                )
+            }
+        }
     }
 }
 
@@ -144,6 +327,7 @@ enum SoundEffect: String {
 }
 
 // MARK: - Haptic Feedback Helper
+@MainActor
 struct HapticFeedback {
     private static var isEnabled: Bool {
         SoundManager.shared.hapticsEnabled

@@ -55,7 +55,7 @@ struct LessonView: View {
             }
         }
         .onAppear {
-            lessonState.setupLesson(for: subject, level: level)
+            lessonState.setupLesson(for: subject, level: level, childName: appState.currentProfile?.name)
         }
     }
 
@@ -178,6 +178,7 @@ struct LessonView: View {
 }
 
 // MARK: - Lesson State
+@MainActor
 class LessonState: ObservableObject {
     @Published var cards: [ActivityCard] = []
     @Published var currentIndex = 0
@@ -190,13 +191,17 @@ class LessonState: ObservableObject {
     @Published var incorrectStreak = 0
     @Published var lastReaction: MascotReaction?
 
+    // Child's name for personalized TTS
+    var childName: String = "Friend"
+
     private var currentSubject: Subject?
 
-    func setupLesson(for subject: Subject, level: Int) {
+    func setupLesson(for subject: Subject, level: Int, childName: String? = nil) {
         cards = CurriculumLoader.shared.getCards(for: subject, level: level)
         currentSubject = subject
         correctStreak = 0
         incorrectStreak = 0
+        self.childName = childName ?? "Friend"
     }
 
     func markCorrect() {
@@ -259,6 +264,24 @@ class LessonState: ObservableObject {
     /// Get the current mascot reaction (for display in activities)
     func getReaction() -> MascotReaction? {
         return lastReaction
+    }
+
+    // MARK: - TTS Response Helpers
+
+    /// Handle a correct answer with sound, haptics, and TTS celebration
+    func handleCorrectWithTTS() {
+        SoundManager.shared.playSound(.correct)
+        HapticFeedback.success()
+        let celebration = PromptTemplates.celebration(streak: correctStreak, name: childName)
+        SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+    }
+
+    /// Handle an incorrect answer with sound, haptics, and TTS encouragement
+    func handleIncorrectWithTTS() {
+        SoundManager.shared.playSound(.incorrect)
+        HapticFeedback.error()
+        let tryAgain = PromptTemplates.tryAgain(attempts: incorrectStreak, name: childName)
+        SoundManager.shared.speakWithElevenLabs(tryAgain, settings: .childFriendly)
     }
 
     private func triggerConfetti() {

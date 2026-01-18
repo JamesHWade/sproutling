@@ -18,6 +18,7 @@ struct NumberWithObjectsActivity: View {
 
     @State private var showAnswer = false
     @State private var isCorrect = false
+    @State private var hasSpokenInstruction = false
 
     private var emoji: String {
         CountingObjects.emoji(for: objectName)
@@ -32,6 +33,16 @@ struct NumberWithObjectsActivity: View {
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.mathCountingInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             // Objects to count
             objectsGrid
@@ -88,7 +99,11 @@ struct NumberWithObjectsActivity: View {
                     isCorrect = true
                 }
                 SoundManager.shared.playSound(.correct)
-                SoundManager.shared.speakNumber(number)
+                SoundManager.shared.speakNumberWithElevenLabs(number) {
+                    // Speak celebration after number
+                    let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
+                    SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+                }
                 onCorrect()
             }
         }) {
@@ -147,6 +162,7 @@ struct NumberMatchingActivity: View {
     @State private var selectedNumber: Int?
     @State private var showResult = false
     @State private var isCorrect = false
+    @State private var hasSpokenInstruction = false
 
     private var emoji: String {
         ["🍎", "🌟", "🐟", "🦋", "🌸"][targetNumber % 5]
@@ -160,6 +176,16 @@ struct NumberMatchingActivity: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.mathMatchingInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             // Objects to count
             objectsDisplay
@@ -252,12 +278,10 @@ struct NumberMatchingActivity: View {
 
         if isCorrect {
             onCorrect()
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
+            lessonState.handleIncorrectWithTTS()
         }
     }
 
@@ -280,6 +304,7 @@ struct CountingTouchActivity: View {
 
     @State private var count = 0
     @State private var completed = false
+    @State private var hasSpokenInstruction = false
 
     var body: some View {
         VStack(spacing: 24) {
@@ -294,6 +319,16 @@ struct CountingTouchActivity: View {
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
+            .onAppear {
+                if !hasSpokenInstruction {
+                    hasSpokenInstruction = true
+                    let prompt = PromptTemplates.randomPersonalized(
+                        from: PromptTemplates.mathCountingInstructions,
+                        name: lessonState.childName
+                    )
+                    SoundManager.shared.speakInstruction(prompt)
+                }
+            }
 
             Spacer()
 
@@ -301,13 +336,18 @@ struct CountingTouchActivity: View {
             TapCircle(count: count, target: targetNumber) {
                 count += 1
                 SoundManager.shared.playSound(.tap)
-                SoundManager.shared.speakNumber(count)
+                SoundManager.shared.speakNumberWithElevenLabs(count)
 
                 if count == targetNumber {
                     completed = true
                     onCorrect()
                     SoundManager.shared.playSound(.celebration)
                     HapticFeedback.success()
+                    // Speak celebration after brief delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        let celebration = PromptTemplates.celebration(streak: lessonState.correctStreak, name: lessonState.childName)
+                        SoundManager.shared.speakWithElevenLabs(celebration, settings: .encouraging)
+                    }
                 }
             }
 
@@ -383,6 +423,7 @@ struct SubitizingActivity: View {
     @State private var selectedAnswer: Int?
     @State private var isCorrect: Bool?
     @State private var attempts = 0
+    @State private var hasSpokenInstruction = false
 
     private var emoji: String {
         CountingObjects.emoji(for: objectName)
@@ -410,6 +451,16 @@ struct SubitizingActivity: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
                 .animation(.easeInOut, value: showOptions)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.mathCountingInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             Spacer()
 
@@ -551,13 +602,11 @@ struct SubitizingActivity: View {
         }
 
         if answer == number {
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
             onCorrect()
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
+            lessonState.handleIncorrectWithTTS()
         }
     }
 
@@ -589,6 +638,7 @@ struct ComparisonActivity: View {
     @State private var showResult = false
     @State private var isCorrect = false
     @State private var questionType: QuestionType = .more
+    @State private var hasSpokenInstruction = false
 
     enum Side {
         case left, right, same
@@ -634,6 +684,16 @@ struct ComparisonActivity: View {
                 .fontWeight(.bold)
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
+                .onAppear {
+                    if !hasSpokenInstruction {
+                        hasSpokenInstruction = true
+                        let prompt = PromptTemplates.randomPersonalized(
+                            from: PromptTemplates.mathComparisonInstructions,
+                            name: lessonState.childName
+                        )
+                        SoundManager.shared.speakInstruction(prompt)
+                    }
+                }
 
             Spacer()
 
@@ -817,13 +877,11 @@ struct ComparisonActivity: View {
         isCorrect = (side == correctAnswer)
 
         if isCorrect {
-            SoundManager.shared.playSound(.correct)
-            HapticFeedback.success()
             onCorrect()
+            lessonState.handleCorrectWithTTS()
         } else {
             onIncorrect()
-            SoundManager.shared.playSound(.incorrect)
-            HapticFeedback.error()
+            lessonState.handleIncorrectWithTTS()
         }
     }
 
