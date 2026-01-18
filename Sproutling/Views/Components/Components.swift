@@ -120,7 +120,7 @@ struct StarReward: View {
         .onChange(of: count) { _, newCount in
             if !reduceMotion && newCount > 0 {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
-                    animatedStars.insert(newCount)
+                    _ = animatedStars.insert(newCount)
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
@@ -135,7 +135,7 @@ struct StarReward: View {
         for star in 1...count {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(star) * 0.2) {
                 withAnimation(.spring(response: 0.4, dampingFraction: 0.5)) {
-                    animatedStars.insert(star)
+                    _ = animatedStars.insert(star)
                 }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                     withAnimation {
@@ -234,76 +234,180 @@ struct ConfettiView: View {
     @Environment(\.accessibilityReduceMotion) var reduceMotion
     @State private var confettiPieces: [ConfettiPiece] = []
 
+    enum ConfettiShape: CaseIterable {
+        case circle, rectangle, star
+    }
+
     struct ConfettiPiece: Identifiable {
         let id = UUID()
         var x: CGFloat
         var y: CGFloat
         var rotation: Double
-        var color: Color
-        var delay: Double
+        var scale: CGFloat
+        var opacity: Double
+        let color: Color
+        let shape: ConfettiShape
+        let emoji: String?
+        let delay: Double
+        let swayAmount: CGFloat
     }
+
+    private let celebrationEmojis = ["🎉", "⭐", "🌟", "✨", "💫"]
+    private let colors: [Color] = [
+        .red, .blue, .green, .yellow, .pink, .purple, .orange, .cyan, .mint
+    ]
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 if reduceMotion {
-                    // Static celebration instead of animated confetti
-                    VStack {
-                        Spacer()
-                        HStack(spacing: 8) {
-                            ForEach(0..<5, id: \.self) { _ in
-                                Circle()
-                                    .fill([Color.red, .blue, .green, .yellow, .pink].randomElement()!)
-                                    .frame(width: 16, height: 16)
-                            }
-                        }
-                        .padding(.bottom, 100)
-                    }
+                    staticCelebration
                 } else {
                     ForEach(confettiPieces) { piece in
-                        Circle()
-                            .fill(piece.color)
-                            .frame(width: 12, height: 12)
-                            .position(x: piece.x, y: piece.y)
-                            .rotationEffect(.degrees(piece.rotation))
+                        confettiPieceView(piece)
                     }
                 }
             }
             .onAppear {
                 if !reduceMotion {
                     createConfetti(in: geometry.size)
+                    animateConfetti(in: geometry.size)
                 }
             }
         }
         .allowsHitTesting(false)
     }
 
+    // MARK: - Static Celebration (Reduced Motion)
+    private var staticCelebration: some View {
+        VStack {
+            Spacer()
+            HStack(spacing: 12) {
+                ForEach(celebrationEmojis, id: \.self) { emoji in
+                    Text(emoji)
+                        .font(.system(size: 32))
+                }
+            }
+            .padding(.bottom, 100)
+        }
+    }
+
+    // MARK: - Confetti Piece View
+    @ViewBuilder
+    private func confettiPieceView(_ piece: ConfettiPiece) -> some View {
+        Group {
+            if let emoji = piece.emoji {
+                Text(emoji)
+                    .font(.system(size: 24))
+            } else {
+                switch piece.shape {
+                case .circle:
+                    Circle()
+                        .fill(piece.color)
+                        .frame(width: 12, height: 12)
+                case .rectangle:
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(piece.color)
+                        .frame(width: 16, height: 8)
+                case .star:
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 14))
+                        .foregroundColor(piece.color)
+                }
+            }
+        }
+        .scaleEffect(piece.scale)
+        .opacity(piece.opacity)
+        .rotationEffect(.degrees(piece.rotation))
+        .rotation3DEffect(.degrees(piece.rotation * 0.5), axis: (x: 1, y: 0, z: 0))
+        .position(x: piece.x, y: piece.y)
+    }
+
+    // MARK: - Create Confetti
     private func createConfetti(in size: CGSize) {
-        let colors: [Color] = [.red, .blue, .green, .yellow, .pink, .purple, .orange]
-        // Reduced count for less intensive animation
-        let count = 30
+        let count = 45
+        let centerX = size.width / 2
+        let centerY = size.height * 0.35
 
         for i in 0..<count {
+            // Start from center for burst effect
+            let angle = Double.random(in: 0...2 * .pi)
+            let burstRadius = CGFloat.random(in: 20...60)
+            let startX = centerX + cos(angle) * burstRadius
+            let startY = centerY + sin(angle) * burstRadius * 0.3
+
+            // Determine if this is an emoji or shape
+            let isEmoji = i < 8 // First 8 are emojis
+            let emoji: String? = isEmoji ? celebrationEmojis.randomElement() : nil
+            let shape = ConfettiShape.allCases.randomElement()!
+
             let piece = ConfettiPiece(
-                x: CGFloat.random(in: 0...size.width),
-                y: -20,
+                x: startX,
+                y: startY,
                 rotation: Double.random(in: 0...360),
-                color: colors.randomElement() ?? .blue,
-                delay: Double(i) * 0.02
+                scale: 0.1,
+                opacity: 0,
+                color: colors.randomElement()!,
+                shape: shape,
+                emoji: emoji,
+                delay: Double(i) * 0.012,
+                swayAmount: CGFloat.random(in: 20...50)
             )
             confettiPieces.append(piece)
         }
+    }
 
-        // Animate pieces falling
+    // MARK: - Animate Confetti
+    private func animateConfetti(in size: CGSize) {
+        // Phase 1: Burst outward and appear
         for i in confettiPieces.indices {
+            let angle = Double.random(in: 0...2 * .pi)
+            let burstDistance = CGFloat.random(in: 60...120)
+            let upwardBias: CGFloat = -40
+
             withAnimation(
-                .easeIn(duration: Double.random(in: 1.5...2.5))
+                .spring(response: 0.5, dampingFraction: 0.65)
                 .delay(confettiPieces[i].delay)
             ) {
-                confettiPieces[i].y = size.height + 50
-                confettiPieces[i].rotation += Double.random(in: 360...720)
+                confettiPieces[i].x += cos(angle) * burstDistance
+                confettiPieces[i].y += sin(angle) * burstDistance * 0.4 + upwardBias
+                confettiPieces[i].scale = CGFloat.random(in: 0.8...1.3)
+                confettiPieces[i].opacity = 1.0
+                confettiPieces[i].rotation += Double.random(in: 180...360)
             }
         }
+
+        // Phase 2: Fall with sway
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            for i in confettiPieces.indices {
+                let fallDuration = Double.random(in: 2.2...3.5)
+                let horizontalDrift = confettiPieces[i].swayAmount * (Bool.random() ? 1 : -1)
+
+                withAnimation(
+                    .easeIn(duration: fallDuration)
+                    .delay(confettiPieces[i].delay * 0.5)
+                ) {
+                    confettiPieces[i].y = size.height + 80
+                    confettiPieces[i].x += horizontalDrift
+                    confettiPieces[i].rotation += Double.random(in: 540...1080)
+                }
+
+                // Fade out near the end
+                withAnimation(
+                    .easeIn(duration: 0.8)
+                    .delay(fallDuration - 0.5 + confettiPieces[i].delay * 0.5)
+                ) {
+                    confettiPieces[i].opacity = 0
+                }
+            }
+        }
+    }
+}
+
+#Preview("Confetti") {
+    ZStack {
+        Color.white.ignoresSafeArea()
+        ConfettiView()
     }
 }
 
