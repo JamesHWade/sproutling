@@ -35,6 +35,8 @@
 		E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EE043BA01A59C36749E71B9 /* KeychainManager.swift */; };
 		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
 		MASC000100000000001A /* MascotPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = MASC000200000000001A /* MascotPersonality.swift */; };
+		ELEV000100000000001A /* ElevenLabsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000200000000001A /* ElevenLabsService.swift */; };
+		ELEV000300000000001A /* AudioCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000400000000001A /* AudioCacheManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +71,8 @@
 		CURR0006000000000000001A /* ReadingCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReadingCurriculum.json; sourceTree = "<group>"; };
 		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
 		MASC000200000000001A /* MascotPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPersonality.swift; sourceTree = "<group>"; };
+		ELEV000200000000001A /* ElevenLabsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElevenLabsService.swift; sourceTree = "<group>"; };
+		ELEV000400000000001A /* AudioCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCacheManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +102,7 @@
 				00000023 /* ViewModels */,
 				00000024 /* Views */,
 				00000025 /* Utilities */,
+				ELEV000500000000001A /* Services */,
 				00000026 /* Resources */,
 				00000027 /* Preview Content */,
 				545A4550C572D98DBD5B4B6D /* Info.plist */,
@@ -141,8 +146,17 @@
 				5EE043BA01A59C36749E71B9 /* KeychainManager.swift */,
 				CURR0002000000000000001A /* CurriculumLoader.swift */,
 				MASC000200000000001A /* MascotPersonality.swift */,
+				ELEV000400000000001A /* AudioCacheManager.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		ELEV000500000000001A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				ELEV000200000000001A /* ElevenLabsService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 		00000026 /* Resources */ = {
@@ -311,6 +325,8 @@
 				CURR0001000000000000001A /* CurriculumLoader.swift in Sources */,
 				TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */,
 				MASC000100000000001A /* MascotPersonality.swift in Sources */,
+				ELEV000100000000001A /* ElevenLabsService.swift in Sources */,
+				ELEV000300000000001A /* AudioCacheManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -17,6 +17,16 @@ struct SettingsScreen: View {
     @State private var pinSheetMode: PINSheetMode = .setup
     @State private var pendingAction: (() -> Void)?
 
+    // ElevenLabs TTS settings
+    @State private var showAPIKeySheet: Bool = false
+    @State private var apiKeyInput: String = ""
+    @State private var isValidatingKey: Bool = false
+    @State private var keyValidationResult: Bool? = nil
+    @State private var availableVoices: [VoiceInfo] = []
+    @State private var isLoadingVoices: Bool = false
+    @State private var showVoiceTestFeedback: Bool = false
+    @AppStorage("selectedVoiceId") private var selectedVoiceId: String = ElevenLabsService.Voice.bella.rawValue
+
     var body: some View {
         ZStack {
             // Background gradient
@@ -47,6 +57,9 @@ struct SettingsScreen: View {
 
                         // Sound & Haptics
                         soundHapticsSection
+
+                        // ElevenLabs Voice
+                        elevenLabsSection
 
                         // App info
                         appInfoSection
@@ -83,6 +96,18 @@ struct SettingsScreen: View {
                     pendingAction = nil
                 }
             )
+        }
+        .sheet(isPresented: $showAPIKeySheet) {
+            ElevenLabsAPIKeySheet(
+                apiKey: $apiKeyInput,
+                isValidating: $isValidatingKey,
+                validationResult: $keyValidationResult,
+                onSave: saveAPIKey,
+                onCancel: { showAPIKeySheet = false }
+            )
+        }
+        .onAppear {
+            loadElevenLabsState()
         }
     }
 
@@ -507,6 +532,218 @@ struct SettingsScreen: View {
         }
     }
 
+    // MARK: - ElevenLabs TTS Section
+    private var elevenLabsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Voice Settings")
+                    .font(.title3)
+                    .fontWeight(.bold)
+
+                Spacer()
+
+                if hasElevenLabsKey {
+                    Text("Premium")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            Capsule()
+                                .fill(LinearGradient(colors: [.purple, .pink], startPoint: .leading, endPoint: .trailing))
+                        )
+                }
+            }
+            .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                // ElevenLabs toggle
+                SettingsToggleRow(
+                    icon: "waveform.circle.fill",
+                    title: "Natural Voice",
+                    subtitle: hasElevenLabsKey ? "ElevenLabs TTS enabled" : "Configure API key to enable",
+                    isOn: $soundManager.elevenLabsEnabled,
+                    iconColor: .purple
+                )
+                .disabled(!hasElevenLabsKey)
+                .opacity(hasElevenLabsKey ? 1.0 : 0.6)
+
+                Divider()
+                    .padding(.leading, 52)
+
+                // API Key configuration
+                Button(action: {
+                    handlePINProtectedAction {
+                        apiKeyInput = ""
+                        keyValidationResult = nil
+                        showAPIKeySheet = true
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "key.fill")
+                            .font(.title2)
+                            .foregroundColor(.gray)
+                            .frame(width: 36)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("API Key")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+
+                            Text(hasElevenLabsKey ? "Configured" : "Not configured")
+                                .font(.caption)
+                                .foregroundColor(hasElevenLabsKey ? .green : .secondary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(16)
+                }
+
+                if hasElevenLabsKey && soundManager.elevenLabsEnabled {
+                    Divider()
+                        .padding(.leading, 52)
+
+                    // Voice selection
+                    HStack {
+                        Image(systemName: "person.wave.2.fill")
+                            .font(.title2)
+                            .foregroundColor(.blue)
+                            .frame(width: 36)
+
+                        Text("Voice")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        Spacer()
+
+                        if isLoadingVoices {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        } else {
+                            Picker("", selection: $selectedVoiceId) {
+                                ForEach(ElevenLabsService.Voice.allCases) { voice in
+                                    Text(voice.displayName).tag(voice.rawValue)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                        }
+                    }
+                    .padding(16)
+
+                    Divider()
+                        .padding(.leading, 52)
+
+                    // Test voice button
+                    Button(action: testVoice) {
+                        HStack {
+                            Image(systemName: "play.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.green)
+                                .frame(width: 36)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Test Voice")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+
+                                Text("Hear a sample of the selected voice")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            if showVoiceTestFeedback {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        .padding(16)
+                    }
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.white)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            )
+        }
+    }
+
+    // MARK: - ElevenLabs Helpers
+    private var hasElevenLabsKey: Bool {
+        Task {
+            return await ElevenLabsService.shared.hasAPIKey()
+        }
+        // This returns a cached/synchronous check
+        return UserDefaults.standard.bool(forKey: "hasElevenLabsKey")
+    }
+
+    private func loadElevenLabsState() {
+        Task {
+            let hasKey = await ElevenLabsService.shared.hasAPIKey()
+            await MainActor.run {
+                UserDefaults.standard.set(hasKey, forKey: "hasElevenLabsKey")
+            }
+        }
+    }
+
+    private func saveAPIKey() {
+        guard !apiKeyInput.isEmpty else { return }
+
+        isValidatingKey = true
+        keyValidationResult = nil
+
+        Task {
+            // Save the key
+            let saved = await ElevenLabsService.shared.saveAPIKey(apiKeyInput)
+
+            if saved {
+                // Validate it
+                let isValid = await ElevenLabsService.shared.validateAPIKey()
+
+                await MainActor.run {
+                    isValidatingKey = false
+                    keyValidationResult = isValid
+
+                    if isValid {
+                        UserDefaults.standard.set(true, forKey: "hasElevenLabsKey")
+                        // Close sheet after a brief delay to show success
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            showAPIKeySheet = false
+                            // Trigger preloading
+                            soundManager.preloadCommonAudio()
+                        }
+                    }
+                }
+            } else {
+                await MainActor.run {
+                    isValidatingKey = false
+                    keyValidationResult = false
+                }
+            }
+        }
+    }
+
+    private func testVoice() {
+        showVoiceTestFeedback = false
+
+        soundManager.speakPersonalized("Great job, {name}! You're doing amazing!", childName: appState.childProfile.name) {
+            DispatchQueue.main.async {
+                showVoiceTestFeedback = true
+                // Hide feedback after 2 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    showVoiceTestFeedback = false
+                }
+            }
+        }
+    }
+
     // MARK: - App Info Section
     private var appInfoSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -669,6 +906,113 @@ struct SettingsInfoRow: View {
         .padding(16)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(title): \(value)")
+    }
+}
+
+// MARK: - ElevenLabs API Key Sheet
+struct ElevenLabsAPIKeySheet: View {
+    @Binding var apiKey: String
+    @Binding var isValidating: Bool
+    @Binding var validationResult: Bool?
+    let onSave: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 24) {
+                // Icon
+                Image(systemName: "waveform.circle.fill")
+                    .font(.system(size: 60))
+                    .foregroundStyle(
+                        LinearGradient(colors: [.purple, .pink], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .padding(.top, 20)
+
+                // Title and description
+                VStack(spacing: 8) {
+                    Text("ElevenLabs API Key")
+                        .font(.title2)
+                        .fontWeight(.bold)
+
+                    Text("Enter your ElevenLabs API key to enable natural-sounding voice for your child's learning experience.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+
+                // API Key input
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("API Key")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+
+                    SecureField("Enter your API key", text: $apiKey)
+                        .textFieldStyle(.roundedBorder)
+                        .textContentType(.password)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
+                }
+                .padding(.horizontal)
+
+                // Validation status
+                if isValidating {
+                    HStack {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Validating...")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                } else if let result = validationResult {
+                    HStack {
+                        Image(systemName: result ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundColor(result ? .green : .red)
+                        Text(result ? "API key is valid!" : "Invalid API key. Please check and try again.")
+                            .font(.subheadline)
+                            .foregroundColor(result ? .green : .red)
+                    }
+                }
+
+                // Help link
+                Link(destination: URL(string: "https://elevenlabs.io/app/settings/api-keys")!) {
+                    HStack {
+                        Image(systemName: "questionmark.circle")
+                        Text("Get your API key from ElevenLabs")
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                }
+
+                Spacer()
+
+                // Save button
+                Button(action: onSave) {
+                    HStack {
+                        if isValidating {
+                            ProgressView()
+                                .tint(.white)
+                        }
+                        Text(isValidating ? "Validating..." : "Save API Key")
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(apiKey.isEmpty ? Color.gray : Color.purple)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                .disabled(apiKey.isEmpty || isValidating)
+                .padding(.horizontal)
+                .padding(.bottom)
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel", action: onCancel)
+                }
+            }
+        }
     }
 }
 
