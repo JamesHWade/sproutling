@@ -32,13 +32,23 @@ class SoundManager: ObservableObject {
     @AppStorage("elevenLabsEnabled") var elevenLabsEnabled: Bool = true
     @AppStorage("selectedVoiceId") private var selectedVoiceId: String = ElevenLabsService.Voice.bella.rawValue
 
-    /// Phonics mapping - letters to their sounds
+    /// Phonics mapping - letters to their sounds (optimized for TTS clarity)
+    /// Uses extended phonetic representations that TTS engines pronounce more naturally
     private let phonicsMap: [String: String] = [
-        "A": "ah", "B": "buh", "C": "kuh", "D": "duh", "E": "eh",
-        "F": "fuh", "G": "guh", "H": "huh", "I": "ih", "J": "juh",
-        "K": "kuh", "L": "luh", "M": "muh", "N": "nuh", "O": "oh",
-        "P": "puh", "Q": "kwuh", "R": "ruh", "S": "sss", "T": "tuh",
-        "U": "uh", "V": "vuh", "W": "wuh", "X": "ks", "Y": "yuh", "Z": "zzz"
+        "A": "aah", "B": "buh", "C": "kuh", "D": "duh", "E": "ehh",
+        "F": "fff", "G": "guh", "H": "huh", "I": "ihh", "J": "juh",
+        "K": "kuh", "L": "lll", "M": "mmm", "N": "nnn", "O": "aww",
+        "P": "puh", "Q": "kwuh", "R": "rrr", "S": "sss", "T": "tuh",
+        "U": "uhh", "V": "vvv", "W": "wuh", "X": "ks", "Y": "yuh", "Z": "zzz"
+    ]
+
+    /// Number words for clearer TTS pronunciation
+    private let numberWords: [Int: String] = [
+        0: "zero", 1: "one", 2: "two", 3: "three", 4: "four",
+        5: "five", 6: "six", 7: "seven", 8: "eight", 9: "nine",
+        10: "ten", 11: "eleven", 12: "twelve", 13: "thirteen",
+        14: "fourteen", 15: "fifteen", 16: "sixteen", 17: "seventeen",
+        18: "eighteen", 19: "nineteen", 20: "twenty"
     ]
 
     /// Speech task for queue management
@@ -186,9 +196,10 @@ class SoundManager: ObservableObject {
         speakWithElevenLabs(text, settings: .childFriendly, completion: completion)
     }
 
-    /// Speak a number using ElevenLabs
+    /// Speak a number using ElevenLabs (uses word form for clarity)
     func speakNumberWithElevenLabs(_ number: Int, completion: (() -> Void)? = nil) {
-        speakWithElevenLabs(String(number), settings: .quickPrompt, completion: completion)
+        let text = numberWords[number] ?? String(number)
+        speakWithElevenLabs(text, settings: .quickPrompt, completion: completion)
     }
 
     /// Speak a letter name using ElevenLabs
