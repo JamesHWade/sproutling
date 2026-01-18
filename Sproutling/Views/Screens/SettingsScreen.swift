@@ -13,6 +13,9 @@ struct SettingsScreen: View {
     @State private var showResetConfirmation: Bool = false
     @State private var editingName: Bool = false
     @State private var newName: String = ""
+    @State private var showPINSheet: Bool = false
+    @State private var pinSheetMode: PINSheetMode = .setup
+    @State private var pendingAction: (() -> Void)?
 
     var body: some View {
         ZStack {
@@ -36,6 +39,12 @@ struct SettingsScreen: View {
                         // Profile section
                         profileSection
 
+                        // Profiles & Sync section
+                        profilesSection
+
+                        // Parent Controls section
+                        parentControlsSection
+
                         // Sound & Haptics
                         soundHapticsSection
 
@@ -58,6 +67,22 @@ struct SettingsScreen: View {
             }
         } message: {
             Text("This will reset all your stars and progress. This cannot be undone.")
+        }
+        .sheet(isPresented: $showPINSheet) {
+            ParentPINSheet(
+                mode: pinSheetMode,
+                onSuccess: {
+                    showPINSheet = false
+                    if let action = pendingAction {
+                        action()
+                        pendingAction = nil
+                    }
+                },
+                onCancel: {
+                    showPINSheet = false
+                    pendingAction = nil
+                }
+            )
         }
     }
 
@@ -128,6 +153,210 @@ struct SettingsScreen: View {
             appState.childProfile.name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         }
         editingName = false
+    }
+
+    // MARK: - Profiles & Sync Section
+    private var profilesSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Profiles & Sync")
+                .font(.title3)
+                .fontWeight(.bold)
+                .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                // Manage Profiles
+                Button(action: {
+                    handlePINProtectedAction {
+                        appState.goToProfileManagement()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "person.2.fill")
+                            .font(.title2)
+                            .foregroundColor(.purple)
+                            .frame(width: 36)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Manage Profiles")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+
+                            Text("\(appState.profiles.count) profile\(appState.profiles.count == 1 ? "" : "s")")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.gray)
+                    }
+                    .padding(16)
+                }
+
+                Divider()
+                    .padding(.leading, 52)
+
+                // Switch Profile
+                if appState.profiles.count > 1 {
+                    Button(action: {
+                        appState.goToProfileSelection()
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.triangle.2.circlepath")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                                .frame(width: 36)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Switch Profile")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+
+                                Text("Currently: \(appState.childProfile.name)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(16)
+                    }
+
+                    Divider()
+                        .padding(.leading, 52)
+                }
+
+                // Sync status
+                HStack {
+                    Image(systemName: "icloud.fill")
+                        .font(.title2)
+                        .foregroundColor(.cyan)
+                        .frame(width: 36)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("iCloud Sync")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        SyncStatusIndicator(status: appState.syncStatus)
+                    }
+
+                    Spacer()
+                }
+                .padding(16)
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.white)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            )
+        }
+    }
+
+    // MARK: - Parent Controls Section
+    private var parentControlsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Parent Controls")
+                .font(.title3)
+                .fontWeight(.bold)
+                .accessibilityAddTraits(.isHeader)
+
+            VStack(spacing: 0) {
+                // PIN toggle
+                HStack {
+                    Image(systemName: "lock.fill")
+                        .font(.title2)
+                        .foregroundColor(.orange)
+                        .frame(width: 36)
+
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Require PIN")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        Text("For settings & profile management")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    Toggle("", isOn: Binding(
+                        get: { appState.hasPIN },
+                        set: { newValue in
+                            if newValue {
+                                // Set up PIN
+                                pinSheetMode = .setup
+                                showPINSheet = true
+                            } else {
+                                // Remove PIN (requires verification first)
+                                if appState.hasPIN {
+                                    pinSheetMode = .verify
+                                    pendingAction = {
+                                        appState.clearPIN()
+                                    }
+                                    showPINSheet = true
+                                }
+                            }
+                        }
+                    ))
+                    .labelsHidden()
+                }
+                .padding(16)
+
+                if appState.hasPIN {
+                    Divider()
+                        .padding(.leading, 52)
+
+                    // Change PIN
+                    Button(action: {
+                        pinSheetMode = .verify
+                        pendingAction = {
+                            pinSheetMode = .change
+                            showPINSheet = true
+                        }
+                        showPINSheet = true
+                    }) {
+                        HStack {
+                            Image(systemName: "key.fill")
+                                .font(.title2)
+                                .foregroundColor(.gray)
+                                .frame(width: 36)
+
+                            Text("Change PIN")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                        }
+                        .padding(16)
+                    }
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.white)
+                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            )
+        }
+    }
+
+    // MARK: - PIN Protected Action Helper
+    private func handlePINProtectedAction(action: @escaping () -> Void) {
+        if appState.hasPIN && !appState.isPINVerified {
+            pinSheetMode = .verify
+            pendingAction = action
+            showPINSheet = true
+        } else {
+            action()
+        }
     }
 
     // MARK: - Sound & Haptics Section
