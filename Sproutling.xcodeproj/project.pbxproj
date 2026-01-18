@@ -37,6 +37,7 @@
 		MASC000100000000001A /* MascotPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = MASC000200000000001A /* MascotPersonality.swift */; };
 		ELEV000100000000001A /* ElevenLabsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000200000000001A /* ElevenLabsService.swift */; };
 		ELEV000300000000001A /* AudioCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000400000000001A /* AudioCacheManager.swift */; };
+		PRMP000100000000001A /* PromptTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRMP000200000000001A /* PromptTemplates.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -73,6 +74,7 @@
 		MASC000200000000001A /* MascotPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPersonality.swift; sourceTree = "<group>"; };
 		ELEV000200000000001A /* ElevenLabsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElevenLabsService.swift; sourceTree = "<group>"; };
 		ELEV000400000000001A /* AudioCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCacheManager.swift; sourceTree = "<group>"; };
+		PRMP000200000000001A /* PromptTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplates.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -147,6 +149,7 @@
 				CURR0002000000000000001A /* CurriculumLoader.swift */,
 				MASC000200000000001A /* MascotPersonality.swift */,
 				ELEV000400000000001A /* AudioCacheManager.swift */,
+				PRMP000200000000001A /* PromptTemplates.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -327,6 +330,7 @@
 				MASC000100000000001A /* MascotPersonality.swift in Sources */,
 				ELEV000100000000001A /* ElevenLabsService.swift in Sources */,
 				ELEV000300000000001A /* AudioCacheManager.swift in Sources */,
+				PRMP000100000000001A /* PromptTemplates.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

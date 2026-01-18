@@ -55,7 +55,7 @@ struct LessonView: View {
             }
         }
         .onAppear {
-            lessonState.setupLesson(for: subject, level: level)
+            lessonState.setupLesson(for: subject, level: level, childName: appState.currentProfile?.name)
         }
     }
 
@@ -190,13 +190,17 @@ class LessonState: ObservableObject {
     @Published var incorrectStreak = 0
     @Published var lastReaction: MascotReaction?
 
+    // Child's name for personalized TTS
+    var childName: String = "Friend"
+
     private var currentSubject: Subject?
 
-    func setupLesson(for subject: Subject, level: Int) {
+    func setupLesson(for subject: Subject, level: Int, childName: String? = nil) {
         cards = CurriculumLoader.shared.getCards(for: subject, level: level)
         currentSubject = subject
         correctStreak = 0
         incorrectStreak = 0
+        self.childName = childName ?? "Friend"
     }
 
     func markCorrect() {
