@@ -69,6 +69,12 @@ struct HomeScreen: View {
                 tabBar
             }
         }
+        .onAppear {
+            // Set mascot greeting once on appear to avoid flickering
+            if mascotReaction == nil {
+                mascotReaction = MascotPersonality.shared.homeGreeting(context: mascotContext)
+            }
+        }
     }
 
     // MARK: - Header Section
@@ -162,7 +168,8 @@ struct HomeScreen: View {
 
     // MARK: - Dynamic Mascot Greeting
     private var dynamicMascotGreeting: some View {
-        let reaction = MascotPersonality.shared.homeGreeting(context: mascotContext)
+        // Use stored reaction to avoid flickering (set in onAppear)
+        let reaction = mascotReaction ?? MascotReaction(.happy, "Let's learn something fun!")
         return MascotView(emotion: reaction.emotion, message: reaction.message)
     }
 
@@ -281,11 +288,16 @@ struct HomeScreen: View {
                 appState.goToSettings()
             }
         }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 12)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 0))
-        .shadow(color: .black.opacity(0.1), radius: 10, y: -5)
+        .padding(.top, 8)
+        .padding(.bottom, 4)
+        .background(
+            Rectangle()
+                .fill(.regularMaterial)
+                .ignoresSafeArea(edges: .bottom)
+        )
+        .overlay(alignment: .top) {
+            Divider()
+        }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Navigation tabs")
     }
@@ -294,12 +306,15 @@ struct HomeScreen: View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: icon)
-                    .font(.title2)
+                    .font(.system(size: 22))
+                    .fontWeight(isSelected ? .semibold : .regular)
                 Text(label)
                     .font(.caption2)
+                    .fontWeight(isSelected ? .medium : .regular)
             }
             .foregroundColor(isSelected ? .purple : .gray)
             .frame(maxWidth: .infinity)
+            .padding(.vertical, 4)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(label) tab")
