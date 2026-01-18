@@ -611,28 +611,33 @@ struct SettingsScreen: View {
                         .padding(.leading, 52)
 
                     // Voice selection
-                    HStack {
-                        Image(systemName: "person.wave.2.fill")
-                            .font(.title2)
-                            .foregroundColor(.blue)
-                            .frame(width: 36)
+                    NavigationLink {
+                        VoiceSelectionView(selectedVoiceId: $selectedVoiceId)
+                    } label: {
+                        HStack {
+                            Image(systemName: "person.wave.2.fill")
+                                .font(.title2)
+                                .foregroundColor(.blue)
+                                .frame(width: 36)
 
-                        Text("Voice")
-                            .font(.headline)
-                            .foregroundColor(.primary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Voice")
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
 
-                        Spacer()
-
-                        if isLoadingVoices {
-                            ProgressView()
-                                .scaleEffect(0.8)
-                        } else {
-                            Picker("", selection: $selectedVoiceId) {
-                                ForEach(ElevenLabsService.Voice.allCases) { voice in
-                                    Text(voice.displayName).tag(voice.rawValue)
+                                if let voice = ElevenLabsService.Voice(rawValue: selectedVoiceId) {
+                                    Text("\(voice.displayName) - \(voice.description)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(1)
                                 }
                             }
-                            .pickerStyle(.menu)
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
                     }
                     .padding(16)
@@ -1018,7 +1023,93 @@ struct ElevenLabsAPIKeySheet: View {
     }
 }
 
+// MARK: - Voice Selection View
+
+struct VoiceSelectionView: View {
+    @Binding var selectedVoiceId: String
+    @Environment(\.dismiss) private var dismiss
+
+    private let femaleVoices = ElevenLabsService.Voice.allCases.filter { $0.isFemale }
+    private let maleVoices = ElevenLabsService.Voice.allCases.filter { !$0.isFemale }
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(femaleVoices) { voice in
+                    VoiceRow(voice: voice, isSelected: selectedVoiceId == voice.rawValue) {
+                        selectedVoiceId = voice.rawValue
+                        testVoice(voice)
+                    }
+                }
+            } header: {
+                Label("Female Voices", systemImage: "person.fill")
+            }
+
+            Section {
+                ForEach(maleVoices) { voice in
+                    VoiceRow(voice: voice, isSelected: selectedVoiceId == voice.rawValue) {
+                        selectedVoiceId = voice.rawValue
+                        testVoice(voice)
+                    }
+                }
+            } header: {
+                Label("Male Voices", systemImage: "person.fill")
+            }
+        }
+        .navigationTitle("Choose Voice")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func testVoice(_ voice: ElevenLabsService.Voice) {
+        let greeting = "Hi there! I'm \(voice.displayName)."
+        SoundManager.shared.speakWithElevenLabs(greeting, settings: .childFriendly)
+    }
+}
+
+struct VoiceRow: View {
+    let voice: ElevenLabsService.Voice
+    let isSelected: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(spacing: 12) {
+                // Selection indicator
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(isSelected ? .purple : .gray.opacity(0.4))
+
+                // Voice info
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(voice.displayName)
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    Text(voice.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                // Play indicator
+                Image(systemName: "play.circle")
+                    .font(.title2)
+                    .foregroundColor(.purple.opacity(0.6))
+            }
+            .padding(.vertical, 4)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 #Preview {
     SettingsScreen()
         .environmentObject(AppState())
+}
+
+#Preview("Voice Selection") {
+    NavigationStack {
+        VoiceSelectionView(selectedVoiceId: .constant(ElevenLabsService.Voice.bella.rawValue))
+    }
 }

@@ -14,36 +14,82 @@ actor ElevenLabsService {
     private let baseURL = "https://api.elevenlabs.io/v1"
     private let session: URLSession
 
-    // Default voice IDs from ElevenLabs (child-friendly options)
+    // Voice IDs from ElevenLabs - curated for children's educational content
     enum Voice: String, CaseIterable, Identifiable {
-        case rachel = "21m00Tcm4TlvDq8ikWAM"  // Rachel - calm, clear
-        case domi = "AZnzlk1XvdvUeBnXmlld"    // Domi - young, friendly
-        case bella = "EXAVITQu4vr4xnSDxMaL"   // Bella - warm, gentle
-        case elli = "MF3mGyEYCl7XYWbV9V6O"    // Elli - young, expressive
-        case josh = "TxGEqnHWrfWFTfGW9XjX"    // Josh - warm, friendly
-        case adam = "pNInz6obpgDQGcFmaJgB"    // Adam - clear, articulate
+        // Female voices
+        case bella = "EXAVITQu4vr4xnSDxMaL"       // Bella - warm, gentle (default)
+        case rachel = "21m00Tcm4TlvDq8ikWAM"     // Rachel - calm, clear
+        case domi = "AZnzlk1XvdvUeBnXmlld"       // Domi - young, friendly
+        case elli = "MF3mGyEYCl7XYWbV9V6O"       // Elli - young, expressive
+        case charlotte = "XB0fDUnXU5powFXDhCwa"  // Charlotte - warm, Swedish accent
+        case alice = "Xb7hH8MSUJpSbSDYk0k2"      // Alice - British, confident
+        case matilda = "XrExE9yKIg1WjnnlVkGX"    // Matilda - warm, storyteller
+        case lily = "pFZP5JQG7iQjIQuC4Bku"       // Lily - British, gentle
+        case grace = "oWAxZDx7w5VEj9dCyTzz"      // Grace - Southern US, soothing
+        case aria = "9BWtsMINqrJLrRacOk9x"       // Aria - expressive, engaging
+
+        // Male voices
+        case josh = "TxGEqnHWrfWFTfGW9XjX"       // Josh - warm, friendly
+        case adam = "pNInz6obpgDQGcFmaJgB"       // Adam - clear, articulate
+        case bill = "pqHfZKP75CvOlQylNhV4"       // Bill - American, trustworthy
+        case george = "JBFqnCBsd6RMkjVDRZzb"     // George - British, warm
+        case callum = "N2lVS1w4EtoT3dr4eOWO"     // Callum - Scottish, friendly
+        case charlie = "IKne3meq5aSn9XLyUdCD"    // Charlie - Australian, casual
+        case daniel = "onwK4e9ZLuTAKqWW03F9"     // Daniel - British, deep
 
         var id: String { rawValue }
 
         var displayName: String {
             switch self {
+            case .bella: return "Bella"
             case .rachel: return "Rachel"
             case .domi: return "Domi"
-            case .bella: return "Bella"
             case .elli: return "Elli"
+            case .charlotte: return "Charlotte"
+            case .alice: return "Alice"
+            case .matilda: return "Matilda"
+            case .lily: return "Lily"
+            case .grace: return "Grace"
+            case .aria: return "Aria"
             case .josh: return "Josh"
             case .adam: return "Adam"
+            case .bill: return "Bill"
+            case .george: return "George"
+            case .callum: return "Callum"
+            case .charlie: return "Charlie"
+            case .daniel: return "Daniel"
             }
         }
 
         var description: String {
             switch self {
-            case .rachel: return "Calm and clear"
-            case .domi: return "Young and friendly"
-            case .bella: return "Warm and gentle"
-            case .elli: return "Young and expressive"
-            case .josh: return "Warm and friendly"
-            case .adam: return "Clear and articulate"
+            case .bella: return "Warm & gentle, like a kind teacher"
+            case .rachel: return "Calm & clear, great for instructions"
+            case .domi: return "Young & cheerful, playful energy"
+            case .elli: return "Bright & expressive, full of wonder"
+            case .charlotte: return "Warm Swedish accent, soothing"
+            case .alice: return "British, confident & encouraging"
+            case .matilda: return "Storyteller voice, great for reading"
+            case .lily: return "Soft British accent, gentle & patient"
+            case .grace: return "Southern US charm, warm & comforting"
+            case .aria: return "Expressive & engaging, fun personality"
+            case .josh: return "Friendly & supportive, like a big brother"
+            case .adam: return "Clear & articulate, easy to understand"
+            case .bill: return "Trustworthy American, calm & steady"
+            case .george: return "Warm British, like a friendly uncle"
+            case .callum: return "Friendly Scottish accent, cheerful"
+            case .charlie: return "Casual Australian, fun & relaxed"
+            case .daniel: return "Deep British voice, calm & reassuring"
+            }
+        }
+
+        /// Whether this is a female voice (for filtering)
+        var isFemale: Bool {
+            switch self {
+            case .bella, .rachel, .domi, .elli, .charlotte, .alice, .matilda, .lily, .grace, .aria:
+                return true
+            case .josh, .adam, .bill, .george, .callum, .charlie, .daniel:
+                return false
             }
         }
     }
