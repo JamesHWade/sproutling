@@ -16,6 +16,23 @@ struct LessonCompleteScreen: View {
     @State private var showContent = false
     @State private var animateStars = false
 
+    // Dynamic mascot reaction based on stars earned
+    private var mascotReaction: MascotReaction {
+        let context = MascotContext(
+            correctStreak: 0,
+            incorrectStreak: 0,
+            activitiesCompletedToday: 0,
+            totalSeeds: appState.childProfile.totalStars,
+            streakDays: appState.childProfile.streakDays,
+            isFirstActivityOfSession: false,
+            isReturningUser: true,
+            timeOfDay: .current,
+            subject: subject,
+            activityType: nil
+        )
+        return MascotPersonality.shared.lessonComplete(stars: stars, context: context)
+    }
+
     var message: String {
         switch stars {
         case 1: return "You kept trying! Practice makes progress!"
@@ -133,8 +150,8 @@ struct LessonCompleteScreen: View {
                     .offset(y: reduceMotion || showContent ? 0 : 20)
                     .animation(reduceMotion ? nil : .easeOut(duration: 0.5).delay(1.2), value: showContent)
 
-                // Mascot
-                MascotView(emotion: .proud, message: "Look what you learned!", size: 50)
+                // Mascot with dynamic reaction
+                MascotView(emotion: mascotReaction.emotion, message: mascotReaction.message, size: 50)
                     .opacity(reduceMotion || showContent ? 1 : 0)
                     .offset(y: showContent ? 0 : 20)
                     .animation(.easeOut(duration: 0.5).delay(1.4), value: showContent)

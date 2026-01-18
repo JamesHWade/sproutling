@@ -14,6 +14,7 @@ struct LetterCardActivity: View {
     let word: String
     let emoji: String
     let sound: String
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
     let onNext: () -> Void
 
@@ -136,7 +137,9 @@ struct LetterMatchingActivity: View {
     let options: [String]
     let word: String
     let emoji: String
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
+    let onIncorrect: () -> Void
     let onNext: () -> Void
 
     @State private var selectedLetter: String?
@@ -196,7 +199,11 @@ struct LetterMatchingActivity: View {
     private var resultSection: some View {
         VStack(spacing: 16) {
             if isCorrect {
-                MascotView(emotion: .proud, message: "Yes! \(targetLetter) is for \(word)!")
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    MascotView(emotion: .proud, message: "Yes! \(targetLetter) is for \(word)!")
+                }
 
                 Button(action: onNext) {
                     Text("Next →")
@@ -205,15 +212,19 @@ struct LetterMatchingActivity: View {
                 }
                 .buttonStyle(PrimaryButtonStyle(colors: [.green, .teal]))
             } else {
-                VStack(spacing: 12) {
-                    Text("Oops!")
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    VStack(spacing: 12) {
+                        Text("Oops!")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
 
-                    Text("Listen: \(word) starts with \"\(targetLetter)\"")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
+                        Text("Listen: \(word) starts with \"\(targetLetter)\"")
+                            .font(.title3)
+                            .foregroundColor(.secondary)
+                    }
                 }
 
                 Button(action: reset) {
@@ -242,6 +253,7 @@ struct LetterMatchingActivity: View {
             SoundManager.shared.speak(word)
             HapticFeedback.success()
         } else {
+            onIncorrect()
             SoundManager.shared.playSound(.incorrect)
             HapticFeedback.error()
         }
@@ -262,6 +274,7 @@ struct PhonicsBlendingActivity: View {
     let letters: [String]
     let word: String
     let emoji: String
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
     let onNext: () -> Void
 
@@ -400,6 +413,7 @@ struct VocabularyCardActivity: View {
     let word: String
     let emoji: String
     let category: String?  // Optional category like "Animals", "Food", etc.
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
     let onNext: () -> Void
 
@@ -538,6 +552,7 @@ struct VocabularyCardActivity: View {
         word: "Apple",
         emoji: "🍎",
         sound: "ah",
+        lessonState: LessonState(),
         onCorrect: {},
         onNext: {}
     )
@@ -549,7 +564,9 @@ struct VocabularyCardActivity: View {
         options: ["A", "C", "D"],
         word: "Cat",
         emoji: "🐱",
+        lessonState: LessonState(),
         onCorrect: {},
+        onIncorrect: {},
         onNext: {}
     )
 }
@@ -559,6 +576,18 @@ struct VocabularyCardActivity: View {
         letters: ["C", "A", "T"],
         word: "CAT",
         emoji: "🐱",
+        lessonState: LessonState(),
+        onCorrect: {},
+        onNext: {}
+    )
+}
+
+#Preview("Vocabulary Card") {
+    VocabularyCardActivity(
+        word: "Dog",
+        emoji: "🐶",
+        category: "Animals",
+        lessonState: LessonState(),
         onCorrect: {},
         onNext: {}
     )

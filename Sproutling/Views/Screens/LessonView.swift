@@ -84,6 +84,7 @@ struct LessonView: View {
                 NumberWithObjectsActivity(
                     number: card.number ?? 1,
                     objectName: card.objects ?? "stars",
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
@@ -92,13 +93,16 @@ struct LessonView: View {
                 NumberMatchingActivity(
                     targetNumber: card.number ?? 1,
                     options: card.numberOptions ?? [1, 2, 3],
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
+                    onIncorrect: { lessonState.markIncorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
 
             case .countingTouch:
                 CountingTouchActivity(
                     targetNumber: card.number ?? 5,
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
@@ -110,6 +114,7 @@ struct LessonView: View {
                     word: card.word ?? "Apple",
                     emoji: card.emoji ?? "🍎",
                     sound: card.sound ?? "ah",
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
@@ -120,7 +125,9 @@ struct LessonView: View {
                     options: card.letterOptions ?? ["A", "B", "C"],
                     word: card.word ?? "Apple",
                     emoji: card.emoji ?? "🍎",
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
+                    onIncorrect: { lessonState.markIncorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
 
@@ -129,6 +136,7 @@ struct LessonView: View {
                     letters: card.letters ?? ["C", "A", "T"],
                     word: card.word ?? "CAT",
                     emoji: card.emoji ?? "🐱",
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
@@ -137,7 +145,9 @@ struct LessonView: View {
                 SubitizingActivity(
                     number: card.number ?? 3,
                     objectName: card.objects ?? "stars",
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
+                    onIncorrect: { lessonState.markIncorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
 
@@ -147,7 +157,9 @@ struct LessonView: View {
                     rightCount: card.rightCount ?? 5,
                     leftObjects: card.leftObjects ?? "stars",
                     rightObjects: card.rightObjects ?? "hearts",
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
+                    onIncorrect: { lessonState.markIncorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
 
@@ -156,6 +168,7 @@ struct LessonView: View {
                     word: card.word ?? "Apple",
                     emoji: card.emoji ?? "🍎",
                     category: card.category,
+                    lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
                 )
@@ -172,12 +185,28 @@ class LessonState: ObservableObject {
     @Published var correctAnswers = 0
     @Published var showConfetti = false
 
+    // Streak tracking for mascot personality
+    @Published var correctStreak = 0
+    @Published var incorrectStreak = 0
+    @Published var lastReaction: MascotReaction?
+
+    private var currentSubject: Subject?
+
     func setupLesson(for subject: Subject, level: Int) {
         cards = CurriculumLoader.shared.getCards(for: subject, level: level)
+        currentSubject = subject
+        correctStreak = 0
+        incorrectStreak = 0
     }
 
     func markCorrect() {
         correctAnswers += 1
+        correctStreak += 1
+        incorrectStreak = 0
+
+        // Get mascot reaction for correct answer
+        let context = buildContext()
+        lastReaction = MascotPersonality.shared.correctAnswer(context: context)
 
         // Award stars based on progress
         let progress = Double(correctAnswers) / Double(cards.count)
@@ -189,15 +218,47 @@ class LessonState: ObservableObject {
         }
     }
 
+    func markIncorrect() {
+        incorrectStreak += 1
+        correctStreak = 0
+
+        // Get mascot reaction for incorrect answer
+        let context = buildContext()
+        lastReaction = MascotPersonality.shared.incorrectAnswer(context: context)
+    }
+
     func nextCard(appState: AppState, subject: Subject, level: Int) {
         if currentIndex < cards.count - 1 {
             withAnimation {
                 currentIndex += 1
             }
+            // Reset reaction for next card
+            lastReaction = nil
         } else {
             // Lesson complete
             appState.completeLesson(subject: subject, level: level, stars: starsEarned)
         }
+    }
+
+    /// Build mascot context from current lesson state
+    func buildContext(activityType: ActivityType? = nil) -> MascotContext {
+        MascotContext(
+            correctStreak: correctStreak,
+            incorrectStreak: incorrectStreak,
+            activitiesCompletedToday: correctAnswers,
+            totalSeeds: 0, // Will be filled by view if needed
+            streakDays: 0, // Will be filled by view if needed
+            isFirstActivityOfSession: currentIndex == 0,
+            isReturningUser: true,
+            timeOfDay: .current,
+            subject: currentSubject,
+            activityType: activityType ?? cards[safe: currentIndex]?.type
+        )
+    }
+
+    /// Get the current mascot reaction (for display in activities)
+    func getReaction() -> MascotReaction? {
+        return lastReaction
     }
 
     private func triggerConfetti() {
@@ -205,6 +266,13 @@ class LessonState: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             self?.showConfetti = false
         }
+    }
+}
+
+// Safe array access extension
+extension Array {
+    subscript(safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 

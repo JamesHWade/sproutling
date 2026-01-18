@@ -10,6 +10,23 @@ import SwiftUI
 struct HomeScreen: View {
     @EnvironmentObject var appState: AppState
     @State private var showProfileSwitcher = false
+    @State private var mascotReaction: MascotReaction?
+
+    // Generate context for mascot personality
+    private var mascotContext: MascotContext {
+        MascotContext(
+            correctStreak: 0,
+            incorrectStreak: 0,
+            activitiesCompletedToday: 0,
+            totalSeeds: appState.childProfile.totalStars,
+            streakDays: appState.childProfile.streakDays,
+            isFirstActivityOfSession: true,
+            isReturningUser: appState.childProfile.totalStars > 0,
+            timeOfDay: .current,
+            subject: nil,
+            activityType: nil
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -29,8 +46,8 @@ struct HomeScreen: View {
                     // Streak indicator
                     streakCard
 
-                    // Mascot greeting
-                    MascotView(emotion: .happy, message: "What shall we learn today?")
+                    // Mascot greeting (dynamic based on context)
+                    dynamicMascotGreeting
                         .padding(.vertical, 8)
 
                     // Subject cards
@@ -141,6 +158,12 @@ struct HomeScreen: View {
         case 12..<17: return "Good afternoon!"
         default: return "Good evening!"
         }
+    }
+
+    // MARK: - Dynamic Mascot Greeting
+    private var dynamicMascotGreeting: some View {
+        let reaction = MascotPersonality.shared.homeGreeting(context: mascotContext)
+        return MascotView(emotion: reaction.emotion, message: reaction.message)
     }
 
     // MARK: - Streak Card

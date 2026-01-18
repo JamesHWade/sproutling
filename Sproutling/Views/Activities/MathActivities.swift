@@ -12,6 +12,7 @@ import SwiftUI
 struct NumberWithObjectsActivity: View {
     let number: Int
     let objectName: String
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
     let onNext: () -> Void
 
@@ -138,7 +139,9 @@ struct NumberWithObjectsActivity: View {
 struct NumberMatchingActivity: View {
     let targetNumber: Int
     let options: [Int]
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
+    let onIncorrect: () -> Void
     let onNext: () -> Void
 
     @State private var selectedNumber: Int?
@@ -206,7 +209,11 @@ struct NumberMatchingActivity: View {
     private var resultSection: some View {
         VStack(spacing: 16) {
             if isCorrect {
-                MascotView(emotion: .excited, message: "You figured it out!")
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    MascotView(emotion: .excited, message: "You figured it out!")
+                }
 
                 Button(action: onNext) {
                     Text("Next →")
@@ -215,10 +222,14 @@ struct NumberMatchingActivity: View {
                 }
                 .buttonStyle(PrimaryButtonStyle(colors: [.green, .teal]))
             } else {
-                Text("Let's try again! Count carefully 🧡")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.orange)
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    Text("Let's try again! Count carefully 🧡")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                }
 
                 Button(action: reset) {
                     Text("Try Again")
@@ -244,6 +255,7 @@ struct NumberMatchingActivity: View {
             SoundManager.shared.playSound(.correct)
             HapticFeedback.success()
         } else {
+            onIncorrect()
             SoundManager.shared.playSound(.incorrect)
             HapticFeedback.error()
         }
@@ -262,6 +274,7 @@ struct NumberMatchingActivity: View {
 /// Tap to count up to a target number
 struct CountingTouchActivity: View {
     let targetNumber: Int
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
     let onNext: () -> Void
 
@@ -360,7 +373,9 @@ struct CountingTouchActivity: View {
 struct SubitizingActivity: View {
     let number: Int
     let objectName: String
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
+    let onIncorrect: () -> Void
     let onNext: () -> Void
 
     @State private var showObjects = true
@@ -471,7 +486,11 @@ struct SubitizingActivity: View {
     private func resultSection(isCorrect: Bool) -> some View {
         VStack(spacing: 16) {
             if isCorrect {
-                MascotView(emotion: .excited, message: "You saw it quickly!")
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    MascotView(emotion: .excited, message: "You saw it quickly!")
+                }
 
                 Button(action: onNext) {
                     Text("Next →")
@@ -480,9 +499,13 @@ struct SubitizingActivity: View {
                 }
                 .buttonStyle(PrimaryButtonStyle(colors: [.green, .teal]))
             } else {
-                Text("Try again! Look carefully.")
-                    .font(.title3)
-                    .foregroundColor(.orange)
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    Text("Try again! Look carefully.")
+                        .font(.title3)
+                        .foregroundColor(.orange)
+                }
 
                 Button(action: retry) {
                     Text("Show me again")
@@ -532,6 +555,7 @@ struct SubitizingActivity: View {
             HapticFeedback.success()
             onCorrect()
         } else {
+            onIncorrect()
             SoundManager.shared.playSound(.incorrect)
             HapticFeedback.error()
         }
@@ -556,7 +580,9 @@ struct ComparisonActivity: View {
     let rightCount: Int
     let leftObjects: String
     let rightObjects: String
+    @ObservedObject var lessonState: LessonState
     let onCorrect: () -> Void
+    let onIncorrect: () -> Void
     let onNext: () -> Void
 
     @State private var selectedSide: Side?
@@ -735,7 +761,11 @@ struct ComparisonActivity: View {
     private var resultSection: some View {
         VStack(spacing: 16) {
             if isCorrect {
-                MascotView(emotion: .proud, message: correctMessage)
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    MascotView(emotion: .proud, message: correctMessage)
+                }
 
                 Button(action: onNext) {
                     Text("Next →")
@@ -744,9 +774,13 @@ struct ComparisonActivity: View {
                 }
                 .buttonStyle(PrimaryButtonStyle(colors: [.green, .teal]))
             } else {
-                Text("Look again! Count each group.")
-                    .font(.title3)
-                    .foregroundColor(.orange)
+                if let reaction = lessonState.getReaction() {
+                    MascotView(emotion: reaction.emotion, message: reaction.message)
+                } else {
+                    Text("Look again! Count each group.")
+                        .font(.title3)
+                        .foregroundColor(.orange)
+                }
 
                 Button(action: reset) {
                     Text("Try Again")
@@ -787,6 +821,7 @@ struct ComparisonActivity: View {
             HapticFeedback.success()
             onCorrect()
         } else {
+            onIncorrect()
             SoundManager.shared.playSound(.incorrect)
             HapticFeedback.error()
         }
@@ -825,6 +860,7 @@ struct DelayedPulseModifier: ViewModifier {
     NumberWithObjectsActivity(
         number: 3,
         objectName: "apples",
+        lessonState: LessonState(),
         onCorrect: {},
         onNext: {}
     )
@@ -834,7 +870,9 @@ struct DelayedPulseModifier: ViewModifier {
     NumberMatchingActivity(
         targetNumber: 4,
         options: [2, 4, 6],
+        lessonState: LessonState(),
         onCorrect: {},
+        onIncorrect: {},
         onNext: {}
     )
 }
@@ -842,7 +880,19 @@ struct DelayedPulseModifier: ViewModifier {
 #Preview("Counting Touch") {
     CountingTouchActivity(
         targetNumber: 5,
+        lessonState: LessonState(),
         onCorrect: {},
+        onNext: {}
+    )
+}
+
+#Preview("Subitizing") {
+    SubitizingActivity(
+        number: 3,
+        objectName: "stars",
+        lessonState: LessonState(),
+        onCorrect: {},
+        onIncorrect: {},
         onNext: {}
     )
 }
@@ -853,7 +903,9 @@ struct DelayedPulseModifier: ViewModifier {
         rightCount: 5,
         leftObjects: "apples",
         rightObjects: "apples",
+        lessonState: LessonState(),
         onCorrect: {},
+        onIncorrect: {},
         onNext: {}
     )
 }

@@ -34,6 +34,7 @@
 		CURR0005000000000000001A /* ReadingCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0006000000000000001A /* ReadingCurriculum.json */; };
 		E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EE043BA01A59C36749E71B9 /* KeychainManager.swift */; };
 		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
+		MASC000100000000001A /* MascotPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = MASC000200000000001A /* MascotPersonality.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -67,6 +68,7 @@
 		CURR0004000000000000001A /* MathCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MathCurriculum.json; sourceTree = "<group>"; };
 		CURR0006000000000000001A /* ReadingCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReadingCurriculum.json; sourceTree = "<group>"; };
 		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
+		MASC000200000000001A /* MascotPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPersonality.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +140,7 @@
 				0000001B /* SoundManager.swift */,
 				5EE043BA01A59C36749E71B9 /* KeychainManager.swift */,
 				CURR0002000000000000001A /* CurriculumLoader.swift */,
+				MASC000200000000001A /* MascotPersonality.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 				5078C86F8B595F8CF415F914 /* ProfileComponents.swift in Sources */,
 				CURR0001000000000000001A /* CurriculumLoader.swift in Sources */,
 				TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */,
+				MASC000100000000001A /* MascotPersonality.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
