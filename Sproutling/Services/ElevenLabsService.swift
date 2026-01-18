@@ -50,9 +50,9 @@ actor ElevenLabsService {
 
     /// Model IDs for speech generation
     enum Model: String {
-        case multilingualV2 = "eleven_multilingual_v2"
-        case monolingualV1 = "eleven_monolingual_v1"
-        case turboV2 = "eleven_turbo_v2"  // Faster, good for real-time
+        case flashV2_5 = "eleven_flash_v2_5"      // Fastest (~75ms), 32 languages - best for real-time
+        case turboV2_5 = "eleven_turbo_v2_5"      // High quality + low latency, 32 languages
+        case multilingualV2 = "eleven_multilingual_v2"  // Highest quality, rich emotion, 29 languages
     }
 
     /// Errors that can occur during TTS generation
@@ -146,13 +146,13 @@ actor ElevenLabsService {
     /// - Parameters:
     ///   - text: The text to convert to speech
     ///   - voice: The voice to use (defaults to Bella for warmth)
-    ///   - model: The model to use (defaults to turbo for speed)
+    ///   - model: The model to use (defaults to Flash v2.5 for speed)
     ///   - settings: Voice settings (defaults to child-friendly)
     /// - Returns: Audio data (MP3 format)
     func generateSpeech(
         text: String,
         voice: Voice = .bella,
-        model: Model = .turboV2,
+        model: Model = .flashV2_5,
         settings: VoiceSettings = .childFriendly
     ) async throws -> Data {
         guard let apiKey = getAPIKey(), !apiKey.isEmpty else {
@@ -294,7 +294,7 @@ actor ElevenLabsService {
     func validateAPIKey() async -> ValidationResult {
         do {
             // Try a minimal TTS request - this tests actual speech generation
-            _ = try await generateSpeech(text: "Hi", voice: .bella, model: .turboV2, settings: .quickPrompt)
+            _ = try await generateSpeech(text: "Hi", voice: .bella, model: .flashV2_5, settings: .quickPrompt)
             return .valid
         } catch ElevenLabsError.unauthorized {
             return .invalid
