@@ -67,6 +67,15 @@ struct PromptTemplates {
         "Let's blend, {name}!"  // Only one with name
     ]
 
+    /// Instructions for vocabulary card activities
+    static let vocabularyInstructions = [
+        "What's this?",
+        "Can you say this word?",
+        "Look at this picture!",
+        "Let's learn a new word!",
+        "What do you see, {name}?"  // Only one with name
+    ]
+
     // MARK: - Encouragement (Correct)
 
     /// Short celebration for correct answers
@@ -198,8 +207,10 @@ extension PromptTemplates {
             templates = mathMatchingInstructions
         case .comparison:
             templates = mathComparisonInstructions
-        case .letterCard, .vocabularyCard:
+        case .letterCard:
             templates = readingLetterInstructions
+        case .vocabularyCard:
+            templates = vocabularyInstructions
         case .letterMatching:
             templates = readingMatchingInstructions
         case .phonicsBlending:

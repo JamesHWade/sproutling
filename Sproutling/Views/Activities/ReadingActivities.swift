@@ -485,7 +485,7 @@ struct VocabularyCardActivity: View {
                     if !hasSpokenInstruction {
                         hasSpokenInstruction = true
                         let prompt = PromptTemplates.randomPersonalized(
-                            from: PromptTemplates.readingLetterInstructions,
+                            from: PromptTemplates.vocabularyInstructions,
                             name: lessonState.childName
                         )
                         SoundManager.shared.speakInstruction(prompt)

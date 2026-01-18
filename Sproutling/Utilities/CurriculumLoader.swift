@@ -50,16 +50,21 @@ struct CardData: Codable {
     let rightObjects: String?
 
     /// Converts the JSON card data to an ActivityCard model
+    /// Options are shuffled to prevent predictable answer positions
     func toActivityCard() -> ActivityCard? {
         guard let activityType = ActivityType.from(string: type) else {
             return nil
         }
 
+        // Shuffle options so correct answer isn't always in the same position
+        let shuffledNumberOptions = numberOptions?.shuffled()
+        let shuffledLetterOptions = letterOptions?.shuffled()
+
         return ActivityCard(
             type: activityType,
             number: number,
             objects: objects,
-            numberOptions: numberOptions,
+            numberOptions: shuffledNumberOptions,
             leftCount: leftCount,
             rightCount: rightCount,
             leftObjects: leftObjects,
@@ -68,7 +73,7 @@ struct CardData: Codable {
             word: word,
             emoji: emoji,
             sound: sound,
-            letterOptions: letterOptions,
+            letterOptions: shuffledLetterOptions,
             letters: letters,
             category: category
         )
