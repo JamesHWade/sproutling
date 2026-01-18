@@ -290,9 +290,11 @@ actor ElevenLabsService {
     }
 
     /// Check if the API is available and the key is valid
+    /// Uses a minimal TTS request instead of /voices endpoint (which requires extra permissions)
     func validateAPIKey() async -> ValidationResult {
         do {
-            _ = try await fetchVoices()
+            // Try a minimal TTS request - this tests actual speech generation
+            _ = try await generateSpeech(text: "Hi", voice: .bella, model: .turboV2, settings: .quickPrompt)
             return .valid
         } catch ElevenLabsError.unauthorized {
             return .invalid
@@ -302,6 +304,8 @@ actor ElevenLabsService {
             return .insufficientCredits
         } catch ElevenLabsError.networkError(let error) {
             return .networkError(error)
+        } catch ElevenLabsError.noAPIKey {
+            return .invalid
         } catch {
             return .networkError(error)
         }
