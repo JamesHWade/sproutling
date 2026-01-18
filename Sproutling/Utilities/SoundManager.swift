@@ -208,9 +208,12 @@ class SoundManager: ObservableObject {
     }
 
     /// Speak a letter's phonetic sound using ElevenLabs
+    /// Uses sentence context ("B says buh") for clearer TTS pronunciation
     func speakLetterSoundWithElevenLabs(_ letter: String, completion: (() -> Void)? = nil) {
         if let sound = phonicsMap[letter.uppercased()] {
-            speakWithElevenLabs(sound, settings: .quickPrompt, completion: completion)
+            // Add context for better TTS pronunciation
+            let text = "\(letter.uppercased()) says \(sound)"
+            speakWithElevenLabs(text, settings: .quickPrompt, completion: completion)
         } else {
             completion?()
         }
