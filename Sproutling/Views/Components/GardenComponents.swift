@@ -262,31 +262,39 @@ struct GardenItem: Identifiable {
 
 // MARK: - Garden Summary View
 
-/// Shows a compact summary of garden health
-/// "7 blooming · 2 growing · 11 new"
+/// Shows a compact summary of garden health with stage names
+/// "🌸 5 bloomed · 🌷 3 budding · 🌿 2 growing"
 struct GardenSummaryView: View {
     let items: [GardenItem]
+    var showLabels: Bool = true
 
     private var stageCounts: [(GrowthStage, Int)] {
         var counts: [GrowthStage: Int] = [:]
         for item in items {
             counts[item.stage, default: 0] += 1
         }
-        return GrowthStage.allCases
+        // Return in display order (best to worst)
+        return [.bloomed, .budding, .growing, .planted, .seed, .wilting]
             .map { ($0, counts[$0] ?? 0) }
             .filter { $0.1 > 0 }
     }
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: showLabels ? 12 : 8) {
             ForEach(stageCounts, id: \.0) { stage, count in
                 HStack(spacing: 4) {
                     Text(stage.emoji)
                         .font(.subheadline)
-                    Text("\(count)")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundColor(.textPrimary)
+                    if showLabels {
+                        Text("\(count) \(stage.shortLabel)")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    } else {
+                        Text("\(count)")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.textPrimary)
+                    }
                 }
             }
         }
