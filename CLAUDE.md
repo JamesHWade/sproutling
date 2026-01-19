@@ -183,10 +183,11 @@ TimeForBreakScreen (if time limit reached)
 **JSON Files:**
 - `MathCurriculum.json` - Math lesson content (6 levels, numbers 1-20)
 - `ReadingCurriculum.json` - Reading lesson content (6 levels, A-Z)
+- `ShapesCurriculum.json` - Shapes & colors lesson content (6 levels)
 
 ## Activity System
 
-Nine activity types across two subjects:
+Fourteen activity types across three subjects:
 
 **Math** (`Views/Activities/MathActivities.swift`):
 - `numberWithObjects` - Show objects, reveal number
@@ -201,6 +202,13 @@ Nine activity types across two subjects:
 - `phonicsBlending` - Sequential letter sounds to word
 - `vocabularyCard` - Picture + word vocabulary building
 
+**Shapes & Colors** (`Views/Activities/ShapesActivities.swift`):
+- `shapeCard` - Learn a shape with visual and name
+- `shapeMatching` - Match shape to its name
+- `colorCard` - Learn a color with examples
+- `colorMatching` - Match color to its name
+- `shapeSorting` - Sort items by shape or color
+
 Activities are loaded from JSON curriculum files and rendered in `LessonView` based on `ActivityCard.type`.
 
 ## Key Patterns
@@ -210,6 +218,7 @@ Activities are loaded from JSON curriculum files and rendered in `LessonView` ba
 Edit the JSON curriculum files in `Sproutling/Resources/`:
 - `MathCurriculum.json` - Add math cards with `type`, `number`, `objects`, etc.
 - `ReadingCurriculum.json` - Add reading cards with `type`, `letter`, `word`, `emoji`, `sound`
+- `ShapesCurriculum.json` - Add shapes/colors cards with `type`, `shape`, `color`, `emoji`, etc.
 
 The `CurriculumLoader` handles parsing and provides fallback content if JSON fails.
 
@@ -238,6 +247,7 @@ Via `HapticFeedback` struct - `.light()`, `.medium()`, `.success()`, `.error()`
 
 - Math: Blue-to-purple gradient (`Subject.math.gradient`)
 - Reading: Pink-to-orange gradient (`Subject.reading.gradient`)
+- Shapes: Teal-to-green gradient (`Subject.shapes.gradient`)
 - Standard shadow: `.shadow(color: .black.opacity(0.1), radius: 8, y: 4)`
 - All screens have `#Preview` sections for Xcode canvas testing
 
