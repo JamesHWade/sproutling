@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct LessonView: View {
     let subject: Subject
@@ -37,11 +38,17 @@ struct LessonView: View {
                 .padding(.horizontal)
                 .padding(.top, 8)
 
-                // Card count
-                Text("\(lessonState.currentIndex + 1) of \(lessonState.cards.count)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 4)
+                // Card count with review indicator
+                HStack(spacing: 4) {
+                    Text("\(lessonState.currentIndex + 1) of \(lessonState.cards.count)")
+                    if lessonState.isCurrentCardReview {
+                        Text("(Review)")
+                            .foregroundColor(.orange)
+                    }
+                }
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
 
                 // Current activity
                 currentActivity
@@ -55,7 +62,13 @@ struct LessonView: View {
             }
         }
         .onAppear {
-            lessonState.setupLesson(for: subject, level: level, childName: appState.currentProfile?.name)
+            lessonState.setupLesson(
+                for: subject,
+                level: level,
+                childName: appState.currentProfile?.name,
+                profileId: appState.currentProfile?.id,
+                modelContext: appState.modelContext
+            )
         }
     }
 
@@ -194,20 +207,77 @@ class LessonState: ObservableObject {
     // Child's name for personalized TTS
     var childName: String = "Friend"
 
+    // Spaced repetition tracking
     private var currentSubject: Subject?
+    private var currentLevel: Int = 0
+    private var profileId: UUID?
+    private var modelContext: ModelContext?
+    private var cardStartTime: Date = Date()
+    private var currentCardAttempts: Int = 0
+    private var reviewCardIds: Set<String> = []  // Track which cards are reviews
 
-    func setupLesson(for subject: Subject, level: Int, childName: String? = nil) {
-        cards = CurriculumLoader.shared.getCards(for: subject, level: level)
-        currentSubject = subject
-        correctStreak = 0
-        incorrectStreak = 0
+    /// Whether the current card is a review item
+    var isCurrentCardReview: Bool {
+        guard currentIndex < cards.count else { return false }
+        let card = cards[currentIndex]
+        let itemId = ItemMastery.generateItemId(from: card)
+        return reviewCardIds.contains(itemId)
+    }
+
+    func setupLesson(
+        for subject: Subject,
+        level: Int,
+        childName: String? = nil,
+        profileId: UUID? = nil,
+        modelContext: ModelContext? = nil
+    ) {
+        self.currentSubject = subject
+        self.currentLevel = level
         self.childName = childName ?? "Friend"
+        self.profileId = profileId
+        self.modelContext = modelContext
+        self.correctStreak = 0
+        self.incorrectStreak = 0
+        self.reviewCardIds = []
+
+        // Load cards with spaced repetition if we have profile and context
+        if let profileId = profileId, let modelContext = modelContext {
+            // Get cards with review items integrated
+            cards = SpacedRepetitionManager.shared.getCardsWithReview(
+                for: subject,
+                level: level,
+                profileId: profileId,
+                modelContext: modelContext
+            )
+
+            // Track which cards are reviews (items that already have mastery records)
+            let dueItems = SpacedRepetitionManager.shared.fetchDueItems(
+                profileId: profileId,
+                subject: subject == .math ? "math" : "reading",
+                modelContext: modelContext
+            )
+            reviewCardIds = Set(dueItems.map { $0.itemId })
+        } else {
+            // Fallback: load cards without spaced repetition
+            cards = CurriculumLoader.shared.getCards(for: subject, level: level)
+        }
+
+        // Start timing for first card
+        cardStartTime = Date()
+        currentCardAttempts = 0
     }
 
     func markCorrect() {
         correctAnswers += 1
         correctStreak += 1
+        currentCardAttempts += 1
         incorrectStreak = 0
+
+        // Calculate response time
+        let responseTime = Date().timeIntervalSince(cardStartTime)
+
+        // Record to spaced repetition system
+        recordCardResult(isCorrect: true, attempts: currentCardAttempts, responseTime: responseTime)
 
         // Get mascot reaction for correct answer
         let context = buildContext()
@@ -225,11 +295,55 @@ class LessonState: ObservableObject {
 
     func markIncorrect() {
         incorrectStreak += 1
+        currentCardAttempts += 1
         correctStreak = 0
+
+        // Record to spaced repetition system (but only if this is a final failure after multiple attempts)
+        // For now, we record incorrect on each attempt to track difficulty
+        let responseTime = Date().timeIntervalSince(cardStartTime)
+        recordCardResult(isCorrect: false, attempts: currentCardAttempts, responseTime: responseTime)
 
         // Get mascot reaction for incorrect answer
         let context = buildContext()
         lastReaction = MascotPersonality.shared.incorrectAnswer(context: context)
+    }
+
+    /// Records the result of the current card to the spaced repetition system
+    private func recordCardResult(isCorrect: Bool, attempts: Int, responseTime: TimeInterval) {
+        guard let profileId = profileId,
+              let modelContext = modelContext,
+              let subject = currentSubject,
+              currentIndex < cards.count else { return }
+
+        let card = cards[currentIndex]
+
+        // Get or create mastery record for this card
+        let mastery = SpacedRepetitionManager.shared.getOrCreateMastery(
+            profileId: profileId,
+            card: card,
+            subject: subject,
+            level: currentLevel,
+            modelContext: modelContext
+        )
+
+        // Calculate quality score based on performance
+        let quality = SpacedRepetitionManager.shared.calculateQuality(
+            isCorrect: isCorrect,
+            attempts: attempts,
+            responseTime: responseTime
+        )
+
+        // Update mastery with the result
+        SpacedRepetitionManager.shared.updateMastery(mastery, quality: quality)
+
+        // Update average response time
+        if mastery.totalAttempts > 0 {
+            let oldTotal = mastery.averageResponseTime * Double(mastery.totalAttempts - 1)
+            mastery.averageResponseTime = (oldTotal + responseTime) / Double(mastery.totalAttempts)
+        }
+
+        // Save changes
+        try? modelContext.save()
     }
 
     func nextCard(appState: AppState, subject: Subject, level: Int) {
@@ -237,8 +351,10 @@ class LessonState: ObservableObject {
             withAnimation {
                 currentIndex += 1
             }
-            // Reset reaction for next card
+            // Reset for next card
             lastReaction = nil
+            cardStartTime = Date()
+            currentCardAttempts = 0
         } else {
             // Lesson complete
             appState.completeLesson(subject: subject, level: level, stars: starsEarned)

@@ -16,7 +16,8 @@ struct SproutlingApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             PersistedProfile.self,
-            ParentSettings.self
+            ParentSettings.self,
+            ItemMastery.self
         ])
 
         // Configure CloudKit sync for private database
