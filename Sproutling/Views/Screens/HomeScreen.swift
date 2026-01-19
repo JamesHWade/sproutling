@@ -201,59 +201,80 @@ struct HomeScreen: View {
         let allItems = cachedMathItems + cachedReadingItems
         let plantsNeedingWater = cachedPlantsNeedingWater
 
-        return VStack(spacing: 12) {
-            HStack {
-                Text("🌻 Your Garden Today")
-                    .font(.headline)
-                    .fontWeight(.bold)
+        // Count plants by stage for summary
+        let bloomedCount = allItems.filter { $0.stage == .bloomed }.count
+        let growingCount = allItems.filter { $0.stage == .budding || $0.stage == .growing }.count
 
-                Spacer()
+        return Button(action: {
+            appState.goToProgress()
+        }) {
+            VStack(spacing: 12) {
+                HStack {
+                    Text("🌻 Your Garden")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
 
-                Button(action: {
-                    appState.goToProgress()
-                }) {
-                    Text("See All")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-            }
+                    Spacer()
 
-            if allItems.isEmpty {
-                // Empty state - encourage first lesson
-                VStack(spacing: 8) {
-                    Text("🌱")
-                        .font(.system(size: 40))
-                    Text("Start learning to grow your garden!")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.vertical, 20)
-            } else {
-                // Garden summary with plant emojis
-                HStack(spacing: 4) {
-                    ForEach(allItems.prefix(12)) { item in
-                        Text(item.stage.emoji)
-                            .font(.system(size: 20))
-                    }
-                    if allItems.count > 12 {
-                        Text("...")
+                    HStack(spacing: 4) {
+                        Text("See All")
                             .font(.caption)
+                            .foregroundColor(.secondary)
+                        Image(systemName: "chevron.right")
+                            .font(.caption2)
                             .foregroundColor(.secondary)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Summary text
-                GardenSummaryView(items: allItems)
+                if allItems.isEmpty {
+                    // Empty state - encourage first lesson
+                    VStack(spacing: 8) {
+                        Text("🌱")
+                            .font(.system(size: 40))
+                        Text("Start learning to grow your garden!")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .padding(.vertical, 20)
+                } else {
+                    // Garden summary with plant emojis - show first 10
+                    HStack(spacing: 3) {
+                        ForEach(allItems.prefix(10)) { item in
+                            Text(item.stage.emoji)
+                                .font(.system(size: 22))
+                        }
+                        if allItems.count > 10 {
+                            Text("+\(allItems.count - 10)")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.secondary)
+                                .padding(.leading, 4)
+                        }
+                    }
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                // Plants needing water alert
-                if plantsNeedingWater > 0 {
-                    Button(action: {
-                        // Navigate to progress to see which plants need water
-                        appState.goToProgress()
-                    }) {
+                    // Summary stats row
+                    HStack(spacing: 16) {
+                        if bloomedCount > 0 {
+                            Label("\(bloomedCount) bloomed", systemImage: "sparkles")
+                                .font(.caption)
+                                .foregroundColor(.pink)
+                        }
+                        if growingCount > 0 {
+                            Label("\(growingCount) growing", systemImage: "leaf.fill")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                        }
+                        Spacer()
+                        Text("\(allItems.count) total")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+
+                    // Plants needing water alert
+                    if plantsNeedingWater > 0 {
                         HStack(spacing: 8) {
                             Text("🥀")
                                 .font(.subheadline)
@@ -271,18 +292,18 @@ struct HomeScreen: View {
                                 .background(Capsule().fill(Color.orange))
                         }
                     }
-                    .buttonStyle(.plain)
                 }
             }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.cardBackground)
+            )
+            .adaptiveShadow()
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.cardBackground)
-        )
-        .adaptiveShadow()
+        .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Your garden today. \(allItems.count) plants total. \(plantsNeedingWater) plants need water.")
+        .accessibilityLabel("Your garden today. \(allItems.count) plants total. \(plantsNeedingWater) plants need water. Double tap to view details.")
     }
 
     // MARK: - Streak Card

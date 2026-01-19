@@ -79,6 +79,18 @@ enum GrowthStage: String, CaseIterable, Codable {
         case .wilting: return 5  // Sort last so they stand out
         }
     }
+
+    /// Short label for compact displays (no emoji needed when shown with emoji)
+    var shortLabel: String {
+        switch self {
+        case .seed: return "new"
+        case .planted: return "planted"
+        case .growing: return "growing"
+        case .budding: return "budding"
+        case .bloomed: return "bloomed"
+        case .wilting: return "thirsty"
+        }
+    }
 }
 
 /// Tracks mastery state for a single learning item (e.g., "number 3 with apples" or "letter A")
@@ -183,9 +195,10 @@ final class ItemMastery {
     }
 
     /// Whether this item is considered "mastered" (strong retention)
-    /// Mastery = at least 3 successful reviews with ease factor >= 2.0
+    /// Mastery = at least 2 successful reviews with good accuracy
+    /// More achievable for young learners while still requiring demonstrated retention
     var isMastered: Bool {
-        repetitions >= 3 && easeFactor >= 2.0 && lastQuality >= 3
+        repetitions >= 2 && accuracy >= 90 && lastQuality >= 3
     }
 
     /// Whether this item is due for review
@@ -209,6 +222,7 @@ final class ItemMastery {
 
     /// Growth stage for the garden visualization
     /// Derived from accuracy and retention metrics
+    /// Stages progress naturally as children practice and improve
     var growthStage: GrowthStage {
         // Check for wilting first - was previously mastered but now overdue
         if let lastReview = lastReviewDate,
@@ -230,13 +244,14 @@ final class ItemMastery {
         // Check accuracy thresholds
         let acc = accuracy
 
-        // Bloomed: 90%+ accuracy with retention (at least 3 reps and good ease)
-        if acc >= 90 && repetitions >= 3 && easeFactor >= 2.0 {
+        // Bloomed: 90%+ accuracy with good retention
+        // More achievable for young learners: 2+ reps is enough
+        if acc >= 90 && repetitions >= 2 {
             return .bloomed
         }
 
-        // Budding: 80-89% accuracy
-        if acc >= 80 {
+        // Budding: 80-89% accuracy OR 90%+ with only 1 rep
+        if acc >= 80 || (acc >= 90 && repetitions == 1) {
             return .budding
         }
 
