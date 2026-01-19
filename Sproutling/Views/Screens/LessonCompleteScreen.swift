@@ -192,9 +192,9 @@ struct LessonCompleteScreen: View {
                         .padding(.vertical, 16)
                         .background(
                             Capsule()
-                                .fill(.white)
-                                .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
+                                .fill(Color.cardBackground)
                         )
+                        .adaptiveShadow()
                         .overlay(
                             Capsule()
                                 .stroke(Color.purple.opacity(0.3), lineWidth: 3)

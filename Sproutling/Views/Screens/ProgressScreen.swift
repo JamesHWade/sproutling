@@ -118,9 +118,9 @@ struct ProgressScreen: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(.white)
-                .shadow(color: .black.opacity(0.1), radius: 12, y: 6)
+                .fill(Color.cardBackground)
         )
+        .adaptiveShadow()
     }
 
     private var completedLevelsCount: Int {
@@ -233,7 +233,7 @@ struct ProgressScreen: View {
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.white.opacity(0.8))
+                            .fill(Color.cardBackground.opacity(0.8))
                     )
             } else {
                 ForEach(recommendations, id: \.self) { recommendation in
@@ -361,9 +361,9 @@ struct SubjectProgressCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(.white)
-                .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                .fill(Color.cardBackground)
         )
+        .adaptiveShadow()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(subject.rawValue): \(totalStars) of \(maxStars) seeds earned")
     }
