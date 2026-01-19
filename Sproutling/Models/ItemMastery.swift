@@ -311,6 +311,26 @@ extension ItemMastery {
         case .vocabularyCard:
             let word = card.word ?? "word"
             return "vocab_\(word.lowercased())"
+
+        case .shapeCard:
+            let shape = card.shape ?? "shape"
+            return "shape_\(shape)"
+
+        case .shapeMatching:
+            let shape = card.shape ?? "shape"
+            return "shapematch_\(shape)"
+
+        case .colorCard:
+            let color = card.color ?? "color"
+            return "color_\(color)"
+
+        case .colorMatching:
+            let color = card.color ?? "color"
+            return "colormatch_\(color)"
+
+        case .shapeSorting:
+            let sortBy = card.sortBy ?? "shape"
+            return "sort_\(sortBy)"
         }
     }
 }

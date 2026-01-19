@@ -76,6 +76,24 @@ struct PromptTemplates {
         "What do you see, {name}?"  // Only one with name
     ]
 
+    /// Instructions for shape activities
+    static let shapesInstructions = [
+        "What shape is this?",
+        "Can you name this shape?",
+        "Look at this shape!",
+        "Let's learn shapes!",
+        "What shape, {name}?"  // Only one with name
+    ]
+
+    /// Instructions for color activities
+    static let colorsInstructions = [
+        "What color is this?",
+        "Can you name this color?",
+        "Look at this color!",
+        "Let's learn colors!",
+        "What color, {name}?"  // Only one with name
+    ]
+
     // MARK: - Encouragement (Correct)
 
     /// Short celebration for correct answers
@@ -215,6 +233,10 @@ extension PromptTemplates {
             templates = readingMatchingInstructions
         case .phonicsBlending:
             templates = readingPhonicsInstructions
+        case .shapeCard, .shapeMatching, .shapeSorting:
+            templates = shapesInstructions
+        case .colorCard, .colorMatching:
+            templates = colorsInstructions
         }
         return randomPersonalized(from: templates, name: name)
     }

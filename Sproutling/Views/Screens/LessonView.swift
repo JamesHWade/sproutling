@@ -78,7 +78,7 @@ struct LessonView: View {
     // MARK: - Navigation Bar
     private var navBar: some View {
         SproutlingNavBar(
-            title: subject == .math ? "Counting Fun!" : "Letter Time!",
+            title: navBarTitle,
             onBack: {
                 appState.navigateTo(.subjectSelection(subject))
             },
@@ -86,6 +86,14 @@ struct LessonView: View {
                 StarReward(count: lessonState.starsEarned, animated: lessonState.showConfetti, size: 24)
             )
         )
+    }
+
+    private var navBarTitle: String {
+        switch subject {
+        case .math: return "Counting Fun!"
+        case .reading: return "Letter Time!"
+        case .shapes: return "Shape Time!"
+        }
     }
 
     // MARK: - Current Activity
@@ -184,6 +192,56 @@ struct LessonView: View {
                     word: card.word ?? "Apple",
                     emoji: card.emoji ?? "🍎",
                     category: card.category,
+                    lessonState: lessonState,
+                    onCorrect: { lessonState.markCorrect() },
+                    onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
+                )
+
+            // Shapes & Colors activities
+            case .shapeCard:
+                ShapeCardActivity(
+                    shape: card.shape ?? "circle",
+                    emoji: card.emoji ?? "🔵",
+                    lessonState: lessonState,
+                    onCorrect: { lessonState.markCorrect() },
+                    onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
+                )
+
+            case .shapeMatching:
+                ShapeMatchingActivity(
+                    targetShape: card.shape ?? "circle",
+                    emoji: card.emoji ?? "🔵",
+                    options: card.shapeOptions ?? ["circle", "square", "triangle"],
+                    lessonState: lessonState,
+                    onCorrect: { lessonState.markCorrect() },
+                    onIncorrect: { lessonState.markIncorrect() },
+                    onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
+                )
+
+            case .colorCard:
+                ColorCardActivity(
+                    color: card.color ?? "red",
+                    emoji: card.emoji ?? "🍎",
+                    lessonState: lessonState,
+                    onCorrect: { lessonState.markCorrect() },
+                    onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
+                )
+
+            case .colorMatching:
+                ColorMatchingActivity(
+                    targetColor: card.color ?? "red",
+                    emoji: card.emoji ?? "🍎",
+                    options: card.colorOptions ?? ["red", "blue", "yellow"],
+                    lessonState: lessonState,
+                    onCorrect: { lessonState.markCorrect() },
+                    onIncorrect: { lessonState.markIncorrect() },
+                    onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }
+                )
+
+            case .shapeSorting:
+                ShapeSortingActivity(
+                    coloredShapes: card.coloredShapes ?? [],
+                    sortBy: card.sortBy ?? "shape",
                     lessonState: lessonState,
                     onCorrect: { lessonState.markCorrect() },
                     onNext: { lessonState.nextCard(appState: appState, subject: subject, level: level) }

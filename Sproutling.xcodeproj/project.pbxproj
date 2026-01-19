@@ -17,6 +17,8 @@
 		00000008 /* LessonCompleteScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000018 /* LessonCompleteScreen.swift */; };
 		00000009 /* MathActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000019 /* MathActivities.swift */; };
 		0000000A /* ReadingActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000001A /* ReadingActivities.swift */; };
+		SHAP0001000000000000001A /* ShapesActivities.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHAP0002000000000000001A /* ShapesActivities.swift */; };
+		SHAP0003000000000000001A /* ShapesCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = SHAP0004000000000000001A /* ShapesCurriculum.json */; };
 		0000000B /* SoundManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0000001B /* SoundManager.swift */; };
 		0000000C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0000001C /* Assets.xcassets */; };
 		0000000D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0000001D /* Preview Assets.xcassets */; };
@@ -85,6 +87,8 @@
 		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
 		GARD000200000000001A /* GardenComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GardenComponents.swift; sourceTree = "<group>"; };
 		RDCK000200000000001A /* ReadyCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadyCheckView.swift; sourceTree = "<group>"; };
+		SHAP0002000000000000001A /* ShapesActivities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShapesActivities.swift; sourceTree = "<group>"; };
+		SHAP0004000000000000001A /* ShapesCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ShapesCurriculum.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,6 +222,7 @@
 			children = (
 				00000019 /* MathActivities.swift */,
 				0000001A /* ReadingActivities.swift */,
+				SHAP0002000000000000001A /* ShapesActivities.swift */,
 			);
 			path = Activities;
 			sourceTree = "<group>";
@@ -235,6 +240,7 @@
 			children = (
 				CURR0004000000000000001A /* MathCurriculum.json */,
 				CURR0006000000000000001A /* ReadingCurriculum.json */,
+				SHAP0004000000000000001A /* ShapesCurriculum.json */,
 			);
 			path = Curriculum;
 			sourceTree = "<group>";
@@ -309,6 +315,7 @@
 				0000000D /* Preview Assets.xcassets in Resources */,
 				CURR0003000000000000001A /* MathCurriculum.json in Resources */,
 				CURR0005000000000000001A /* ReadingCurriculum.json in Resources */,
+				SHAP0003000000000000001A /* ShapesCurriculum.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -330,6 +337,7 @@
 				00000008 /* LessonCompleteScreen.swift in Sources */,
 				00000009 /* MathActivities.swift in Sources */,
 				0000000A /* ReadingActivities.swift in Sources */,
+				SHAP0001000000000000001A /* ShapesActivities.swift in Sources */,
 				0000000B /* SoundManager.swift in Sources */,
 				00000042 /* ProgressScreen.swift in Sources */,
 				00000043 /* SettingsScreen.swift in Sources */,

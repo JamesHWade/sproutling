@@ -133,6 +133,8 @@ class MascotPersonality {
                 return mathCorrectReactions.randomElement()!
             case .reading:
                 return readingCorrectReactions.randomElement()!
+            case .shapes:
+                return MascotReaction(.excited, "You know your shapes!")
             }
         }
 
@@ -212,6 +214,16 @@ class MascotPersonality {
             return MascotReaction(.excited, "Sound it out with me!")
         case .vocabularyCard:
             return MascotReaction(.happy, "What's this? Let's find out!")
+        case .shapeCard:
+            return MascotReaction(.happy, "Let's learn a shape!")
+        case .shapeMatching:
+            return MascotReaction(.thinking, "Which shape is it?")
+        case .colorCard:
+            return MascotReaction(.happy, "Let's learn a color!")
+        case .colorMatching:
+            return MascotReaction(.thinking, "What color is it?")
+        case .shapeSorting:
+            return MascotReaction(.excited, "Let's sort by shapes!")
         }
     }
 

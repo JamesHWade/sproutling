@@ -1,0 +1,107 @@
+{
+  "subject": "shapes",
+  "levels": [
+    {
+      "id": 1,
+      "title": "Basic Shapes",
+      "subtitle": "Circle, square, triangle!",
+      "cards": [
+        { "type": "shapeCard", "shape": "circle", "emoji": "🔵" },
+        { "type": "shapeCard", "shape": "square", "emoji": "🟥" },
+        { "type": "shapeCard", "shape": "triangle", "emoji": "🔺" },
+        { "type": "shapeMatching", "shape": "circle", "emoji": "🔵", "shapeOptions": ["circle", "square", "triangle"] },
+        { "type": "shapeCard", "shape": "circle", "emoji": "⚪" },
+        { "type": "shapeMatching", "shape": "square", "emoji": "🟦", "shapeOptions": ["circle", "square", "triangle"] },
+        { "type": "shapeCard", "shape": "triangle", "emoji": "📐" },
+        { "type": "shapeMatching", "shape": "triangle", "emoji": "🔺", "shapeOptions": ["circle", "square", "triangle"] },
+        { "type": "shapeCard", "shape": "square", "emoji": "🟨" },
+        { "type": "shapeMatching", "shape": "circle", "emoji": "🟠", "shapeOptions": ["circle", "square", "triangle"] }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "More Shapes",
+      "subtitle": "Rectangle, star, heart!",
+      "cards": [
+        { "type": "shapeCard", "shape": "rectangle", "emoji": "📱" },
+        { "type": "shapeCard", "shape": "star", "emoji": "⭐" },
+        { "type": "shapeCard", "shape": "heart", "emoji": "❤️" },
+        { "type": "shapeMatching", "shape": "rectangle", "emoji": "📱", "shapeOptions": ["rectangle", "star", "heart", "circle"] },
+        { "type": "shapeCard", "shape": "star", "emoji": "🌟" },
+        { "type": "shapeMatching", "shape": "star", "emoji": "⭐", "shapeOptions": ["rectangle", "star", "heart", "triangle"] },
+        { "type": "shapeCard", "shape": "heart", "emoji": "💜" },
+        { "type": "shapeMatching", "shape": "heart", "emoji": "❤️", "shapeOptions": ["rectangle", "star", "heart", "square"] },
+        { "type": "shapeCard", "shape": "rectangle", "emoji": "🚪" },
+        { "type": "shapeMatching", "shape": "rectangle", "emoji": "📺", "shapeOptions": ["rectangle", "square", "circle", "star"] }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Primary Colors",
+      "subtitle": "Red, blue, yellow!",
+      "cards": [
+        { "type": "colorCard", "color": "red", "emoji": "🍎" },
+        { "type": "colorCard", "color": "blue", "emoji": "🫐" },
+        { "type": "colorCard", "color": "yellow", "emoji": "🍋" },
+        { "type": "colorMatching", "color": "red", "emoji": "🍓", "colorOptions": ["red", "blue", "yellow"] },
+        { "type": "colorCard", "color": "red", "emoji": "🍒" },
+        { "type": "colorMatching", "color": "blue", "emoji": "🌊", "colorOptions": ["red", "blue", "yellow"] },
+        { "type": "colorCard", "color": "yellow", "emoji": "🌻" },
+        { "type": "colorMatching", "color": "yellow", "emoji": "⭐", "colorOptions": ["red", "blue", "yellow"] },
+        { "type": "colorCard", "color": "blue", "emoji": "🦋" },
+        { "type": "colorMatching", "color": "red", "emoji": "🔴", "colorOptions": ["red", "blue", "yellow"] }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "More Colors",
+      "subtitle": "Green, orange, purple!",
+      "cards": [
+        { "type": "colorCard", "color": "green", "emoji": "🥒" },
+        { "type": "colorCard", "color": "orange", "emoji": "🍊" },
+        { "type": "colorCard", "color": "purple", "emoji": "🍇" },
+        { "type": "colorMatching", "color": "green", "emoji": "🥬", "colorOptions": ["green", "orange", "purple", "red"] },
+        { "type": "colorCard", "color": "green", "emoji": "🌲" },
+        { "type": "colorMatching", "color": "orange", "emoji": "🥕", "colorOptions": ["green", "orange", "purple", "yellow"] },
+        { "type": "colorCard", "color": "purple", "emoji": "🍆" },
+        { "type": "colorMatching", "color": "purple", "emoji": "💜", "colorOptions": ["green", "orange", "purple", "blue"] },
+        { "type": "colorCard", "color": "orange", "emoji": "🧡" },
+        { "type": "colorMatching", "color": "green", "emoji": "🐸", "colorOptions": ["green", "orange", "red", "blue"] }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "All Colors",
+      "subtitle": "Pink, brown, black, white!",
+      "cards": [
+        { "type": "colorCard", "color": "pink", "emoji": "🌸" },
+        { "type": "colorCard", "color": "brown", "emoji": "🐻" },
+        { "type": "colorCard", "color": "black", "emoji": "🖤" },
+        { "type": "colorCard", "color": "white", "emoji": "🤍" },
+        { "type": "colorMatching", "color": "pink", "emoji": "🌷", "colorOptions": ["pink", "brown", "black", "white"] },
+        { "type": "colorCard", "color": "brown", "emoji": "🍫" },
+        { "type": "colorMatching", "color": "black", "emoji": "🐈‍⬛", "colorOptions": ["pink", "brown", "black", "white"] },
+        { "type": "colorCard", "color": "white", "emoji": "☁️" },
+        { "type": "colorMatching", "color": "brown", "emoji": "🏀", "colorOptions": ["pink", "brown", "orange", "red"] },
+        { "type": "colorMatching", "color": "white", "emoji": "⚪", "colorOptions": ["pink", "brown", "black", "white"] }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Shapes & Colors",
+      "subtitle": "Put it all together!",
+      "cards": [
+        { "type": "shapeMatching", "shape": "circle", "emoji": "🔴", "shapeOptions": ["circle", "square", "triangle", "star"] },
+        { "type": "colorMatching", "color": "red", "emoji": "🔴", "colorOptions": ["red", "blue", "green", "yellow"] },
+        { "type": "shapeMatching", "shape": "star", "emoji": "⭐", "shapeOptions": ["circle", "square", "star", "heart"] },
+        { "type": "colorMatching", "color": "yellow", "emoji": "⭐", "colorOptions": ["red", "yellow", "green", "blue"] },
+        { "type": "shapeMatching", "shape": "heart", "emoji": "💚", "shapeOptions": ["circle", "heart", "triangle", "rectangle"] },
+        { "type": "colorMatching", "color": "green", "emoji": "💚", "colorOptions": ["green", "blue", "purple", "pink"] },
+        { "type": "shapeMatching", "shape": "square", "emoji": "🟦", "shapeOptions": ["circle", "square", "triangle", "rectangle"] },
+        { "type": "colorMatching", "color": "blue", "emoji": "🟦", "colorOptions": ["red", "blue", "green", "purple"] },
+        { "type": "shapeMatching", "shape": "triangle", "emoji": "🔺", "shapeOptions": ["circle", "square", "triangle", "star"] },
+        { "type": "colorMatching", "color": "orange", "emoji": "🔶", "colorOptions": ["red", "orange", "yellow", "pink"] }
+      ]
+    }
+  ]
+}
