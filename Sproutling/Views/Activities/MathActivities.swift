@@ -424,13 +424,14 @@ struct SubitizingActivity: View {
     @State private var isCorrect: Bool?
     @State private var attempts = 0
     @State private var hasSpokenInstruction = false
+    @State private var generatedOptions: [Int] = []
 
     private var emoji: String {
         CountingObjects.emoji(for: objectName)
     }
 
-    private var options: [Int] {
-        // Generate 3 options including the correct answer
+    /// Generate options once and store them in state
+    private func generateOptions() -> [Int] {
         var opts = Set<Int>()
         opts.insert(number)
         while opts.count < 3 {
@@ -520,7 +521,7 @@ struct SubitizingActivity: View {
 
             // Answer buttons
             HStack(spacing: 20) {
-                ForEach(options, id: \.self) { option in
+                ForEach(generatedOptions, id: \.self) { option in
                     NumberOptionButton(
                         number: option,
                         isSelected: selectedAnswer == option,
@@ -574,6 +575,11 @@ struct SubitizingActivity: View {
         showOptions = false
         selectedAnswer = nil
         isCorrect = nil
+
+        // Generate options once when starting flash sequence
+        if generatedOptions.isEmpty {
+            generatedOptions = generateOptions()
+        }
 
         // Flash objects for 1.5-2 seconds based on number size
         let flashDuration = number <= 3 ? 1.5 : 2.0
@@ -639,6 +645,7 @@ struct ComparisonActivity: View {
     @State private var isCorrect = false
     @State private var questionType: QuestionType = .more
     @State private var hasSpokenInstruction = false
+    @State private var hasInitializedQuestionType = false
 
     enum Side {
         case left, right, same
@@ -757,8 +764,11 @@ struct ComparisonActivity: View {
         }
         .padding()
         .onAppear {
-            // Randomly choose question type
-            questionType = QuestionType.allCases.randomElement() ?? .more
+            // Randomly choose question type only once
+            if !hasInitializedQuestionType {
+                hasInitializedQuestionType = true
+                questionType = QuestionType.allCases.randomElement() ?? .more
+            }
         }
     }
 
