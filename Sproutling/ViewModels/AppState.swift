@@ -48,6 +48,7 @@ class AppState: ObservableObject {
 
     @Published var mathLevels: [LessonLevel] = LessonLevel.mathLevels()
     @Published var readingLevels: [LessonLevel] = LessonLevel.readingLevels()
+    @Published var shapesLevels: [LessonLevel] = LessonLevel.shapesLevels()
 
     private var _modelContext: ModelContext?
     private var persistedProfiles: [PersistedProfile] = []
@@ -179,6 +180,7 @@ class AppState: ObservableObject {
             // Reset and restore level progress for this profile
             mathLevels = LessonLevel.mathLevels()
             readingLevels = LessonLevel.readingLevels()
+            shapesLevels = LessonLevel.shapesLevels()
             restoreLevelProgress()
 
             saveContext(modelContext)
@@ -216,6 +218,7 @@ class AppState: ObservableObject {
             currentProfile = newProfile.toChildProfile()
             mathLevels = LessonLevel.mathLevels()
             readingLevels = LessonLevel.readingLevels()
+            shapesLevels = LessonLevel.shapesLevels()
         }
 
         saveContext(modelContext)
@@ -253,6 +256,7 @@ class AppState: ObservableObject {
                     currentProfile = firstRemaining.toChildProfile()
                     mathLevels = LessonLevel.mathLevels()
                     readingLevels = LessonLevel.readingLevels()
+                    shapesLevels = LessonLevel.shapesLevels()
                     restoreLevelProgress()
                 }
             }
@@ -350,6 +354,20 @@ class AppState: ObservableObject {
                 readingLevels[index].isUnlocked = true
             }
         }
+
+        // Restore shapes level stars
+        for (level, stars) in profile.shapesProgress {
+            if let index = shapesLevels.firstIndex(where: { $0.id == level }) {
+                shapesLevels[index].starsEarned = stars
+            }
+        }
+
+        // Restore shapes level unlock status from persisted state
+        for levelId in profile.shapesUnlockedLevels {
+            if let index = shapesLevels.firstIndex(where: { $0.id == levelId }) {
+                shapesLevels[index].isUnlocked = true
+            }
+        }
     }
 
     private func saveCurrentProfile() {
@@ -417,6 +435,12 @@ class AppState: ObservableObject {
                 readingLevels[index].starsEarned = newStars
                 profile.readingProgress[level] = newStars
             }
+        case .shapes:
+            if let index = shapesLevels.firstIndex(where: { $0.id == level }) {
+                let newStars = max(shapesLevels[index].starsEarned, stars)
+                shapesLevels[index].starsEarned = newStars
+                profile.shapesProgress[level] = newStars
+            }
         }
 
         currentProfile = profile
@@ -431,12 +455,13 @@ class AppState: ObservableObject {
         switch subject {
         case .math: return mathLevels
         case .reading: return readingLevels
+        case .shapes: return shapesLevels
         }
     }
 
     /// Unlock the next level after passing Ready Check
     /// - Parameters:
-    ///   - subject: The subject (math or reading)
+    ///   - subject: The subject (math, reading, or shapes)
     ///   - level: The current level ID that was just passed (next level will be unlocked)
     func unlockNextLevel(subject: Subject, level: Int) {
         guard var profile = currentProfile else { return }
@@ -459,6 +484,14 @@ class AppState: ObservableObject {
             }
             // Persist to profile
             profile.readingUnlockedLevels.insert(nextLevelId)
+
+        case .shapes:
+            // Update in-memory levels array
+            if let index = shapesLevels.firstIndex(where: { $0.id == nextLevelId }) {
+                shapesLevels[index].isUnlocked = true
+            }
+            // Persist to profile
+            profile.shapesUnlockedLevels.insert(nextLevelId)
         }
 
         currentProfile = profile
@@ -481,7 +514,12 @@ class AppState: ObservableObject {
             return []
         }
 
-        let subjectString = subject == .math ? "math" : "reading"
+        let subjectString: String
+        switch subject {
+        case .math: subjectString = "math"
+        case .reading: subjectString = "reading"
+        case .shapes: subjectString = "shapes"
+        }
 
         let predicate = #Predicate<ItemMastery> { item in
             item.profileId == profileId &&
@@ -552,7 +590,12 @@ class AppState: ObservableObject {
             return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
         }
 
-        let subjectString = subject == .math ? "math" : "reading"
+        let subjectString: String
+        switch subject {
+        case .math: subjectString = "math"
+        case .reading: subjectString = "reading"
+        case .shapes: subjectString = "shapes"
+        }
         return SpacedRepetitionManager.shared.getMasteryStats(
             profileId: profileId,
             subject: subjectString,

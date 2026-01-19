@@ -26,6 +26,7 @@ enum Screen: Equatable {
 enum Subject: String, CaseIterable, Identifiable {
     case math = "Numbers"
     case reading = "Letters"
+    case shapes = "Shapes"
 
     var id: String { rawValue }
 
@@ -34,6 +35,7 @@ enum Subject: String, CaseIterable, Identifiable {
         switch self {
         case .math: return "number.circle.fill"
         case .reading: return "book.fill"
+        case .shapes: return "square.on.circle.fill"
         }
     }
 
@@ -42,6 +44,7 @@ enum Subject: String, CaseIterable, Identifiable {
         switch self {
         case .math: return "🔢"
         case .reading: return "📚"
+        case .shapes: return "🔷"
         }
     }
 
@@ -49,6 +52,7 @@ enum Subject: String, CaseIterable, Identifiable {
         switch self {
         case .math: return "Numbers & Counting"
         case .reading: return "Letters & Phonics"
+        case .shapes: return "Shapes & Colors"
         }
     }
 
@@ -56,6 +60,7 @@ enum Subject: String, CaseIterable, Identifiable {
         switch self {
         case .math: return "Count and learn 1-10"
         case .reading: return "ABCs and phonics"
+        case .shapes: return "Circles, squares, and colors"
         }
     }
 
@@ -63,6 +68,7 @@ enum Subject: String, CaseIterable, Identifiable {
         switch self {
         case .math: return [.blue, .purple]
         case .reading: return [.pink, .orange]
+        case .shapes: return [.teal, .green]
         }
     }
 
@@ -70,6 +76,7 @@ enum Subject: String, CaseIterable, Identifiable {
         switch self {
         case .math: return [Color.blue.opacity(0.2), Color.purple.opacity(0.2)]
         case .reading: return [Color.pink.opacity(0.2), Color.orange.opacity(0.2)]
+        case .shapes: return [Color.teal.opacity(0.2), Color.green.opacity(0.2)]
         }
     }
 }
@@ -103,6 +110,17 @@ struct LessonLevel: Identifiable {
             LessonLevel(id: 6, title: "Letters U-Z", subtitle: "Finish the alphabet!", isUnlocked: false, starsEarned: 0)
         ]
     }
+
+    static func shapesLevels() -> [LessonLevel] {
+        [
+            LessonLevel(id: 1, title: "Basic Shapes", subtitle: "Circle, square, triangle!", isUnlocked: true, starsEarned: 0),
+            LessonLevel(id: 2, title: "More Shapes", subtitle: "Rectangle, star, heart!", isUnlocked: false, starsEarned: 0),
+            LessonLevel(id: 3, title: "Primary Colors", subtitle: "Red, blue, yellow!", isUnlocked: false, starsEarned: 0),
+            LessonLevel(id: 4, title: "More Colors", subtitle: "Green, orange, purple!", isUnlocked: false, starsEarned: 0),
+            LessonLevel(id: 5, title: "All Colors", subtitle: "Pink, brown, black, white!", isUnlocked: false, starsEarned: 0),
+            LessonLevel(id: 6, title: "Shapes & Colors", subtitle: "Put it all together!", isUnlocked: false, starsEarned: 0)
+        ]
+    }
 }
 
 // MARK: - Activity Types
@@ -119,6 +137,13 @@ enum ActivityType {
     case letterMatching
     case phonicsBlending
     case vocabularyCard      // Picture + word vocabulary building
+
+    // Shapes & Colors activities
+    case shapeCard           // Learn a shape with visual and name
+    case shapeMatching       // Match shape to name
+    case colorCard           // Learn a color with examples
+    case colorMatching       // Match color to name
+    case shapeSorting        // Sort items by shape or color
 }
 
 // MARK: - Activity Card Data
@@ -147,6 +172,14 @@ struct ActivityCard: Identifiable {
 
     // For vocabulary activities
     var category: String?
+
+    // For shapes & colors activities
+    var shape: String?           // Shape name: "circle", "square", "triangle", etc.
+    var shapeOptions: [String]?  // Multiple choice options for shape matching
+    var color: String?           // Color name: "red", "blue", "yellow", etc.
+    var colorOptions: [String]?  // Multiple choice options for color matching
+    var coloredShapes: [String]? // For sorting: ["red circle", "blue square", ...]
+    var sortBy: String?          // "shape" or "color" for sorting activities
 }
 
 // MARK: - Mascot Emotions
@@ -209,8 +242,10 @@ struct ChildProfile: Identifiable, Equatable {
     var streakDays: Int
     var mathProgress: [Int: Int] // level: stars
     var readingProgress: [Int: Int]
+    var shapesProgress: [Int: Int]
     var mathUnlockedLevels: Set<Int> // levels unlocked via Ready Check (level 1 always unlocked)
     var readingUnlockedLevels: Set<Int>
+    var shapesUnlockedLevels: Set<Int>
     var isActive: Bool
 
     init(
@@ -222,8 +257,10 @@ struct ChildProfile: Identifiable, Equatable {
         streakDays: Int = 0,
         mathProgress: [Int: Int] = [:],
         readingProgress: [Int: Int] = [:],
+        shapesProgress: [Int: Int] = [:],
         mathUnlockedLevels: Set<Int> = [1], // Level 1 always unlocked
         readingUnlockedLevels: Set<Int> = [1],
+        shapesUnlockedLevels: Set<Int> = [1],
         isActive: Bool = false
     ) {
         self.id = id
@@ -234,8 +271,10 @@ struct ChildProfile: Identifiable, Equatable {
         self.streakDays = streakDays
         self.mathProgress = mathProgress
         self.readingProgress = readingProgress
+        self.shapesProgress = shapesProgress
         self.mathUnlockedLevels = mathUnlockedLevels
         self.readingUnlockedLevels = readingUnlockedLevels
+        self.shapesUnlockedLevels = shapesUnlockedLevels
         self.isActive = isActive
     }
 
@@ -249,8 +288,10 @@ struct ChildProfile: Identifiable, Equatable {
             streakDays: 3,
             mathProgress: [:],
             readingProgress: [:],
+            shapesProgress: [:],
             mathUnlockedLevels: [1],
             readingUnlockedLevels: [1],
+            shapesUnlockedLevels: [1],
             isActive: true
         )
     }

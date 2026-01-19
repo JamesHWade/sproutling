@@ -49,6 +49,14 @@ struct CardData: Codable {
     let leftObjects: String?
     let rightObjects: String?
 
+    // Shapes & Colors activity fields
+    let shape: String?
+    let shapeOptions: [String]?
+    let color: String?
+    let colorOptions: [String]?
+    let coloredShapes: [String]?
+    let sortBy: String?
+
     /// Converts the JSON card data to an ActivityCard model
     /// Options are shuffled to prevent predictable answer positions
     func toActivityCard() -> ActivityCard? {
@@ -59,6 +67,8 @@ struct CardData: Codable {
         // Shuffle options so correct answer isn't always in the same position
         let shuffledNumberOptions = numberOptions?.shuffled()
         let shuffledLetterOptions = letterOptions?.shuffled()
+        let shuffledShapeOptions = shapeOptions?.shuffled()
+        let shuffledColorOptions = colorOptions?.shuffled()
 
         return ActivityCard(
             type: activityType,
@@ -75,7 +85,13 @@ struct CardData: Codable {
             sound: sound,
             letterOptions: shuffledLetterOptions,
             letters: letters,
-            category: category
+            category: category,
+            shape: shape,
+            shapeOptions: shuffledShapeOptions,
+            color: color,
+            colorOptions: shuffledColorOptions,
+            coloredShapes: coloredShapes,
+            sortBy: sortBy
         )
     }
 }
@@ -95,6 +111,11 @@ extension ActivityType {
         case "letterMatching": return .letterMatching
         case "phonicsBlending": return .phonicsBlending
         case "vocabularyCard": return .vocabularyCard
+        case "shapeCard": return .shapeCard
+        case "shapeMatching": return .shapeMatching
+        case "colorCard": return .colorCard
+        case "colorMatching": return .colorMatching
+        case "shapeSorting": return .shapeSorting
         default: return nil
         }
     }
@@ -111,6 +132,11 @@ extension ActivityType {
         case .letterMatching: return "letterMatching"
         case .phonicsBlending: return "phonicsBlending"
         case .vocabularyCard: return "vocabularyCard"
+        case .shapeCard: return "shapeCard"
+        case .shapeMatching: return "shapeMatching"
+        case .colorCard: return "colorCard"
+        case .colorMatching: return "colorMatching"
+        case .shapeSorting: return "shapeSorting"
         }
     }
 }
@@ -123,6 +149,7 @@ class CurriculumLoader {
 
     private var mathCurriculum: CurriculumData?
     private var readingCurriculum: CurriculumData?
+    private var shapesCurriculum: CurriculumData?
 
     private init() {
         loadCurriculums()
@@ -132,6 +159,7 @@ class CurriculumLoader {
     private func loadCurriculums() {
         mathCurriculum = loadCurriculum(named: "MathCurriculum")
         readingCurriculum = loadCurriculum(named: "ReadingCurriculum")
+        shapesCurriculum = loadCurriculum(named: "ShapesCurriculum")
     }
 
     /// Loads a single curriculum JSON file
@@ -160,6 +188,8 @@ class CurriculumLoader {
             curriculum = mathCurriculum
         case .reading:
             curriculum = readingCurriculum
+        case .shapes:
+            curriculum = shapesCurriculum
         }
 
         guard let curriculum = curriculum,
@@ -178,6 +208,8 @@ class CurriculumLoader {
             return mathCurriculum?.levels ?? []
         case .reading:
             return readingCurriculum?.levels ?? []
+        case .shapes:
+            return shapesCurriculum?.levels ?? []
         }
     }
 
@@ -195,6 +227,12 @@ class CurriculumLoader {
                 ActivityCard(type: .letterCard, letter: "A", word: "Apple", emoji: "🍎", sound: "ah"),
                 ActivityCard(type: .letterCard, letter: "B", word: "Ball", emoji: "⚽", sound: "buh"),
                 ActivityCard(type: .letterCard, letter: "C", word: "Cat", emoji: "🐱", sound: "kuh")
+            ]
+        case .shapes:
+            return [
+                ActivityCard(type: .shapeCard, emoji: "🔵", shape: "circle"),
+                ActivityCard(type: .shapeCard, emoji: "🟥", shape: "square"),
+                ActivityCard(type: .shapeCard, emoji: "🔺", shape: "triangle")
             ]
         }
     }
