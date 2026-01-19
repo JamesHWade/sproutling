@@ -972,10 +972,9 @@ struct QuickPracticeButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - Color Extensions
+// MARK: - Color Extension for Amber
 extension Color {
     static let amber = Color(red: 1.0, green: 0.75, blue: 0.0)
-    static let cardBackground = Color(uiColor: .systemBackground)
 }
 
 // MARK: - Shake Animation Modifier

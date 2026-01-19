@@ -68,62 +68,89 @@ struct ProfileCardView: View {
             HapticFeedback.medium()
             action()
         }) {
-            VStack(spacing: 12) {
-                // Avatar
-                ProfileAvatarView(avatarIndex: profile.avatarIndex, backgroundIndex: profile.backgroundIndex, size: 80)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                isSelected ? Color.green : Color.clear,
-                                lineWidth: 4
-                            )
-                            .frame(width: 88, height: 88)
-                    )
-
-                // Name
-                Text(profile.name)
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-                    .lineLimit(1)
-
-                // Seeds
-                HStack(spacing: 4) {
-                    Image(systemName: "leaf.fill")
-                        .font(.caption)
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.green, .mint],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                    Text("\(profile.totalStars)")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(16)
-            .frame(width: 140, height: 160)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.cardBackground)
-            )
-            .adaptiveShadow(radius: isSelected ? 12 : 8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(
-                        isSelected ? Color.green : Color.clear,
-                        lineWidth: 3
-                    )
-            )
+            cardContent
         }
         .buttonStyle(ProfileCardButtonStyle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(profile.name)'s profile, \(profile.totalStars) seeds")
         .accessibilityHint(isSelected ? "Currently selected" : "Double tap to switch to this profile")
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
+    }
+    
+    private var cardContent: some View {
+        VStack(spacing: 12) {
+            // Avatar
+            avatarWithOverlay
+            
+            // Name
+            nameText
+            
+            // Seeds
+            seedsInfo
+        }
+        .padding(16)
+        .frame(width: 140, height: 160)
+        .background(cardBackground)
+        .adaptiveShadow(radius: isSelected ? 12 : 8)
+        .overlay(cardBorder)
+    }
+    
+    private var avatarWithOverlay: some View {
+        ProfileAvatarView(
+            avatarIndex: profile.avatarIndex,
+            backgroundIndex: profile.backgroundIndex,
+            size: 80
+        )
+        .overlay(
+            Circle()
+                .stroke(
+                    isSelected ? Color.green : Color.clear,
+                    lineWidth: 4
+                )
+                .frame(width: 88, height: 88)
+        )
+    }
+    
+    private var nameText: some View {
+        Text(profile.name)
+            .font(.headline)
+            .fontWeight(.semibold)
+            .foregroundColor(.primary)
+            .lineLimit(1)
+    }
+    
+    private var seedsInfo: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "leaf.fill")
+                .font(.caption)
+                .foregroundStyle(seedGradient)
+            
+            Text("\(profile.totalStars)")
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    private var seedGradient: LinearGradient {
+        LinearGradient(
+            colors: [.green, .mint],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+    
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .fill(Color.cardBackground)
+    }
+    
+    private var cardBorder: some View {
+        RoundedRectangle(cornerRadius: 20)
+            .stroke(
+                isSelected ? Color.green : Color.clear,
+                lineWidth: 3
+            )
     }
 }
 
