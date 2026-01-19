@@ -44,25 +44,18 @@ struct HomeScreen: View {
             .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // Header
+                VStack(spacing: 20) {
+                    // Header with greeting
                     headerSection
 
-                    // Garden snapshot widget
-                    gardenSnapshotWidget
+                    // Mascot with call-to-action - the hero moment
+                    mascotHeroSection
 
-                    // Streak indicator
-                    streakCard
-
-                    // Mascot greeting (dynamic based on context)
-                    dynamicMascotGreeting
-                        .padding(.vertical, 8)
-
-                    // Subject cards
+                    // Subject cards - PRIMARY ACTION, visible without scrolling
                     subjectCards
 
-                    // Quick practice
-                    quickPracticeSection
+                    // Garden snapshot - secondary, compact
+                    gardenCompactWidget
 
                     // Bottom padding for tab bar
                     Spacer().frame(height: 80)
@@ -188,161 +181,40 @@ struct HomeScreen: View {
         }
     }
 
-    // MARK: - Dynamic Mascot Greeting
-    private var dynamicMascotGreeting: some View {
-        // Use stored reaction to avoid flickering (set in onAppear)
+    // MARK: - Mascot Hero Section
+    /// Compact mascot with streak badge - motivates kids to start learning
+    private var mascotHeroSection: some View {
         let reaction = mascotReaction ?? MascotReaction(.happy, "Let's learn something fun!")
-        return MascotView(emotion: reaction.emotion, message: reaction.message)
-    }
 
-    // MARK: - Garden Snapshot Widget
-    private var gardenSnapshotWidget: some View {
-        // Use cached data to avoid multiple DB fetches per render
-        let allItems = cachedMathItems + cachedReadingItems
-        let plantsNeedingWater = cachedPlantsNeedingWater
+        return HStack(spacing: 12) {
+            // Mascot image (no message bubble here)
+            Image("SproutlingMascot")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 70, height: 70)
+                .accessibilityHidden(true)
 
-        // Count plants by stage for summary
-        let bloomedCount = allItems.filter { $0.stage == .bloomed }.count
-        let growingCount = allItems.filter { $0.stage == .budding || $0.stage == .growing }.count
+            VStack(alignment: .leading, spacing: 6) {
+                // Greeting message
+                Text(reaction.message)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.textPrimary)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
 
-        return Button(action: {
-            appState.goToProgress()
-        }) {
-            VStack(spacing: 12) {
-                HStack {
-                    Text("🌻 Your Garden")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-
-                    Spacer()
-
+                // Streak badge inline
+                if appState.childProfile.streakDays > 0 {
                     HStack(spacing: 4) {
-                        Text("See All")
+                        Image(systemName: "flame.fill")
                             .font(.caption)
-                            .foregroundColor(.secondary)
-                        Image(systemName: "chevron.right")
-                            .font(.caption2)
-                            .foregroundColor(.secondary)
-                    }
-                }
-
-                if allItems.isEmpty {
-                    // Empty state - encourage first lesson
-                    VStack(spacing: 8) {
-                        Text("🌱")
-                            .font(.system(size: 40))
-                        Text("Start learning to grow your garden!")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.vertical, 20)
-                } else {
-                    // Garden summary with plant emojis - show first 10
-                    HStack(spacing: 3) {
-                        ForEach(allItems.prefix(10)) { item in
-                            Text(item.stage.emoji)
-                                .font(.system(size: 22))
-                        }
-                        if allItems.count > 10 {
-                            Text("+\(allItems.count - 10)")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(.secondary)
-                                .padding(.leading, 4)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    // Summary stats row
-                    HStack(spacing: 16) {
-                        if bloomedCount > 0 {
-                            Label("\(bloomedCount) bloomed", systemImage: "sparkles")
-                                .font(.caption)
-                                .foregroundColor(.pink)
-                        }
-                        if growingCount > 0 {
-                            Label("\(growingCount) growing", systemImage: "leaf.fill")
-                                .font(.caption)
-                                .foregroundColor(.green)
-                        }
-                        Spacer()
-                        Text("\(allItems.count) total")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-
-                    // Plants needing water alert
-                    if plantsNeedingWater > 0 {
-                        HStack(spacing: 8) {
-                            Text("🥀")
-                                .font(.subheadline)
-                            Text("\(plantsNeedingWater) plant\(plantsNeedingWater == 1 ? "" : "s") need\(plantsNeedingWater == 1 ? "s" : "") water!")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundColor(.orange)
-                            Spacer()
-                            HStack(spacing: 4) {
-                                Text("Review")
-                                    .font(.caption)
-                                    .fontWeight(.medium)
-                                Image(systemName: "chevron.right")
-                                    .font(.caption2)
-                            }
                             .foregroundColor(.orange)
-                        }
+                        Text("\(appState.childProfile.streakDays) day streak!")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .foregroundColor(.orange)
                     }
                 }
-            }
-            .padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.cardBackground)
-            )
-            .adaptiveShadow()
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("Your garden today. \(allItems.count) plants total. \(plantsNeedingWater) plants need water. Double tap to open your complete garden in the progress screen.")
-    }
-
-    // MARK: - Streak Card
-    private var streakCard: some View {
-        HStack(spacing: 16) {
-            // Animated flame icon
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [.orange.opacity(0.3), .red.opacity(0.2)],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .frame(width: 56, height: 56)
-
-                Image(systemName: "flame.fill")
-                    .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.orange, .red],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-                    .symbolEffect(.variableColor.iterative, options: .repeating)
-            }
-            .accessibilityHidden(true)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text("\(appState.childProfile.streakDays) Day Streak!")
-                    .font(.headline)
-                    .fontWeight(.bold)
-
-                Text("Keep learning every day!")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
             }
 
             Spacer()
@@ -350,11 +222,78 @@ struct HomeScreen: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.cardBackground.opacity(0.9))
+                .fill(Color.cardBackground)
         )
         .adaptiveShadow()
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Learning streak: \(appState.childProfile.streakDays) days in a row! Keep learning every day!")
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(reaction.message). \(appState.childProfile.streakDays) day learning streak.")
+    }
+
+    // MARK: - Garden Compact Widget
+    /// Compact garden preview - tappable to see full garden
+    private var gardenCompactWidget: some View {
+        let allItems = cachedMathItems + cachedReadingItems
+        let plantsNeedingWater = cachedPlantsNeedingWater
+
+        return Button(action: {
+            appState.goToProgress()
+        }) {
+            HStack(spacing: 12) {
+                // Garden icon or plant preview
+                if allItems.isEmpty {
+                    Text("🌱")
+                        .font(.system(size: 32))
+                } else {
+                    // Show first few plants
+                    HStack(spacing: 2) {
+                        ForEach(allItems.prefix(5)) { item in
+                            Text(item.stage.emoji)
+                                .font(.system(size: 20))
+                        }
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Your Garden")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.textPrimary)
+
+                    if allItems.isEmpty {
+                        Text("Start learning to plant seeds!")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    } else if plantsNeedingWater > 0 {
+                        HStack(spacing: 4) {
+                            Text("🥀")
+                                .font(.caption)
+                            Text("\(plantsNeedingWater) need water")
+                                .font(.caption)
+                                .foregroundColor(.orange)
+                        }
+                    } else {
+                        Text("\(allItems.count) plants growing")
+                            .font(.caption)
+                            .foregroundColor(.textSecondary)
+                    }
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.textTertiary)
+            }
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.cardBackground)
+            )
+            .adaptiveShadow()
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Your garden. \(allItems.count) plants. \(plantsNeedingWater) need water. Double tap to view.")
     }
 
     // MARK: - Subject Cards
@@ -363,44 +302,6 @@ struct HomeScreen: View {
             ForEach(Subject.allCases) { subject in
                 SubjectCard(subject: subject) {
                     appState.selectSubject(subject)
-                }
-            }
-        }
-    }
-
-    // MARK: - Quick Practice Section
-    private var quickPracticeSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Quick Practice")
-                .font(.headline)
-                .fontWeight(.bold)
-                .accessibilityAddTraits(.isHeader)
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                    QuickPracticeButton(
-                        title: "Count to 5",
-                        icon: "number.circle.fill",
-                        colors: [.blue, .purple]
-                    ) {
-                        appState.startLesson(subject: .math, level: 1)
-                    }
-
-                    QuickPracticeButton(
-                        title: "Letter A",
-                        icon: "textformat.abc",
-                        colors: [.pink, .orange]
-                    ) {
-                        appState.startLesson(subject: .reading, level: 1)
-                    }
-
-                    QuickPracticeButton(
-                        title: "Count Higher",
-                        icon: "plus.circle.fill",
-                        colors: [.green, .teal]
-                    ) {
-                        appState.startLesson(subject: .math, level: 2)
-                    }
                 }
             }
         }
