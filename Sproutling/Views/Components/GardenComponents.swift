@@ -248,12 +248,15 @@ struct GardenItem: Identifiable {
     let label: String
     let stage: GrowthStage
     let itemId: String?
+    /// The level ID where this item was learned (for navigation)
+    let levelId: Int?
 
-    init(id: String = UUID().uuidString, label: String, stage: GrowthStage, itemId: String? = nil) {
+    init(id: String = UUID().uuidString, label: String, stage: GrowthStage, itemId: String? = nil, levelId: Int? = nil) {
         self.id = id
         self.label = label
         self.stage = stage
         self.itemId = itemId
+        self.levelId = levelId
     }
 }
 

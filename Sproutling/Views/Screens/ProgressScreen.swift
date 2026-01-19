@@ -10,6 +10,12 @@ import SwiftUI
 struct ProgressScreen: View {
     @EnvironmentObject var appState: AppState
 
+    // Cached garden data to prevent multiple DB fetches per render
+    @State private var cachedMathItems: [GardenItem] = []
+    @State private var cachedReadingItems: [GardenItem] = []
+    @State private var cachedMathStats: MasteryStats?
+    @State private var cachedReadingStats: MasteryStats?
+
     var body: some View {
         ZStack {
             // Background gradient
@@ -23,7 +29,7 @@ struct ProgressScreen: View {
             VStack(spacing: 0) {
                 // Navigation bar
                 SproutlingNavBar(
-                    title: "My Progress",
+                    title: "My Garden",
                     onBack: { appState.goHome() }
                 )
 
@@ -32,8 +38,11 @@ struct ProgressScreen: View {
                         // Overview card
                         overviewCard
 
-                        // Subject progress
-                        subjectProgressSection
+                        // Number Garden
+                        gardenSection(for: .math)
+
+                        // Letter Garden
+                        gardenSection(for: .reading)
 
                         // Achievements
                         achievementsSection
@@ -41,12 +50,32 @@ struct ProgressScreen: View {
                         // Areas to practice
                         areasToImproveSection
 
+                        // Tip
+                        Text("💡 Tap any plant to practice it!")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 8)
+
                         Spacer().frame(height: 40)
                     }
                     .padding(20)
                 }
             }
         }
+        .onAppear {
+            refreshGardenCache()
+        }
+        .onChange(of: appState.currentProfile?.id) { _, _ in
+            refreshGardenCache()
+        }
+    }
+
+    /// Refreshes the cached garden data from the database
+    private func refreshGardenCache() {
+        cachedMathItems = appState.getGardenItems(for: .math)
+        cachedReadingItems = appState.getGardenItems(for: .reading)
+        cachedMathStats = appState.getMasteryStats(for: .math)
+        cachedReadingStats = appState.getMasteryStats(for: .reading)
     }
 
     // MARK: - Overview Card
@@ -129,21 +158,114 @@ struct ProgressScreen: View {
         return mathCompleted + readingCompleted
     }
 
-    // MARK: - Subject Progress Section
-    private var subjectProgressSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Subject Progress")
-                .font(.title3)
-                .fontWeight(.bold)
-                .accessibilityAddTraits(.isHeader)
+    // MARK: - Garden Section
+    private func gardenSection(for subject: Subject) -> some View {
+        // Use cached data to avoid multiple DB fetches per render
+        let gardenItems = subject == .math ? cachedMathItems : cachedReadingItems
+        let stats = (subject == .math ? cachedMathStats : cachedReadingStats)
+            ?? MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
+        let levels = appState.levels(for: subject)
+        let iconName = subject == .math ? "🔢" : "📖"
+        let title = subject == .math ? "NUMBER GARDEN" : "LETTER GARDEN"
 
-            ForEach(Subject.allCases) { subject in
-                SubjectProgressCard(
-                    subject: subject,
-                    levels: appState.levels(for: subject)
-                )
+        return VStack(alignment: .leading, spacing: 16) {
+            // Header
+            HStack {
+                Text("\(iconName) \(title)")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                Spacer()
+
+                Button(action: {
+                    appState.selectSubject(subject)
+                }) {
+                    Text("Practice")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(subject.gradient.first ?? .blue))
+                }
+            }
+
+            // Garden Grid
+            if gardenItems.isEmpty {
+                // Empty state
+                VStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        ForEach(0..<10, id: \.self) { _ in
+                            Text("·")
+                                .font(.title)
+                                .foregroundColor(.gray.opacity(0.3))
+                        }
+                    }
+                    Text("Start learning to plant seeds!")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            } else {
+                GardenGridView(
+                    items: gardenItems,
+                    columns: subject == .math ? 5 : 6,
+                    plantSize: 40,
+                    showLabels: true
+                ) { item in
+                    // Tap to practice - navigate to appropriate level
+                    if let level = findLevel(for: item, in: levels) {
+                        appState.startLesson(subject: subject, level: level)
+                    } else {
+                        appState.selectSubject(subject)
+                    }
+                }
+            }
+
+            // Summary row
+            HStack(spacing: 16) {
+                if stats.totalItems > 0 {
+                    Label("\(stats.masteredItems) mastered", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(.green)
+
+                    if stats.strugglingItems > 0 {
+                        Label("\(stats.strugglingItems) need help", systemImage: "exclamationmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+
+                    Spacer()
+
+                    Text("\(Int(stats.overallAccuracy))% accuracy")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("No items practiced yet")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+        )
+        .adaptiveShadow()
+    }
+
+    /// Find which level an item belongs to using its stored levelId
+    private func findLevel(for item: GardenItem, in levels: [LessonLevel]) -> Int? {
+        // Use the levelId stored from ItemMastery if available and unlocked
+        if let levelId = item.levelId,
+           levels.contains(where: { $0.id == levelId && $0.isUnlocked }) {
+            return levelId
+        }
+
+        // Fallback: return first unlocked level
+        return levels.first(where: { $0.isUnlocked })?.id
     }
 
     // MARK: - Achievements Section

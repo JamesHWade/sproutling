@@ -8,7 +8,12 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import os.log
 
+/// Logger for AppState operations
+private let appStateLogger = Logger(subsystem: "com.sproutling.app", category: "AppState")
+
+@MainActor
 class AppState: ObservableObject {
     // MARK: - Navigation
     @Published var currentScreen: Screen = .home
@@ -60,9 +65,9 @@ class AppState: ObservableObject {
         do {
             try ctx?.save()
         } catch {
-            print("AppState: SwiftData save failed - \(error.localizedDescription)")
+            appStateLogger.error("SwiftData save failed: \(error.localizedDescription, privacy: .public)")
             #if DEBUG
-            print("AppState: Save error details - \(error)")
+            appStateLogger.debug("Save error details: \(String(describing: error), privacy: .public)")
             #endif
         }
     }
@@ -458,6 +463,101 @@ class AppState: ObservableObject {
 
         currentProfile = profile
         saveCurrentProfile()
+    }
+
+    // MARK: - Garden Data Access
+
+    /// Fetches all mastery items for the current profile and subject
+    /// Returns GardenItems for visualization in the garden view
+    /// Also returns the level ID for each item to enable direct navigation
+    func getGardenItems(for subject: Subject) -> [GardenItem] {
+        guard let profileId = currentProfile?.id else {
+            appStateLogger.debug("getGardenItems: No current profile")
+            return []
+        }
+
+        guard let modelContext = _modelContext else {
+            appStateLogger.warning("getGardenItems: ModelContext not initialized")
+            return []
+        }
+
+        let subjectString = subject == .math ? "math" : "reading"
+
+        let predicate = #Predicate<ItemMastery> { item in
+            item.profileId == profileId &&
+            item.subject == subjectString
+        }
+
+        var descriptor = FetchDescriptor<ItemMastery>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.itemId)]
+
+        do {
+            let items = try modelContext.fetch(descriptor)
+            return items.map { mastery in
+                // Extract a display label from the itemId
+                let label = extractLabel(from: mastery.itemId, subject: subject)
+                return GardenItem(
+                    id: mastery.itemId,
+                    label: label,
+                    stage: mastery.growthStage,
+                    itemId: mastery.itemId,
+                    levelId: mastery.levelId
+                )
+            }
+        } catch {
+            appStateLogger.error("Error fetching garden items for \(subject.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            return []
+        }
+    }
+
+    /// Extracts a user-friendly label from an item ID
+    private func extractLabel(from itemId: String, subject: Subject) -> String {
+        // Item IDs are like "count_3_stars", "letter_A", etc.
+        if subject == .math {
+            // Try to extract number from math item IDs
+            let components = itemId.split(separator: "_")
+            if components.count >= 2, let number = Int(components[1]) {
+                return "\(number)"
+            }
+        } else {
+            // Try to extract letter from reading item IDs
+            let components = itemId.split(separator: "_")
+            if components.count >= 2 {
+                return String(components[1]).uppercased()
+            }
+        }
+        return itemId
+    }
+
+    /// Gets count of plants that need watering (wilting or significantly overdue)
+    func getPlantsNeedingWater(for subject: Subject) -> Int {
+        let items = getGardenItems(for: subject)
+        return items.filter { $0.stage == .wilting }.count
+    }
+
+    /// Gets total plants needing water across all subjects
+    func getTotalPlantsNeedingWater() -> Int {
+        getPlantsNeedingWater(for: .math) + getPlantsNeedingWater(for: .reading)
+    }
+
+    /// Gets mastery statistics for a subject
+    func getMasteryStats(for subject: Subject) -> MasteryStats {
+        guard let profileId = currentProfile?.id else {
+            appStateLogger.debug("getMasteryStats: No current profile")
+            return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
+        }
+
+        guard let modelContext = _modelContext else {
+            appStateLogger.warning("getMasteryStats: ModelContext not initialized")
+            return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
+        }
+
+        let subjectString = subject == .math ? "math" : "reading"
+        return SpacedRepetitionManager.shared.getMasteryStats(
+            profileId: profileId,
+            subject: subjectString,
+            modelContext: modelContext
+        )
     }
 
     // MARK: - Time Limit Management
