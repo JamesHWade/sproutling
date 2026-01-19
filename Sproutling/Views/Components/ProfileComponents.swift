@@ -108,13 +108,9 @@ struct ProfileCardView: View {
             .frame(width: 140, height: 160)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white)
-                    .shadow(
-                        color: isSelected ? .green.opacity(0.3) : .black.opacity(0.1),
-                        radius: isSelected ? 12 : 8,
-                        y: 4
-                    )
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow(radius: isSelected ? 12 : 8)
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .stroke(
@@ -179,9 +175,9 @@ struct AddProfileCardView: View {
             .frame(width: 140, height: 160)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.5))
-                    .shadow(color: .black.opacity(0.05), radius: 8, y: 4)
+                    .fill(Color.cardBackground.opacity(0.5))
             )
+            .adaptiveShadow()
             .overlay(
                 RoundedRectangle(cornerRadius: 20)
                     .strokeBorder(

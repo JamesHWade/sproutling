@@ -25,34 +25,37 @@ struct LessonView: View {
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Navigation bar with progress
-                navBar
+            // Only show content once cards are loaded to prevent flash
+            if lessonState.isReady {
+                VStack(spacing: 0) {
+                    // Navigation bar with progress
+                    navBar
 
-                // Progress bar
-                ProgressBar(
-                    current: lessonState.currentIndex + 1,
-                    total: lessonState.cards.count,
-                    color: subject == .math ? .purple : .pink
-                )
-                .padding(.horizontal)
-                .padding(.top, 8)
+                    // Progress bar
+                    ProgressBar(
+                        current: lessonState.currentIndex + 1,
+                        total: lessonState.cards.count,
+                        color: subject == .math ? .purple : .pink
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
 
-                // Card count with review indicator
-                HStack(spacing: 4) {
-                    Text("\(lessonState.currentIndex + 1) of \(lessonState.cards.count)")
-                    if lessonState.isCurrentCardReview {
-                        Text("(Review)")
-                            .foregroundColor(.orange)
+                    // Card count with review indicator
+                    HStack(spacing: 4) {
+                        Text("\(lessonState.currentIndex + 1) of \(lessonState.cards.count)")
+                        if lessonState.isCurrentCardReview {
+                            Text("(Review)")
+                                .foregroundColor(.orange)
+                        }
                     }
-                }
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-                .padding(.top, 4)
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 4)
 
-                // Current activity
-                currentActivity
-                    .id(lessonState.currentIndex) // Force refresh on index change
+                    // Current activity
+                    currentActivity
+                        .id(lessonState.currentIndex) // Force refresh on index change
+                }
             }
 
             // Confetti overlay
@@ -198,6 +201,7 @@ class LessonState: ObservableObject {
     @Published var starsEarned = 0
     @Published var correctAnswers = 0
     @Published var showConfetti = false
+    @Published var isReady = false
 
     // Streak tracking for mascot personality
     @Published var correctStreak = 0
@@ -215,6 +219,7 @@ class LessonState: ObservableObject {
     private var cardStartTime: Date = Date()
     private var currentCardAttempts: Int = 0
     private var reviewCardIds: Set<String> = []  // Track which cards are reviews
+    private var hasSetup = false
 
     /// Whether the current card is a review item
     var isCurrentCardReview: Bool {
@@ -231,6 +236,10 @@ class LessonState: ObservableObject {
         profileId: UUID? = nil,
         modelContext: ModelContext? = nil
     ) {
+        // Only setup once to prevent re-shuffling options
+        guard !hasSetup else { return }
+        hasSetup = true
+
         self.currentSubject = subject
         self.currentLevel = level
         self.childName = childName ?? "Friend"
@@ -265,6 +274,7 @@ class LessonState: ObservableObject {
         // Start timing for first card
         cardStartTime = Date()
         currentCardAttempts = 0
+        isReady = true
     }
 
     func markCorrect() {

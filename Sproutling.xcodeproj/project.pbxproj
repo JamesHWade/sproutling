@@ -29,17 +29,18 @@
 		655CA6B41149FF375BD23B00 /* ParentPINSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */; };
 		8497E89ED23C15CEC00D0FFC /* ProfileEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD41B93E570E4B9389064C40 /* ProfileEditorSheet.swift */; };
 		B7596C311108E650CC25885A /* ProfileSelectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE24ED3F6AD1A20D491DACFE /* ProfileSelectionScreen.swift */; };
+		BA6DFBD3EA235E7C69A8AFAD /* AdaptiveColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19DC662D614F4B3791BB0761 /* AdaptiveColors.swift */; };
 		CURR0001000000000000001A /* CurriculumLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = CURR0002000000000000001A /* CurriculumLoader.swift */; };
 		CURR0003000000000000001A /* MathCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0004000000000000001A /* MathCurriculum.json */; };
 		CURR0005000000000000001A /* ReadingCurriculum.json in Resources */ = {isa = PBXBuildFile; fileRef = CURR0006000000000000001A /* ReadingCurriculum.json */; };
 		E35447176E6981D8B7385AAA /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EE043BA01A59C36749E71B9 /* KeychainManager.swift */; };
-		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
-		MASC000100000000001A /* MascotPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = MASC000200000000001A /* MascotPersonality.swift */; };
 		ELEV000100000000001A /* ElevenLabsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000200000000001A /* ElevenLabsService.swift */; };
 		ELEV000300000000001A /* AudioCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000400000000001A /* AudioCacheManager.swift */; };
+		MASC000100000000001A /* MascotPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = MASC000200000000001A /* MascotPersonality.swift */; };
 		PRMP000100000000001A /* PromptTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRMP000200000000001A /* PromptTemplates.swift */; };
 		SREP000100000000001A /* ItemMastery.swift in Sources */ = {isa = PBXBuildFile; fileRef = SREP000200000000001A /* ItemMastery.swift */; };
 		SREP000300000000001A /* SpacedRepetitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SREP000400000000001A /* SpacedRepetitionManager.swift */; };
+		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +62,7 @@
 		0000001F /* ProgressScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressScreen.swift; sourceTree = "<group>"; };
 		00000020 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		050954E3063585BA84173A62 /* ProfileComponents.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProfileComponents.swift; sourceTree = "<group>"; };
+		19DC662D614F4B3791BB0761 /* AdaptiveColors.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdaptiveColors.swift; sourceTree = "<group>"; };
 		3407473A62DC4E634E62FC4F /* ParentSettings.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ParentSettings.swift; sourceTree = "<group>"; };
 		4373EE38CB62ADC43EA5A577 /* Sproutling.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = Sproutling.entitlements; sourceTree = "<group>"; };
 		545A4550C572D98DBD5B4B6D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -72,13 +74,13 @@
 		CURR0002000000000000001A /* CurriculumLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurriculumLoader.swift; sourceTree = "<group>"; };
 		CURR0004000000000000001A /* MathCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = MathCurriculum.json; sourceTree = "<group>"; };
 		CURR0006000000000000001A /* ReadingCurriculum.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ReadingCurriculum.json; sourceTree = "<group>"; };
-		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
-		MASC000200000000001A /* MascotPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPersonality.swift; sourceTree = "<group>"; };
 		ELEV000200000000001A /* ElevenLabsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElevenLabsService.swift; sourceTree = "<group>"; };
 		ELEV000400000000001A /* AudioCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCacheManager.swift; sourceTree = "<group>"; };
+		MASC000200000000001A /* MascotPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPersonality.swift; sourceTree = "<group>"; };
 		PRMP000200000000001A /* PromptTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplates.swift; sourceTree = "<group>"; };
 		SREP000200000000001A /* ItemMastery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemMastery.swift; sourceTree = "<group>"; };
 		SREP000400000000001A /* SpacedRepetitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacedRepetitionManager.swift; sourceTree = "<group>"; };
+		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,16 +158,9 @@
 				ELEV000400000000001A /* AudioCacheManager.swift */,
 				PRMP000200000000001A /* PromptTemplates.swift */,
 				SREP000400000000001A /* SpacedRepetitionManager.swift */,
+				19DC662D614F4B3791BB0761 /* AdaptiveColors.swift */,
 			);
 			path = Utilities;
-			sourceTree = "<group>";
-		};
-		ELEV000500000000001A /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				ELEV000200000000001A /* ElevenLabsService.swift */,
-			);
-			path = Services;
 			sourceTree = "<group>";
 		};
 		00000026 /* Resources */ = {
@@ -236,6 +231,14 @@
 				CURR0006000000000000001A /* ReadingCurriculum.json */,
 			);
 			path = Curriculum;
+			sourceTree = "<group>";
+		};
+		ELEV000500000000001A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				ELEV000200000000001A /* ElevenLabsService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -339,6 +342,7 @@
 				PRMP000100000000001A /* PromptTemplates.swift in Sources */,
 				SREP000100000000001A /* ItemMastery.swift in Sources */,
 				SREP000300000000001A /* SpacedRepetitionManager.swift in Sources */,
+				BA6DFBD3EA235E7C69A8AFAD /* AdaptiveColors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

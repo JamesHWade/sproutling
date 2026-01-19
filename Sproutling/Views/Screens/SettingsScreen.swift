@@ -182,9 +182,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
         }
     }
 
@@ -291,9 +291,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
         }
     }
 
@@ -478,9 +478,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
         }
     }
 
@@ -541,9 +541,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
         }
     }
 
@@ -694,9 +694,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
         }
     }
 
@@ -811,9 +811,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
         }
     }
 
@@ -854,9 +854,9 @@ struct SettingsScreen: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(.white)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .fill(Color.cardBackground)
             )
+            .adaptiveShadow()
             .accessibilityLabel("Reset progress. Clears all stars and achievements")
             .accessibilityHint("Double tap to reset. You will be asked to confirm")
         }

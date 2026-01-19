@@ -145,9 +145,9 @@ struct HomeScreen: View {
                 .padding(12)
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(.white)
-                        .shadow(color: .green.opacity(0.3), radius: 8, y: 4)
+                        .fill(Color.cardBackground)
                 )
+                .adaptiveShadow()
             }
             .accessibilityLabel("Seeds: \(appState.childProfile.totalStars). Double tap to view progress")
         }
@@ -216,9 +216,9 @@ struct HomeScreen: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.8))
-                .shadow(color: .orange.opacity(0.2), radius: 8, y: 4)
+                .fill(Color.cardBackground.opacity(0.9))
         )
+        .adaptiveShadow()
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Learning streak: \(appState.childProfile.streakDays) days in a row! Keep learning every day!")
     }

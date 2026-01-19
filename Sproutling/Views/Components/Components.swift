@@ -192,9 +192,9 @@ struct MascotView: View {
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
-                        .fill(.white)
-                        .shadow(color: .black.opacity(0.1), radius: 8, y: 4)
+                        .fill(Color.cardBackground)
                 )
+                .adaptiveShadow()
                 .overlay(
                     RoundedRectangle(cornerRadius: 20)
                         .stroke(
@@ -600,9 +600,9 @@ struct LevelCard: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(level.isUnlocked ? Color.white : Color.gray.opacity(0.1))
-                    .shadow(color: .black.opacity(level.isUnlocked ? 0.1 : 0), radius: 8, y: 4)
+                    .fill(level.isUnlocked ? Color.cardBackground : Color.gray.opacity(0.1))
             )
+            .adaptiveShadow()
         }
         .buttonStyle(.plain)
         .opacity(level.isUnlocked ? 1 : 0.6)
@@ -696,7 +696,7 @@ struct NumberOptionButton: View {
 
     var backgroundColor: Color {
         guard let isCorrect = isCorrect else {
-            return .white
+            return Color.cardBackground
         }
         return isCorrect ? .green : .red.opacity(0.8)
     }
@@ -736,7 +736,7 @@ struct NumberOptionButton: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(borderColor, lineWidth: 4)
                     )
-                    .shadow(color: isCorrect == true ? .green.opacity(0.5) : .black.opacity(0.1), radius: 8, y: 4)
+                    .adaptiveShadow()
             }
         }
         .scaleEffect(isCorrect == true ? 1.1 : 1.0)
@@ -769,7 +769,7 @@ struct LetterOptionButton: View {
 
     var backgroundColor: Color {
         guard let isCorrect = isCorrect else {
-            return .white
+            return Color.cardBackground
         }
         return isCorrect ? .green : .red.opacity(0.8)
     }
@@ -809,7 +809,7 @@ struct LetterOptionButton: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(borderColor, lineWidth: 4)
                     )
-                    .shadow(color: isCorrect == true ? .green.opacity(0.5) : .black.opacity(0.1), radius: 8, y: 4)
+                    .adaptiveShadow()
             }
         }
         .scaleEffect(isCorrect == true ? 1.1 : 1.0)
