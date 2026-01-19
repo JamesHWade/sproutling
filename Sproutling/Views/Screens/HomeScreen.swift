@@ -283,13 +283,14 @@ struct HomeScreen: View {
                                 .fontWeight(.medium)
                                 .foregroundColor(.orange)
                             Spacer()
-                            Text("Water Now")
-                                .font(.caption)
-                                .fontWeight(.medium)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 4)
-                                .background(Capsule().fill(Color.orange))
+                            HStack(spacing: 4) {
+                                Text("Review")
+                                    .font(.caption)
+                                    .fontWeight(.medium)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2)
+                            }
+                            .foregroundColor(.orange)
                         }
                     }
                 }
@@ -303,7 +304,7 @@ struct HomeScreen: View {
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Your garden today. \(allItems.count) plants total. \(plantsNeedingWater) plants need water. Double tap to view details.")
+        .accessibilityLabel("Your garden today. \(allItems.count) plants total. \(plantsNeedingWater) plants need water. Double tap to open your complete garden in the progress screen.")
     }
 
     // MARK: - Streak Card

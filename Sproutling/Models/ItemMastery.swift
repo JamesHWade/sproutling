@@ -244,14 +244,15 @@ final class ItemMastery {
         // Check accuracy thresholds
         let acc = accuracy
 
-        // Bloomed: 90%+ accuracy with good retention
-        // More achievable for young learners: 2+ reps is enough
-        if acc >= 90 && repetitions >= 2 {
+        // Bloomed: 90%+ accuracy with good retention and ease
+        // Requires 2+ reps (achievable for young learners) and reasonable ease factor
+        // (ensures items that are difficult to remember don't show as fully mastered)
+        if acc >= 90 && repetitions >= 2 && easeFactor >= 1.8 {
             return .bloomed
         }
 
-        // Budding: 80-89% accuracy OR 90%+ with only 1 rep
-        if acc >= 80 || (acc >= 90 && repetitions == 1) {
+        // Budding: 80%+ accuracy (includes 90%+ with only 1 rep or low ease factor)
+        if acc >= 80 {
             return .budding
         }
 
