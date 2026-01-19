@@ -86,6 +86,13 @@ struct HomeScreen: View {
 
     /// Refreshes the cached garden data from the database
     private func refreshGardenCache() {
+        // Clear cache if no profile (logout/deletion)
+        guard appState.currentProfile != nil else {
+            cachedMathItems = []
+            cachedReadingItems = []
+            cachedPlantsNeedingWater = 0
+            return
+        }
         cachedMathItems = appState.getGardenItems(for: .math)
         cachedReadingItems = appState.getGardenItems(for: .reading)
         cachedPlantsNeedingWater = cachedMathItems.filter { $0.stage == .wilting }.count +
@@ -129,6 +136,11 @@ struct HomeScreen: View {
             Button(action: {
                 appState.goToProgress()
             }) {
+                let seedGradient = LinearGradient(
+                    colors: [.green, .mint],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
                 VStack(spacing: 4) {
                     Text("Seeds")
                         .font(.caption)
@@ -137,24 +149,12 @@ struct HomeScreen: View {
                     HStack(spacing: 6) {
                         Image(systemName: "leaf.fill")
                             .font(.title2)
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.green, .mint],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
+                            .foregroundStyle(seedGradient)
                             .accessibilityHidden(true)
                         Text("\(appState.childProfile.totalStars)")
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundStyle(
-                                LinearGradient(
-                                    colors: [.green, .mint],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
+                            .foregroundStyle(seedGradient)
                     }
                 }
                 .padding(12)
