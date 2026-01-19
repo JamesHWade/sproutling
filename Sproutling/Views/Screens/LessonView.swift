@@ -24,28 +24,31 @@ struct LessonView: View {
             )
             .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Navigation bar with progress
-                navBar
+            // Only show content once cards are loaded to prevent flash
+            if lessonState.isReady {
+                VStack(spacing: 0) {
+                    // Navigation bar with progress
+                    navBar
 
-                // Progress bar
-                ProgressBar(
-                    current: lessonState.currentIndex + 1,
-                    total: lessonState.cards.count,
-                    color: subject == .math ? .purple : .pink
-                )
-                .padding(.horizontal)
-                .padding(.top, 8)
+                    // Progress bar
+                    ProgressBar(
+                        current: lessonState.currentIndex + 1,
+                        total: lessonState.cards.count,
+                        color: subject == .math ? .purple : .pink
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 8)
 
-                // Card count
-                Text("\(lessonState.currentIndex + 1) of \(lessonState.cards.count)")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.top, 4)
+                    // Card count
+                    Text("\(lessonState.currentIndex + 1) of \(lessonState.cards.count)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
 
-                // Current activity
-                currentActivity
-                    .id(lessonState.currentIndex) // Force refresh on index change
+                    // Current activity
+                    currentActivity
+                        .id(lessonState.currentIndex) // Force refresh on index change
+                }
             }
 
             // Confetti overlay
@@ -185,6 +188,7 @@ class LessonState: ObservableObject {
     @Published var starsEarned = 0
     @Published var correctAnswers = 0
     @Published var showConfetti = false
+    @Published var isReady = false
 
     // Streak tracking for mascot personality
     @Published var correctStreak = 0
@@ -195,13 +199,19 @@ class LessonState: ObservableObject {
     var childName: String = "Friend"
 
     private var currentSubject: Subject?
+    private var hasSetup = false
 
     func setupLesson(for subject: Subject, level: Int, childName: String? = nil) {
+        // Only setup once to prevent re-shuffling options
+        guard !hasSetup else { return }
+        hasSetup = true
+
         cards = CurriculumLoader.shared.getCards(for: subject, level: level)
         currentSubject = subject
         correctStreak = 0
         incorrectStreak = 0
         self.childName = childName ?? "Friend"
+        isReady = true
     }
 
     func markCorrect() {
