@@ -10,6 +10,12 @@ import SwiftUI
 struct ProgressScreen: View {
     @EnvironmentObject var appState: AppState
 
+    // Cached garden data to prevent multiple DB fetches per render
+    @State private var cachedMathItems: [GardenItem] = []
+    @State private var cachedReadingItems: [GardenItem] = []
+    @State private var cachedMathStats: MasteryStats?
+    @State private var cachedReadingStats: MasteryStats?
+
     var body: some View {
         ZStack {
             // Background gradient
@@ -56,6 +62,20 @@ struct ProgressScreen: View {
                 }
             }
         }
+        .onAppear {
+            refreshGardenCache()
+        }
+        .onChange(of: appState.currentProfile?.id) { _, _ in
+            refreshGardenCache()
+        }
+    }
+
+    /// Refreshes the cached garden data from the database
+    private func refreshGardenCache() {
+        cachedMathItems = appState.getGardenItems(for: .math)
+        cachedReadingItems = appState.getGardenItems(for: .reading)
+        cachedMathStats = appState.getMasteryStats(for: .math)
+        cachedReadingStats = appState.getMasteryStats(for: .reading)
     }
 
     // MARK: - Overview Card
@@ -140,8 +160,10 @@ struct ProgressScreen: View {
 
     // MARK: - Garden Section
     private func gardenSection(for subject: Subject) -> some View {
-        let gardenItems = appState.getGardenItems(for: subject)
-        let stats = appState.getMasteryStats(for: subject)
+        // Use cached data to avoid multiple DB fetches per render
+        let gardenItems = subject == .math ? cachedMathItems : cachedReadingItems
+        let stats = (subject == .math ? cachedMathStats : cachedReadingStats)
+            ?? MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
         let levels = appState.levels(for: subject)
         let iconName = subject == .math ? "🔢" : "📖"
         let title = subject == .math ? "NUMBER GARDEN" : "LETTER GARDEN"
@@ -234,13 +256,15 @@ struct ProgressScreen: View {
         .adaptiveShadow()
     }
 
-    /// Find which level an item belongs to based on its ID
+    /// Find which level an item belongs to using its stored levelId
     private func findLevel(for item: GardenItem, in levels: [LessonLevel]) -> Int? {
-        // Items have IDs like "count_3_stars" or "letter_A"
-        // Try to match to a level
-        guard let itemId = item.itemId else { return nil }
+        // Use the levelId stored from ItemMastery if available and unlocked
+        if let levelId = item.levelId,
+           levels.contains(where: { $0.id == levelId && $0.isUnlocked }) {
+            return levelId
+        }
 
-        // For simplicity, return level 1 - could be enhanced to match specific levels
+        // Fallback: return first unlocked level
         return levels.first(where: { $0.isUnlocked })?.id
     }
 

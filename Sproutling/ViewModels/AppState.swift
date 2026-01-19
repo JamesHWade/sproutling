@@ -8,6 +8,10 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import os.log
+
+/// Logger for AppState operations
+private let appStateLogger = Logger(subsystem: "com.sproutling.app", category: "AppState")
 
 @MainActor
 class AppState: ObservableObject {
@@ -61,9 +65,9 @@ class AppState: ObservableObject {
         do {
             try ctx?.save()
         } catch {
-            print("AppState: SwiftData save failed - \(error.localizedDescription)")
+            appStateLogger.error("SwiftData save failed: \(error.localizedDescription, privacy: .public)")
             #if DEBUG
-            print("AppState: Save error details - \(error)")
+            appStateLogger.debug("Save error details: \(String(describing: error), privacy: .public)")
             #endif
         }
     }
@@ -465,9 +469,15 @@ class AppState: ObservableObject {
 
     /// Fetches all mastery items for the current profile and subject
     /// Returns GardenItems for visualization in the garden view
+    /// Also returns the level ID for each item to enable direct navigation
     func getGardenItems(for subject: Subject) -> [GardenItem] {
-        guard let profileId = currentProfile?.id,
-              let modelContext = _modelContext else {
+        guard let profileId = currentProfile?.id else {
+            appStateLogger.debug("getGardenItems: No current profile")
+            return []
+        }
+
+        guard let modelContext = _modelContext else {
+            appStateLogger.warning("getGardenItems: ModelContext not initialized")
             return []
         }
 
@@ -490,11 +500,12 @@ class AppState: ObservableObject {
                     id: mastery.itemId,
                     label: label,
                     stage: mastery.growthStage,
-                    itemId: mastery.itemId
+                    itemId: mastery.itemId,
+                    levelId: mastery.levelId
                 )
             }
         } catch {
-            print("AppState: Error fetching garden items - \(error)")
+            appStateLogger.error("Error fetching garden items for \(subject.rawValue, privacy: .public): \(error.localizedDescription, privacy: .public)")
             return []
         }
     }
@@ -531,8 +542,13 @@ class AppState: ObservableObject {
 
     /// Gets mastery statistics for a subject
     func getMasteryStats(for subject: Subject) -> MasteryStats {
-        guard let profileId = currentProfile?.id,
-              let modelContext = _modelContext else {
+        guard let profileId = currentProfile?.id else {
+            appStateLogger.debug("getMasteryStats: No current profile")
+            return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
+        }
+
+        guard let modelContext = _modelContext else {
+            appStateLogger.warning("getMasteryStats: ModelContext not initialized")
             return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
         }
 

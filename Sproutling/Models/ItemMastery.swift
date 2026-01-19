@@ -96,7 +96,10 @@ final class ItemMastery {
     /// Level where this item appears (1-6)
     var levelId: Int = 0
 
-    /// Unique identifier for the card content (e.g., "num_3_apples", "letter_A_apple")
+    /// Unique identifier for the card content
+    /// Format varies by activity type:
+    /// - Numbers: "num_3_stars", "match_5", "count_10", "subit_3", "cmp_3_5"
+    /// - Letters: "letter_A_apple", "letmatch_B", "blend_cat", "vocab_dog"
     var itemId: String = ""
 
     /// Activity type string (e.g., "numberWithObjects", "letterCard")

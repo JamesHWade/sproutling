@@ -12,6 +12,11 @@ struct HomeScreen: View {
     @State private var showProfileSwitcher = false
     @State private var mascotReaction: MascotReaction?
 
+    // Cached garden data to prevent multiple DB fetches per render
+    @State private var cachedMathItems: [GardenItem] = []
+    @State private var cachedReadingItems: [GardenItem] = []
+    @State private var cachedPlantsNeedingWater: Int = 0
+
     // Generate context for mascot personality
     private var mascotContext: MascotContext {
         MascotContext(
@@ -77,7 +82,21 @@ struct HomeScreen: View {
             if mascotReaction == nil {
                 mascotReaction = MascotPersonality.shared.homeGreeting(context: mascotContext)
             }
+            // Load garden data once on appear
+            refreshGardenCache()
         }
+        .onChange(of: appState.currentProfile?.id) { _, _ in
+            // Refresh cache when profile changes
+            refreshGardenCache()
+        }
+    }
+
+    /// Refreshes the cached garden data from the database
+    private func refreshGardenCache() {
+        cachedMathItems = appState.getGardenItems(for: .math)
+        cachedReadingItems = appState.getGardenItems(for: .reading)
+        cachedPlantsNeedingWater = cachedMathItems.filter { $0.stage == .wilting }.count +
+                                   cachedReadingItems.filter { $0.stage == .wilting }.count
     }
 
     // MARK: - Header Section
@@ -178,10 +197,9 @@ struct HomeScreen: View {
 
     // MARK: - Garden Snapshot Widget
     private var gardenSnapshotWidget: some View {
-        let mathItems = appState.getGardenItems(for: .math)
-        let readingItems = appState.getGardenItems(for: .reading)
-        let allItems = mathItems + readingItems
-        let plantsNeedingWater = appState.getTotalPlantsNeedingWater()
+        // Use cached data to avoid multiple DB fetches per render
+        let allItems = cachedMathItems + cachedReadingItems
+        let plantsNeedingWater = cachedPlantsNeedingWater
 
         return VStack(spacing: 12) {
             HStack {
