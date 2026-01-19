@@ -209,6 +209,8 @@ struct ChildProfile: Identifiable, Equatable {
     var streakDays: Int
     var mathProgress: [Int: Int] // level: stars
     var readingProgress: [Int: Int]
+    var mathUnlockedLevels: Set<Int> // levels unlocked via Ready Check (level 1 always unlocked)
+    var readingUnlockedLevels: Set<Int>
     var isActive: Bool
 
     init(
@@ -220,6 +222,8 @@ struct ChildProfile: Identifiable, Equatable {
         streakDays: Int = 0,
         mathProgress: [Int: Int] = [:],
         readingProgress: [Int: Int] = [:],
+        mathUnlockedLevels: Set<Int> = [1], // Level 1 always unlocked
+        readingUnlockedLevels: Set<Int> = [1],
         isActive: Bool = false
     ) {
         self.id = id
@@ -230,6 +234,8 @@ struct ChildProfile: Identifiable, Equatable {
         self.streakDays = streakDays
         self.mathProgress = mathProgress
         self.readingProgress = readingProgress
+        self.mathUnlockedLevels = mathUnlockedLevels
+        self.readingUnlockedLevels = readingUnlockedLevels
         self.isActive = isActive
     }
 
@@ -243,6 +249,8 @@ struct ChildProfile: Identifiable, Equatable {
             streakDays: 3,
             mathProgress: [:],
             readingProgress: [:],
+            mathUnlockedLevels: [1],
+            readingUnlockedLevels: [1],
             isActive: true
         )
     }

@@ -547,23 +547,6 @@ struct ReadyCheckQuestion: Identifiable {
     let correctAnswer: String
 }
 
-// MARK: - AppState Extension for Level Unlocking
-
-extension AppState {
-    func unlockNextLevel(subject: Subject, level: Int) {
-        switch subject {
-        case .math:
-            if level < mathLevels.count {
-                mathLevels[level].isUnlocked = true
-            }
-        case .reading:
-            if level < readingLevels.count {
-                readingLevels[level].isUnlocked = true
-            }
-        }
-    }
-}
-
 // MARK: - Previews
 
 #Preview("Ready Check - Math") {

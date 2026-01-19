@@ -30,6 +30,10 @@ final class PersistedProfile {
     var mathProgressData: Data?
     var readingProgressData: Data?
 
+    // Store unlocked levels (levels passed via Ready Check)
+    var mathUnlockedLevelsData: Data?
+    var readingUnlockedLevelsData: Data?
+
     init(
         name: String = "Little Learner",
         totalStars: Int = 0,
@@ -52,6 +56,9 @@ final class PersistedProfile {
         self.lastSessionDate = nil
         self.mathProgressData = nil
         self.readingProgressData = nil
+        // Initialize with level 1 always unlocked
+        self.mathUnlockedLevelsData = try? JSONEncoder().encode([1])
+        self.readingUnlockedLevelsData = try? JSONEncoder().encode([1])
     }
 
     // MARK: - Progress Encoding/Decoding
@@ -73,6 +80,32 @@ final class PersistedProfile {
         }
         set {
             readingProgressData = try? JSONEncoder().encode(newValue)
+        }
+    }
+
+    var mathUnlockedLevels: Set<Int> {
+        get {
+            guard let data = mathUnlockedLevelsData,
+                  let array = try? JSONDecoder().decode([Int].self, from: data) else {
+                return [1] // Level 1 always unlocked
+            }
+            return Set(array)
+        }
+        set {
+            mathUnlockedLevelsData = try? JSONEncoder().encode(Array(newValue))
+        }
+    }
+
+    var readingUnlockedLevels: Set<Int> {
+        get {
+            guard let data = readingUnlockedLevelsData,
+                  let array = try? JSONDecoder().decode([Int].self, from: data) else {
+                return [1] // Level 1 always unlocked
+            }
+            return Set(array)
+        }
+        set {
+            readingUnlockedLevelsData = try? JSONEncoder().encode(Array(newValue))
         }
     }
 
@@ -115,6 +148,8 @@ final class PersistedProfile {
             streakDays: streakDays,
             mathProgress: mathProgress,
             readingProgress: readingProgress,
+            mathUnlockedLevels: mathUnlockedLevels,
+            readingUnlockedLevels: readingUnlockedLevels,
             isActive: isActive
         )
     }
@@ -129,6 +164,8 @@ final class PersistedProfile {
         streakDays = profile.streakDays
         mathProgress = profile.mathProgress
         readingProgress = profile.readingProgress
+        mathUnlockedLevels = profile.mathUnlockedLevels
+        readingUnlockedLevels = profile.readingUnlockedLevels
         isActive = profile.isActive
         lastModifiedAt = Date()
     }
@@ -152,6 +189,10 @@ final class PersistedProfile {
             mergedReading[level] = max(mergedReading[level] ?? 0, stars)
         }
         readingProgress = mergedReading
+
+        // Merge unlocked levels (union - never lose unlocked progress)
+        mathUnlockedLevels = mathUnlockedLevels.union(other.mathUnlockedLevels)
+        readingUnlockedLevels = readingUnlockedLevels.union(other.readingUnlockedLevels)
 
         // Name/avatar/background: last-write-wins based on lastModifiedAt
         if other.lastModifiedAt > lastModifiedAt {

@@ -318,24 +318,31 @@ class AppState: ObservableObject {
     private func restoreLevelProgress() {
         guard let profile = currentProfile else { return }
 
-        // Restore math level stars and unlock status
+        // Restore math level stars
         for (level, stars) in profile.mathProgress {
             if let index = mathLevels.firstIndex(where: { $0.id == level }) {
                 mathLevels[index].starsEarned = stars
-                // Unlock next level if earned at least 1 star
-                if stars >= 1 && index + 1 < mathLevels.count {
-                    mathLevels[index + 1].isUnlocked = true
-                }
             }
         }
 
-        // Restore reading level stars and unlock status
+        // Restore math level unlock status from persisted state
+        for levelId in profile.mathUnlockedLevels {
+            if let index = mathLevels.firstIndex(where: { $0.id == levelId }) {
+                mathLevels[index].isUnlocked = true
+            }
+        }
+
+        // Restore reading level stars
         for (level, stars) in profile.readingProgress {
             if let index = readingLevels.firstIndex(where: { $0.id == level }) {
                 readingLevels[index].starsEarned = stars
-                if stars >= 1 && index + 1 < readingLevels.count {
-                    readingLevels[index + 1].isUnlocked = true
-                }
+            }
+        }
+
+        // Restore reading level unlock status from persisted state
+        for levelId in profile.readingUnlockedLevels {
+            if let index = readingLevels.firstIndex(where: { $0.id == levelId }) {
+                readingLevels[index].isUnlocked = true
             }
         }
     }
@@ -391,26 +398,19 @@ class AppState: ObservableObject {
         // Update progress
         profile.totalStars += stars
 
-        // Update level stars
+        // Update level stars (unlocking is now handled via Ready Check)
         switch subject {
         case .math:
             if let index = mathLevels.firstIndex(where: { $0.id == level }) {
                 let newStars = max(mathLevels[index].starsEarned, stars)
                 mathLevels[index].starsEarned = newStars
                 profile.mathProgress[level] = newStars
-                // Unlock next level if earned at least 1 star
-                if stars >= 1 && index + 1 < mathLevels.count {
-                    mathLevels[index + 1].isUnlocked = true
-                }
             }
         case .reading:
             if let index = readingLevels.firstIndex(where: { $0.id == level }) {
                 let newStars = max(readingLevels[index].starsEarned, stars)
                 readingLevels[index].starsEarned = newStars
                 profile.readingProgress[level] = newStars
-                if stars >= 1 && index + 1 < readingLevels.count {
-                    readingLevels[index + 1].isUnlocked = true
-                }
             }
         }
 
@@ -427,6 +427,37 @@ class AppState: ObservableObject {
         case .math: return mathLevels
         case .reading: return readingLevels
         }
+    }
+
+    /// Unlock the next level after passing Ready Check
+    /// - Parameters:
+    ///   - subject: The subject (math or reading)
+    ///   - level: The current level ID that was just passed (next level will be unlocked)
+    func unlockNextLevel(subject: Subject, level: Int) {
+        guard var profile = currentProfile else { return }
+
+        let nextLevelId = level + 1
+
+        switch subject {
+        case .math:
+            // Update in-memory levels array
+            if let index = mathLevels.firstIndex(where: { $0.id == nextLevelId }) {
+                mathLevels[index].isUnlocked = true
+            }
+            // Persist to profile
+            profile.mathUnlockedLevels.insert(nextLevelId)
+
+        case .reading:
+            // Update in-memory levels array
+            if let index = readingLevels.firstIndex(where: { $0.id == nextLevelId }) {
+                readingLevels[index].isUnlocked = true
+            }
+            // Persist to profile
+            profile.readingUnlockedLevels.insert(nextLevelId)
+        }
+
+        currentProfile = profile
+        saveCurrentProfile()
     }
 
     // MARK: - Time Limit Management
