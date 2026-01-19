@@ -44,14 +44,19 @@ class AppState: ObservableObject {
     @Published var mathLevels: [LessonLevel] = LessonLevel.mathLevels()
     @Published var readingLevels: [LessonLevel] = LessonLevel.readingLevels()
 
-    private var modelContext: ModelContext?
+    private var _modelContext: ModelContext?
     private var persistedProfiles: [PersistedProfile] = []
     private var parentSettings: ParentSettings?
+
+    /// Exposes the model context for spaced repetition tracking
+    var modelContext: ModelContext? {
+        _modelContext
+    }
 
     // MARK: - Persistence Setup
 
     func setupPersistence(modelContext: ModelContext) {
-        self.modelContext = modelContext
+        self._modelContext = modelContext
         loadAllProfiles()
         loadParentSettings()
         checkiCloudStatus()
@@ -70,7 +75,7 @@ class AppState: ObservableObject {
 
             // Update the lastSyncDate to now since we just loaded
             parentSettings?.lastSyncDate = Date()
-            try? modelContext?.save()
+            try? _modelContext?.save()
         } else {
             // iCloud not available (not signed in or disabled)
             syncStatus = .idle
@@ -87,7 +92,7 @@ class AppState: ObservableObject {
     }
 
     private func loadParentSettings() {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
 
         let descriptor = FetchDescriptor<ParentSettings>()
         let settings = (try? modelContext.fetch(descriptor)) ?? []
@@ -105,7 +110,7 @@ class AppState: ObservableObject {
     // MARK: - Profile Management
 
     func loadAllProfiles() {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
 
         let descriptor = FetchDescriptor<PersistedProfile>(
             sortBy: [SortDescriptor(\.sortOrder)]
@@ -139,7 +144,7 @@ class AppState: ObservableObject {
     }
 
     func selectProfile(_ profile: ChildProfile) {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
 
         // Deactivate all profiles
         for persisted in persistedProfiles {
@@ -167,7 +172,7 @@ class AppState: ObservableObject {
     }
 
     func createProfile(name: String, avatarIndex: Int, backgroundIndex: Int = 0, makeActive: Bool = false) {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
 
         let newProfile = PersistedProfile(
             name: name,
@@ -199,7 +204,7 @@ class AppState: ObservableObject {
     }
 
     func updateProfile(_ profile: ChildProfile) {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
 
         if let persisted = persistedProfiles.first(where: { $0.profileId == profile.id }) {
             persisted.update(from: profile)
@@ -215,7 +220,7 @@ class AppState: ObservableObject {
     }
 
     func deleteProfile(_ profile: ChildProfile) {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
         guard profiles.count > 1 else { return } // Can't delete last profile
 
         if let persisted = persistedProfiles.first(where: { $0.profileId == profile.id }) {
@@ -239,7 +244,7 @@ class AppState: ObservableObject {
     }
 
     func reorderProfiles(_ indices: IndexSet, to destination: Int) {
-        guard let modelContext = modelContext else { return }
+        guard let modelContext = _modelContext else { return }
 
         var profilesCopy = profiles
         profilesCopy.move(fromOffsets: indices, toOffset: destination)
@@ -277,7 +282,7 @@ class AppState: ObservableObject {
         let success = KeychainManager.shared.savePIN(pin)
         if success {
             parentSettings?.requirePinForSettings = true
-            try? modelContext?.save()
+            try? _modelContext?.save()
             isPINVerified = true
         }
         return success
@@ -286,7 +291,7 @@ class AppState: ObservableObject {
     func clearPIN() {
         KeychainManager.shared.deletePIN()
         parentSettings?.requirePinForSettings = false
-        try? modelContext?.save()
+        try? _modelContext?.save()
         isPINVerified = false
     }
 
@@ -325,7 +330,7 @@ class AppState: ObservableObject {
         guard let profile = currentProfile,
               let persisted = persistedProfiles.first(where: { $0.profileId == profile.id }) else { return }
         persisted.update(from: profile)
-        try? modelContext?.save()
+        try? _modelContext?.save()
         profiles = persistedProfiles.map { $0.toChildProfile() }
         markSyncActivity()
     }
@@ -440,7 +445,7 @@ class AppState: ObservableObject {
         if let minutes = minutes {
             parentSettings?.dailyTimeLimitMinutes = minutes
         }
-        try? modelContext?.save()
+        try? _modelContext?.save()
         objectWillChange.send()
 
         // Check if limit is now reached

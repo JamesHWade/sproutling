@@ -38,6 +38,8 @@
 		ELEV000300000000001A /* AudioCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ELEV000400000000001A /* AudioCacheManager.swift */; };
 		MASC000100000000001A /* MascotPersonality.swift in Sources */ = {isa = PBXBuildFile; fileRef = MASC000200000000001A /* MascotPersonality.swift */; };
 		PRMP000100000000001A /* PromptTemplates.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRMP000200000000001A /* PromptTemplates.swift */; };
+		SREP000100000000001A /* ItemMastery.swift in Sources */ = {isa = PBXBuildFile; fileRef = SREP000200000000001A /* ItemMastery.swift */; };
+		SREP000300000000001A /* SpacedRepetitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SREP000400000000001A /* SpacedRepetitionManager.swift */; };
 		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +78,8 @@
 		ELEV000400000000001A /* AudioCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCacheManager.swift; sourceTree = "<group>"; };
 		MASC000200000000001A /* MascotPersonality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MascotPersonality.swift; sourceTree = "<group>"; };
 		PRMP000200000000001A /* PromptTemplates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptTemplates.swift; sourceTree = "<group>"; };
+		SREP000200000000001A /* ItemMastery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemMastery.swift; sourceTree = "<group>"; };
+		SREP000400000000001A /* SpacedRepetitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacedRepetitionManager.swift; sourceTree = "<group>"; };
 		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -121,6 +125,7 @@
 				00000012 /* Models.swift */,
 				0000001E /* PersistedProfile.swift */,
 				3407473A62DC4E634E62FC4F /* ParentSettings.swift */,
+				SREP000200000000001A /* ItemMastery.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -152,6 +157,7 @@
 				MASC000200000000001A /* MascotPersonality.swift */,
 				ELEV000400000000001A /* AudioCacheManager.swift */,
 				PRMP000200000000001A /* PromptTemplates.swift */,
+				SREP000400000000001A /* SpacedRepetitionManager.swift */,
 				19DC662D614F4B3791BB0761 /* AdaptiveColors.swift */,
 			);
 			path = Utilities;
@@ -334,6 +340,8 @@
 				ELEV000100000000001A /* ElevenLabsService.swift in Sources */,
 				ELEV000300000000001A /* AudioCacheManager.swift in Sources */,
 				PRMP000100000000001A /* PromptTemplates.swift in Sources */,
+				SREP000100000000001A /* ItemMastery.swift in Sources */,
+				SREP000300000000001A /* SpacedRepetitionManager.swift in Sources */,
 				BA6DFBD3EA235E7C69A8AFAD /* AdaptiveColors.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
