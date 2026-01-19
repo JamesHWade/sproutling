@@ -53,6 +53,20 @@ class AppState: ObservableObject {
         _modelContext
     }
 
+    /// Safely saves the model context with error logging
+    /// Use this instead of try? modelContext.save() to track failures
+    func saveContext(_ context: ModelContext? = nil) {
+        let ctx = context ?? _modelContext
+        do {
+            try ctx?.save()
+        } catch {
+            print("AppState: SwiftData save failed - \(error.localizedDescription)")
+            #if DEBUG
+            print("AppState: Save error details - \(error)")
+            #endif
+        }
+    }
+
     // MARK: - Persistence Setup
 
     func setupPersistence(modelContext: ModelContext) {
@@ -75,7 +89,7 @@ class AppState: ObservableObject {
 
             // Update the lastSyncDate to now since we just loaded
             parentSettings?.lastSyncDate = Date()
-            try? _modelContext?.save()
+            saveContext()
         } else {
             // iCloud not available (not signed in or disabled)
             syncStatus = .idle
@@ -103,7 +117,7 @@ class AppState: ObservableObject {
             let newSettings = ParentSettings()
             modelContext.insert(newSettings)
             parentSettings = newSettings
-            try? modelContext.save()
+            saveContext(modelContext)
         }
     }
 
@@ -131,7 +145,7 @@ class AppState: ObservableObject {
             firstProfile.updateStreak()
             currentProfile = firstProfile.toChildProfile()
             restoreLevelProgress()
-            try? modelContext.save()
+            saveContext(modelContext)
         } else {
             // No profiles exist, create initial one
             createProfile(name: "Little Learner", avatarIndex: 0, makeActive: true)
@@ -162,7 +176,7 @@ class AppState: ObservableObject {
             readingLevels = LessonLevel.readingLevels()
             restoreLevelProgress()
 
-            try? modelContext.save()
+            saveContext(modelContext)
 
             // Update profiles array
             profiles = persistedProfiles.map { $0.toChildProfile() }
@@ -199,7 +213,7 @@ class AppState: ObservableObject {
             readingLevels = LessonLevel.readingLevels()
         }
 
-        try? modelContext.save()
+        saveContext(modelContext)
         profiles = persistedProfiles.map { $0.toChildProfile() }
     }
 
@@ -208,7 +222,7 @@ class AppState: ObservableObject {
 
         if let persisted = persistedProfiles.first(where: { $0.profileId == profile.id }) {
             persisted.update(from: profile)
-            try? modelContext.save()
+            saveContext(modelContext)
 
             // Update current profile if it's the one being edited
             if currentProfile?.id == profile.id {
@@ -238,7 +252,7 @@ class AppState: ObservableObject {
                 }
             }
 
-            try? modelContext.save()
+            saveContext(modelContext)
             profiles = persistedProfiles.map { $0.toChildProfile() }
         }
     }
@@ -256,7 +270,7 @@ class AppState: ObservableObject {
             }
         }
 
-        try? modelContext.save()
+        saveContext(modelContext)
         profiles = profilesCopy
     }
 
@@ -282,7 +296,7 @@ class AppState: ObservableObject {
         let success = KeychainManager.shared.savePIN(pin)
         if success {
             parentSettings?.requirePinForSettings = true
-            try? _modelContext?.save()
+            saveContext()
             isPINVerified = true
         }
         return success
@@ -291,7 +305,7 @@ class AppState: ObservableObject {
     func clearPIN() {
         KeychainManager.shared.deletePIN()
         parentSettings?.requirePinForSettings = false
-        try? _modelContext?.save()
+        saveContext()
         isPINVerified = false
     }
 
@@ -330,7 +344,7 @@ class AppState: ObservableObject {
         guard let profile = currentProfile,
               let persisted = persistedProfiles.first(where: { $0.profileId == profile.id }) else { return }
         persisted.update(from: profile)
-        try? _modelContext?.save()
+        saveContext()
         profiles = persistedProfiles.map { $0.toChildProfile() }
         markSyncActivity()
     }
@@ -445,7 +459,7 @@ class AppState: ObservableObject {
         if let minutes = minutes {
             parentSettings?.dailyTimeLimitMinutes = minutes
         }
-        try? _modelContext?.save()
+        saveContext()
         objectWillChange.send()
 
         // Check if limit is now reached

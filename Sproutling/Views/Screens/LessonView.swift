@@ -346,14 +346,25 @@ class LessonState: ObservableObject {
         // Update mastery with the result
         SpacedRepetitionManager.shared.updateMastery(mastery, quality: quality)
 
-        // Update average response time
-        if mastery.totalAttempts > 0 {
-            let oldTotal = mastery.averageResponseTime * Double(mastery.totalAttempts - 1)
-            mastery.averageResponseTime = (oldTotal + responseTime) / Double(mastery.totalAttempts)
+        // Update average response time using running average formula
+        // After updateMastery: totalAttempts = N (includes this attempt)
+        // oldAverage was computed from N-1 attempts, so:
+        // newAverage = (oldAverage * (N-1) + newTime) / N
+        let currentTotal = mastery.totalAttempts
+        if currentTotal > 1 {
+            let oldTotal = mastery.averageResponseTime * Double(currentTotal - 1)
+            mastery.averageResponseTime = (oldTotal + responseTime) / Double(currentTotal)
+        } else {
+            // First attempt - just use the response time directly
+            mastery.averageResponseTime = responseTime
         }
 
-        // Save changes
-        try? modelContext.save()
+        // Save changes with error logging
+        do {
+            try modelContext.save()
+        } catch {
+            print("LessonView: Failed to save mastery data - \(error.localizedDescription)")
+        }
     }
 
     func nextCard(appState: AppState, subject: Subject, level: Int) {

@@ -10,6 +10,77 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+// MARK: - Growth Stage Enum
+
+/// Represents the visual growth stage of a learning item in the garden metaphor
+/// Maps to mastery levels and provides visual feedback to children
+enum GrowthStage: String, CaseIterable, Codable {
+    case seed       // 🌰 Not started - no attempts
+    case planted    // 🌱 Learning - < 50% accuracy
+    case growing    // 🌿 Improving - 50-79% accuracy
+    case budding    // 🌷 Almost there - 80-89% accuracy
+    case bloomed    // 🌸 Mastered - 90%+ accuracy, retained over time
+    case wilting    // 🥀 Needs review - was mastered but declining
+
+    /// The emoji representation of this growth stage
+    var emoji: String {
+        switch self {
+        case .seed: return "🌰"
+        case .planted: return "🌱"
+        case .growing: return "🌿"
+        case .budding: return "🌷"
+        case .bloomed: return "🌸"
+        case .wilting: return "🥀"
+        }
+    }
+
+    /// Display name for the growth stage
+    var displayName: String {
+        switch self {
+        case .seed: return "Seed"
+        case .planted: return "Planted"
+        case .growing: return "Growing"
+        case .budding: return "Budding"
+        case .bloomed: return "Bloomed"
+        case .wilting: return "Needs Water"
+        }
+    }
+
+    /// Color associated with this growth stage
+    var color: Color {
+        switch self {
+        case .seed: return .brown
+        case .planted: return .green.opacity(0.6)
+        case .growing: return .green
+        case .budding: return .pink.opacity(0.8)
+        case .bloomed: return .pink
+        case .wilting: return .orange
+        }
+    }
+
+    /// Whether this stage represents mastery
+    var isMastered: Bool {
+        self == .bloomed
+    }
+
+    /// Whether this stage needs attention/review
+    var needsAttention: Bool {
+        self == .wilting || self == .seed
+    }
+
+    /// Order for sorting (lower = earlier stage)
+    var sortOrder: Int {
+        switch self {
+        case .seed: return 0
+        case .planted: return 1
+        case .growing: return 2
+        case .budding: return 3
+        case .bloomed: return 4
+        case .wilting: return 5  // Sort last so they stand out
+        }
+    }
+}
+
 /// Tracks mastery state for a single learning item (e.g., "number 3 with apples" or "letter A")
 /// Uses a child-friendly adaptation of the SM-2 spaced repetition algorithm
 @Model
@@ -131,6 +202,48 @@ final class ItemMastery {
         if repetitions >= 2 && easeFactor >= 1.8 { return 2 }
         if repetitions >= 1 { return 1 }
         return 0
+    }
+
+    /// Growth stage for the garden visualization
+    /// Derived from accuracy and retention metrics
+    var growthStage: GrowthStage {
+        // Check for wilting first - was previously mastered but now overdue
+        if let lastReview = lastReviewDate,
+           let nextReview = nextReviewDate,
+           isMastered || (repetitions >= 2 && accuracy >= 80) {
+            // Item was doing well but is now significantly overdue
+            let daysSinceReview = Calendar.current.dateComponents([.day], from: lastReview, to: Date()).day ?? 0
+            let daysOverdue = Calendar.current.dateComponents([.day], from: nextReview, to: Date()).day ?? 0
+
+            // Wilting if overdue by more than 3 days and was previously doing well
+            if daysOverdue > 3 && daysSinceReview > 7 {
+                return .wilting
+            }
+        }
+
+        // No attempts yet = seed
+        guard totalAttempts > 0 else { return .seed }
+
+        // Check accuracy thresholds
+        let acc = accuracy
+
+        // Bloomed: 90%+ accuracy with retention (at least 3 reps and good ease)
+        if acc >= 90 && repetitions >= 3 && easeFactor >= 2.0 {
+            return .bloomed
+        }
+
+        // Budding: 80-89% accuracy
+        if acc >= 80 {
+            return .budding
+        }
+
+        // Growing: 50-79% accuracy
+        if acc >= 50 {
+            return .growing
+        }
+
+        // Planted: < 50% accuracy but has attempts
+        return .planted
     }
 }
 
