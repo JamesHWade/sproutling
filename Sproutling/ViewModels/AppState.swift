@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+@MainActor
 class AppState: ObservableObject {
     // MARK: - Navigation
     @Published var currentScreen: Screen = .home
@@ -458,6 +459,89 @@ class AppState: ObservableObject {
 
         currentProfile = profile
         saveCurrentProfile()
+    }
+
+    // MARK: - Garden Data Access
+
+    /// Fetches all mastery items for the current profile and subject
+    /// Returns GardenItems for visualization in the garden view
+    func getGardenItems(for subject: Subject) -> [GardenItem] {
+        guard let profileId = currentProfile?.id,
+              let modelContext = _modelContext else {
+            return []
+        }
+
+        let subjectString = subject == .math ? "math" : "reading"
+
+        let predicate = #Predicate<ItemMastery> { item in
+            item.profileId == profileId &&
+            item.subject == subjectString
+        }
+
+        var descriptor = FetchDescriptor<ItemMastery>(predicate: predicate)
+        descriptor.sortBy = [SortDescriptor(\.itemId)]
+
+        do {
+            let items = try modelContext.fetch(descriptor)
+            return items.map { mastery in
+                // Extract a display label from the itemId
+                let label = extractLabel(from: mastery.itemId, subject: subject)
+                return GardenItem(
+                    id: mastery.itemId,
+                    label: label,
+                    stage: mastery.growthStage,
+                    itemId: mastery.itemId
+                )
+            }
+        } catch {
+            print("AppState: Error fetching garden items - \(error)")
+            return []
+        }
+    }
+
+    /// Extracts a user-friendly label from an item ID
+    private func extractLabel(from itemId: String, subject: Subject) -> String {
+        // Item IDs are like "count_3_stars", "letter_A", etc.
+        if subject == .math {
+            // Try to extract number from math item IDs
+            let components = itemId.split(separator: "_")
+            if components.count >= 2, let number = Int(components[1]) {
+                return "\(number)"
+            }
+        } else {
+            // Try to extract letter from reading item IDs
+            let components = itemId.split(separator: "_")
+            if components.count >= 2 {
+                return String(components[1]).uppercased()
+            }
+        }
+        return itemId
+    }
+
+    /// Gets count of plants that need watering (wilting or significantly overdue)
+    func getPlantsNeedingWater(for subject: Subject) -> Int {
+        let items = getGardenItems(for: subject)
+        return items.filter { $0.stage == .wilting }.count
+    }
+
+    /// Gets total plants needing water across all subjects
+    func getTotalPlantsNeedingWater() -> Int {
+        getPlantsNeedingWater(for: .math) + getPlantsNeedingWater(for: .reading)
+    }
+
+    /// Gets mastery statistics for a subject
+    func getMasteryStats(for subject: Subject) -> MasteryStats {
+        guard let profileId = currentProfile?.id,
+              let modelContext = _modelContext else {
+            return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
+        }
+
+        let subjectString = subject == .math ? "math" : "reading"
+        return SpacedRepetitionManager.shared.getMasteryStats(
+            profileId: profileId,
+            subject: subjectString,
+            modelContext: modelContext
+        )
     }
 
     // MARK: - Time Limit Management

@@ -23,7 +23,7 @@ struct ProgressScreen: View {
             VStack(spacing: 0) {
                 // Navigation bar
                 SproutlingNavBar(
-                    title: "My Progress",
+                    title: "My Garden",
                     onBack: { appState.goHome() }
                 )
 
@@ -32,14 +32,23 @@ struct ProgressScreen: View {
                         // Overview card
                         overviewCard
 
-                        // Subject progress
-                        subjectProgressSection
+                        // Number Garden
+                        gardenSection(for: .math)
+
+                        // Letter Garden
+                        gardenSection(for: .reading)
 
                         // Achievements
                         achievementsSection
 
                         // Areas to practice
                         areasToImproveSection
+
+                        // Tip
+                        Text("💡 Tap any plant to practice it!")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 8)
 
                         Spacer().frame(height: 40)
                     }
@@ -129,21 +138,110 @@ struct ProgressScreen: View {
         return mathCompleted + readingCompleted
     }
 
-    // MARK: - Subject Progress Section
-    private var subjectProgressSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Subject Progress")
-                .font(.title3)
-                .fontWeight(.bold)
-                .accessibilityAddTraits(.isHeader)
+    // MARK: - Garden Section
+    private func gardenSection(for subject: Subject) -> some View {
+        let gardenItems = appState.getGardenItems(for: subject)
+        let stats = appState.getMasteryStats(for: subject)
+        let levels = appState.levels(for: subject)
+        let iconName = subject == .math ? "🔢" : "📖"
+        let title = subject == .math ? "NUMBER GARDEN" : "LETTER GARDEN"
 
-            ForEach(Subject.allCases) { subject in
-                SubjectProgressCard(
-                    subject: subject,
-                    levels: appState.levels(for: subject)
-                )
+        return VStack(alignment: .leading, spacing: 16) {
+            // Header
+            HStack {
+                Text("\(iconName) \(title)")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                Spacer()
+
+                Button(action: {
+                    appState.selectSubject(subject)
+                }) {
+                    Text("Practice")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 4)
+                        .background(Capsule().fill(subject.gradient.first ?? .blue))
+                }
+            }
+
+            // Garden Grid
+            if gardenItems.isEmpty {
+                // Empty state
+                VStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        ForEach(0..<10, id: \.self) { _ in
+                            Text("·")
+                                .font(.title)
+                                .foregroundColor(.gray.opacity(0.3))
+                        }
+                    }
+                    Text("Start learning to plant seeds!")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+            } else {
+                GardenGridView(
+                    items: gardenItems,
+                    columns: subject == .math ? 5 : 6,
+                    plantSize: 40,
+                    showLabels: true
+                ) { item in
+                    // Tap to practice - navigate to appropriate level
+                    if let level = findLevel(for: item, in: levels) {
+                        appState.startLesson(subject: subject, level: level)
+                    } else {
+                        appState.selectSubject(subject)
+                    }
+                }
+            }
+
+            // Summary row
+            HStack(spacing: 16) {
+                if stats.totalItems > 0 {
+                    Label("\(stats.masteredItems) mastered", systemImage: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundColor(.green)
+
+                    if stats.strugglingItems > 0 {
+                        Label("\(stats.strugglingItems) need help", systemImage: "exclamationmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.orange)
+                    }
+
+                    Spacer()
+
+                    Text("\(Int(stats.overallAccuracy))% accuracy")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("No items practiced yet")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+        )
+        .adaptiveShadow()
+    }
+
+    /// Find which level an item belongs to based on its ID
+    private func findLevel(for item: GardenItem, in levels: [LessonLevel]) -> Int? {
+        // Items have IDs like "count_3_stars" or "letter_A"
+        // Try to match to a level
+        guard let itemId = item.itemId else { return nil }
+
+        // For simplicity, return level 1 - could be enhanced to match specific levels
+        return levels.first(where: { $0.isUnlocked })?.id
     }
 
     // MARK: - Achievements Section

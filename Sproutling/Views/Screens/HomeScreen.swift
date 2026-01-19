@@ -43,6 +43,9 @@ struct HomeScreen: View {
                     // Header
                     headerSection
 
+                    // Garden snapshot widget
+                    gardenSnapshotWidget
+
                     // Streak indicator
                     streakCard
 
@@ -171,6 +174,97 @@ struct HomeScreen: View {
         // Use stored reaction to avoid flickering (set in onAppear)
         let reaction = mascotReaction ?? MascotReaction(.happy, "Let's learn something fun!")
         return MascotView(emotion: reaction.emotion, message: reaction.message)
+    }
+
+    // MARK: - Garden Snapshot Widget
+    private var gardenSnapshotWidget: some View {
+        let mathItems = appState.getGardenItems(for: .math)
+        let readingItems = appState.getGardenItems(for: .reading)
+        let allItems = mathItems + readingItems
+        let plantsNeedingWater = appState.getTotalPlantsNeedingWater()
+
+        return VStack(spacing: 12) {
+            HStack {
+                Text("🌻 Your Garden Today")
+                    .font(.headline)
+                    .fontWeight(.bold)
+
+                Spacer()
+
+                Button(action: {
+                    appState.goToProgress()
+                }) {
+                    Text("See All")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            if allItems.isEmpty {
+                // Empty state - encourage first lesson
+                VStack(spacing: 8) {
+                    Text("🌱")
+                        .font(.system(size: 40))
+                    Text("Start learning to grow your garden!")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.vertical, 20)
+            } else {
+                // Garden summary with plant emojis
+                HStack(spacing: 4) {
+                    ForEach(allItems.prefix(12)) { item in
+                        Text(item.stage.emoji)
+                            .font(.system(size: 20))
+                    }
+                    if allItems.count > 12 {
+                        Text("...")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Summary text
+                GardenSummaryView(items: allItems)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Plants needing water alert
+                if plantsNeedingWater > 0 {
+                    Button(action: {
+                        // Navigate to progress to see which plants need water
+                        appState.goToProgress()
+                    }) {
+                        HStack(spacing: 8) {
+                            Text("🥀")
+                                .font(.subheadline)
+                            Text("\(plantsNeedingWater) plant\(plantsNeedingWater == 1 ? "" : "s") need\(plantsNeedingWater == 1 ? "s" : "") water!")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundColor(.orange)
+                            Spacer()
+                            Text("Water Now")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 4)
+                                .background(Capsule().fill(Color.orange))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.cardBackground)
+        )
+        .adaptiveShadow()
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Your garden today. \(allItems.count) plants total. \(plantsNeedingWater) plants need water.")
     }
 
     // MARK: - Streak Card
