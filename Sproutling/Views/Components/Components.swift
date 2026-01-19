@@ -972,9 +972,10 @@ struct QuickPracticeButtonStyle: ButtonStyle {
     }
 }
 
-// MARK: - Color Extension for Amber
+// MARK: - Color Extensions
 extension Color {
     static let amber = Color(red: 1.0, green: 0.75, blue: 0.0)
+    static let cardBackground = Color(uiColor: .systemBackground)
 }
 
 // MARK: - Shake Animation Modifier
@@ -1073,3 +1074,13 @@ extension View {
         modifier(PopInModifier(delay: delay))
     }
 }
+// MARK: - Adaptive Shadow Modifier
+extension View {
+    func adaptiveShadow() -> some View {
+        self
+            .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 4)
+            .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 2)
+    }
+}
+
+
