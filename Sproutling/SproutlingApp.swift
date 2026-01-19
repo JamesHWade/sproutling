@@ -80,6 +80,10 @@ struct ContentView: View {
                 LessonCompleteScreen(subject: subject, stars: stars)
                     .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
 
+            case .readyCheck(let subject, let level):
+                ReadyCheckView(subject: subject, level: level)
+                    .transition(reduceMotion ? .opacity : .move(edge: .trailing))
+
             case .profileSelection:
                 ProfileSelectionScreen()
                     .transition(reduceMotion ? .opacity : .opacity)

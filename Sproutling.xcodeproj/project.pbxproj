@@ -42,6 +42,7 @@
 		SREP000300000000001A /* SpacedRepetitionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = SREP000400000000001A /* SpacedRepetitionManager.swift */; };
 		TFBS000200000000001A /* TimeForBreakScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = TFBS000100000000001A /* TimeForBreakScreen.swift */; };
 		GARD000100000000001A /* GardenComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = GARD000200000000001A /* GardenComponents.swift */; };
+		RDCK000100000000001A /* ReadyCheckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = RDCK000200000000001A /* ReadyCheckView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -83,6 +84,7 @@
 		SREP000400000000001A /* SpacedRepetitionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpacedRepetitionManager.swift; sourceTree = "<group>"; };
 		TFBS000100000000001A /* TimeForBreakScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeForBreakScreen.swift; sourceTree = "<group>"; };
 		GARD000200000000001A /* GardenComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GardenComponents.swift; sourceTree = "<group>"; };
+		RDCK000200000000001A /* ReadyCheckView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadyCheckView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +208,7 @@
 				7275FDA9F6FE2347826C5F2A /* ParentPINSheet.swift */,
 				7923DC5E3AE4284778026FE5 /* ProfileManagementScreen.swift */,
 				TFBS000100000000001A /* TimeForBreakScreen.swift */,
+				RDCK000200000000001A /* ReadyCheckView.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -347,6 +350,7 @@
 				SREP000300000000001A /* SpacedRepetitionManager.swift in Sources */,
 				BA6DFBD3EA235E7C69A8AFAD /* AdaptiveColors.swift in Sources */,
 				GARD000100000000001A /* GardenComponents.swift in Sources */,
+				RDCK000100000000001A /* ReadyCheckView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

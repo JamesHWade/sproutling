@@ -16,6 +16,7 @@ enum Screen: Equatable {
     case subjectSelection(Subject)
     case lesson(Subject, Int)
     case lessonComplete(Subject, Int)
+    case readyCheck(Subject, Int)
     case profileSelection
     case profileManagement
     case timeForBreak
