@@ -656,7 +656,9 @@ class AppState: ObservableObject {
         // Start timer to track usage every second
         usageTimer?.invalidate()
         usageTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.incrementUsage()
+            Task { @MainActor in
+                self?.incrementUsage()
+            }
         }
     }
 
