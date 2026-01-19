@@ -180,6 +180,7 @@ class AppState: ObservableObject {
             // Reset and restore level progress for this profile
             mathLevels = LessonLevel.mathLevels()
             readingLevels = LessonLevel.readingLevels()
+            shapesLevels = LessonLevel.shapesLevels()
             restoreLevelProgress()
 
             saveContext(modelContext)
@@ -217,6 +218,7 @@ class AppState: ObservableObject {
             currentProfile = newProfile.toChildProfile()
             mathLevels = LessonLevel.mathLevels()
             readingLevels = LessonLevel.readingLevels()
+            shapesLevels = LessonLevel.shapesLevels()
         }
 
         saveContext(modelContext)
@@ -254,6 +256,7 @@ class AppState: ObservableObject {
                     currentProfile = firstRemaining.toChildProfile()
                     mathLevels = LessonLevel.mathLevels()
                     readingLevels = LessonLevel.readingLevels()
+                    shapesLevels = LessonLevel.shapesLevels()
                     restoreLevelProgress()
                 }
             }
@@ -511,7 +514,12 @@ class AppState: ObservableObject {
             return []
         }
 
-        let subjectString = subject == .math ? "math" : "reading"
+        let subjectString: String
+        switch subject {
+        case .math: subjectString = "math"
+        case .reading: subjectString = "reading"
+        case .shapes: subjectString = "shapes"
+        }
 
         let predicate = #Predicate<ItemMastery> { item in
             item.profileId == profileId &&
@@ -582,7 +590,12 @@ class AppState: ObservableObject {
             return MasteryStats(totalItems: 0, masteredItems: 0, strugglingItems: 0, dueForReview: 0, overallAccuracy: 0)
         }
 
-        let subjectString = subject == .math ? "math" : "reading"
+        let subjectString: String
+        switch subject {
+        case .math: subjectString = "math"
+        case .reading: subjectString = "reading"
+        case .shapes: subjectString = "shapes"
+        }
         return SpacedRepetitionManager.shared.getMasteryStats(
             profileId: profileId,
             subject: subjectString,

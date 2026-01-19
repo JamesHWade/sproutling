@@ -99,7 +99,8 @@ struct ShapeCardActivity: View {
                             endPoint: .bottom
                         )
                     )
-                    .modifier(showName ? BounceModifier() : BounceModifier())
+                    .scaleEffect(showName ? 1.1 : 1.0)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showName)
 
                 // Emoji representation
                 Text(emoji)
@@ -150,11 +151,7 @@ struct ShapeCardActivity: View {
 
     private func revealShape() {
         guard !showName else {
-            if !completed {
-                completed = true
-                onCorrect()
-                lessonState.handleCorrectWithTTS()
-            }
+            // Already revealed, tapping again to proceed
             return
         }
 
@@ -173,8 +170,9 @@ struct ShapeCardActivity: View {
             )
         }
 
-        // Mark correct after delay
+        // Mark correct after delay (only call once)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            guard !completed else { return }
             completed = true
             onCorrect()
             SoundManager.shared.playSound(.correct)
@@ -398,11 +396,7 @@ struct ColorCardActivity: View {
 
     private func revealColor() {
         guard !showName else {
-            if !completed {
-                completed = true
-                onCorrect()
-                lessonState.handleCorrectWithTTS()
-            }
+            // Already revealed, tapping again to proceed
             return
         }
 
@@ -421,8 +415,9 @@ struct ColorCardActivity: View {
             )
         }
 
-        // Mark correct after delay
+        // Mark correct after delay (only call once)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            guard !completed else { return }
             completed = true
             onCorrect()
             SoundManager.shared.playSound(.correct)
